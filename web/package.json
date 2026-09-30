@@ -8,8 +8,7 @@
     "build": "tsc && vite build",
     "test:e2e": "playwright test",
     "preview": "vite preview",
-    "generate-icons": "node scripts/generate-icons.js",
-    "build:showcase": "node scripts/build-showcase.mjs"
+    "generate-icons": "node scripts/generate-icons.js"
   },
   "dependencies": {
     "@tanstack/react-virtual": "^3.0.0",
@@ -66,5 +65,5 @@
     "url": "https://github.com/yetuge/fintrace/issues"
   },
   "author": "yetuge",
-  "description": "Multi-source financial research agent with traceable evidence, scope checks and cited reports."
+  "description": "Financial research agent workbench powered by Pi Runtime, with agents, workspaces, sessions, memory and tools."
 }

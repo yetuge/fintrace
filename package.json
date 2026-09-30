@@ -1,7 +1,7 @@
 {
   "name": "fintrace",
   "version": "1.0.0",
-  "description": "Multi-source financial research agent with traceable evidence, scope checks and cited reports.",
+  "description": "Financial research agent workbench powered by Pi Runtime, with agents, workspaces, sessions, memory and tools.",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
@@ -29,8 +29,7 @@
     "desktop:dev": "npm run desktop:build && electron electron",
     "desktop:package": "npm run build:all && npm run desktop:build && electron-builder --projectDir electron --config electron-builder.yml",
     "desktop:package:dir": "npm run build:all && npm run desktop:build && electron-builder --dir --projectDir electron --config electron-builder.yml",
-    "build:showcase": "npm --prefix web run build:showcase",
-    "test:showcase": "node web/node_modules/vitest/vitest.mjs run --config web/vitest.config.ts"
+    "test:frontend": "node web/node_modules/vitest/vitest.mjs run --config web/vitest.config.ts"
   },
   "dependencies": {
     "@earendil-works/pi-coding-agent": "0.84.2",

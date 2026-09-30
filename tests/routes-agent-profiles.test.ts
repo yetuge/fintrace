@@ -128,7 +128,9 @@ beforeAll(() => {
   );
 });
 
-afterAll(() => {
+afterAll(async () => {
+  const { closeDatabase } = await import('../src/db.js');
+  closeDatabase();
   fs.rmSync(tmpDir, { recursive: true, force: true });
 });
 

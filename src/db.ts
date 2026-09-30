@@ -4098,7 +4098,7 @@ export function getUsageAnalytics(filters: UsageQueryFilters): {
         ? `COALESCE(
             (SELECT a.name FROM agents a WHERE a.id = r.agent_id LIMIT 1),
             (SELECT ap.name FROM agent_profiles ap WHERE ap.id = r.agent_id LIMIT 1),
-            CAST(r.agent_id AS TEXT), 'Miniclaw')`
+            CAST(r.agent_id AS TEXT), 'FinTrace')`
         : column === 'group_folder'
           ? `COALESCE(
               (SELECT rg.name FROM registered_groups rg
@@ -8721,7 +8721,7 @@ export function commitAgentBuilderDraft(
   })();
 }
 
-const DEFAULT_AGENT_PROFILE_NAME = 'Miniclaw';
+const DEFAULT_AGENT_PROFILE_NAME = 'FinTrace';
 const LEGACY_DEFAULT_AGENT_PROFILE_NAMES = ['Default Agent'];
 
 export function getOrCreateDefaultAgentProfile(userId: string): AgentProfile {
@@ -9064,7 +9064,7 @@ export function assignWorkspaceAgentProfile(
       const defaultProfile = getOrCreateDefaultAgentProfile(home.created_by);
       if (profileId !== defaultProfile.id) {
         throw new Error(
-          'Home Workspace must remain bound to the built-in Miniclaw Agent',
+          'Home Workspace must remain bound to the built-in FinTrace Agent',
         );
       }
     }

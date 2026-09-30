@@ -43,7 +43,9 @@ beforeAll(() => {
   initDatabase();
 });
 
-afterAll(() => {
+afterAll(async () => {
+  const { closeDatabase } = await import('../src/db.js');
+  closeDatabase();
   fs.rmSync(tmpDir, { recursive: true, force: true });
 });
 
@@ -70,7 +72,7 @@ describe('AgentProfile DB model', () => {
 
     expect(profiles).toHaveLength(1);
     expect(profiles[0].is_default).toBe(true);
-    expect(profiles[0].name).toBe('Miniclaw');
+    expect(profiles[0].name).toBe('FinTrace');
     expect(profiles[0].identity_prompt).toBe('');
     expect(profiles[0].include_claude_preset).toBe(true);
     expect(profiles[0].model_config_id).toBeNull();
@@ -85,11 +87,11 @@ describe('AgentProfile DB model', () => {
       mcp: { mode: 'inherit', ids: [] },
     });
     expect(profiles[0].identity_hash).toBe(
-      computeAgentProfileIdentityHash('', true, undefined, 'Miniclaw'),
+      computeAgentProfileIdentityHash('', true, undefined, 'FinTrace'),
     );
   });
 
-  test('persists admin Miniclaw as managed; global host policy is resolved at runtime', () => {
+  test('persists admin FinTrace as managed; global host policy is resolved at runtime', () => {
     const userId = 'agent-profile-admin-context';
     seedUser(userId, 'admin');
 
@@ -154,7 +156,7 @@ describe('AgentProfile DB model', () => {
     expect(legacy?.name).toBe('Default Agent');
 
     const migrated = listAgentProfilesForUser(userId)[0];
-    expect(migrated.name).toBe('Miniclaw');
+    expect(migrated.name).toBe('FinTrace');
     expect(migrated.version).toBe((legacy?.version ?? 0) + 1);
     expect(listAgentProfilePromptVersions(migrated.id, userId)).toHaveLength(1);
     expect(migrated.identity_hash).toBe(
@@ -162,7 +164,7 @@ describe('AgentProfile DB model', () => {
         migrated.identity_prompt,
         migrated.include_claude_preset,
         migrated.runtime_policy,
-        'Miniclaw',
+        'FinTrace',
       ),
     );
 
@@ -172,18 +174,18 @@ describe('AgentProfile DB model', () => {
     expect(listAgentProfilesForUser(userId)[0].name).toBe(custom?.name);
   });
 
-  test('keeps the current Miniclaw default name stable', () => {
+  test('keeps the current FinTrace default name stable', () => {
     const userId = 'agent-profile-user-pre-rename';
     seedUser(userId);
     const original = listAgentProfilesForUser(userId)[0];
 
     const legacy = updateAgentProfile(original.id, userId, {
-      name: 'Miniclaw',
+      name: 'FinTrace',
     });
-    expect(legacy?.name).toBe('Miniclaw');
+    expect(legacy?.name).toBe('FinTrace');
 
     const migrated = listAgentProfilesForUser(userId)[0];
-    expect(migrated.name).toBe('Miniclaw');
+    expect(migrated.name).toBe('FinTrace');
     expect(migrated.version).toBe(legacy?.version);
   });
 
@@ -239,7 +241,7 @@ describe('AgentProfile DB model', () => {
     );
   });
 
-  test('permanently binds Home Workspace to the built-in Miniclaw', () => {
+  test('permanently binds Home Workspace to the built-in FinTrace', () => {
     const userId = 'agent-profile-home-owner';
     seedUser(userId);
     const homeJid = ensureUserHomeGroup(userId, 'member', userId);
@@ -252,7 +254,7 @@ describe('AgentProfile DB model', () => {
 
     expect(getWorkspaceAgentProfileId(home.folder)).toBe(builtIn.id);
     expect(() => assignWorkspaceAgentProfile(home.folder, custom.id)).toThrow(
-      'Home Workspace must remain bound to the built-in Miniclaw Agent',
+      'Home Workspace must remain bound to the built-in FinTrace Agent',
     );
 
     // Simulate a legacy database written before the invariant existed.

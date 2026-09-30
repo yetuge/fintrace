@@ -1,4 +1,4 @@
-name: Showcase CI
+name: Frontend CI
 on:
   pull_request:
   push:
@@ -17,6 +17,6 @@ jobs:
           cache: npm
           cache-dependency-path: web/package-lock.json
       - run: npm --prefix web ci
-      - run: npm run test:showcase
+      - run: npm run test:frontend
+      - run: npm run docs:check
       - run: npm run build:web
-      - run: npm run build:showcase

@@ -6,7 +6,6 @@ import {
   BarChart3,
   Wallet,
   Settings,
-  BookOpen,
 } from 'lucide-react';
 
 interface NavItem {
@@ -18,7 +17,6 @@ interface NavItem {
 }
 
 export const baseNavItems: NavItem[] = [
-  { path: '/research', icon: BookOpen, label: '研究案例' },
   { path: '/chat', icon: MessageCircle, label: '工作台' },
   { path: '/agent-profiles', icon: Bot, label: '智能体' },
   { path: '/capabilities', icon: Puzzle, label: '能力库' },

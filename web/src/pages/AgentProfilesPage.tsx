@@ -1596,7 +1596,7 @@ export function AgentProfilesPage() {
                               (!avatarEmoji && !avatarColor
                                 ? mainAppearance?.aiAvatarUrl ||
                                   (mainAppearance?.aiAvatarMode !== 'emoji'
-                                    ? `${import.meta.env.BASE_URL}icons/icon-192.png`
+                                    ? `${import.meta.env.BASE_URL}fintrace.svg`
                                     : undefined)
                                 : undefined)
                             }

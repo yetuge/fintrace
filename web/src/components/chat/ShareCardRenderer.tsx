@@ -208,7 +208,7 @@ export const ShareCardRenderer = forwardRef<
         }}
       >
         <img
-          src="/icons/icon-192.png"
+          src="/fintrace.svg"
           alt="FinTrace"
           style={{ width: 16, height: 16, borderRadius: 3 }}
         />

@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles/globals.css';
+import { App } from './App';
 import { shouldUseHashRouter } from './utils/url';
 import { cleanupLegacyPwaArtifacts } from './utils/legacyPwaCleanup';
 
@@ -21,15 +22,8 @@ if (typeof window !== 'undefined') {
   void cleanupLegacyPwaArtifacts();
 }
 
-// The public showcase builds without the authenticated runtime bundle.
-const appModule =
-  import.meta.env.VITE_SHOWCASE_ONLY === 'true'
-    ? import('./ShowcaseApp')
-    : import('./App');
-void appModule.then(({ App }) => {
-  createRoot(document.getElementById('root')!).render(
-    <StrictMode>
-      <App />
-    </StrictMode>,
-  );
-});
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+);

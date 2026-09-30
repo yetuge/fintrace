@@ -17025,7 +17025,7 @@ async function startMessageLoop(): Promise<void> {
   }
   messageLoopRunning = true;
 
-  logger.info('miniclaw running');
+  logger.info('FinTrace running');
 
   while (!shuttingDown) {
     try {
@@ -21546,6 +21546,6 @@ async function checkImBindingsHealth(): Promise<void> {
 }
 
 main().catch((err) => {
-  logger.error({ err }, 'Failed to start miniclaw');
+  logger.error({ err }, 'Failed to start FinTrace');
   process.exit(1);
 });

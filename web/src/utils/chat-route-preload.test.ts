@@ -5,20 +5,19 @@ import { shouldPreloadChatRoute } from './chat-route-preload';
 
 describe('chat route preload policy', () => {
   test.each([
-    ['/', '', '/', false],
-    ['/research', '', '/', false],
+    ['/', '', '/', true],
     ['/chat', '', '/', true],
     ['/chat/workspace', '', '/', true],
-    ['/miniclaw/', '', '/miniclaw/', false],
-    ['/miniclaw/chat/workspace', '', '/miniclaw/', true],
-    ['/miniclaw/', '#/chat/workspace?agent=one', '/miniclaw/', true],
+    ['/fintrace/', '', '/fintrace/', true],
+    ['/fintrace/chat/workspace', '', '/fintrace/', true],
+    ['/fintrace/', '#/chat/workspace?agent=one', '/fintrace/', true],
     ['/login', '', '/', false],
     ['/register', '', '/', false],
     ['/setup/providers', '', '/', false],
     ['/tasks', '', '/', false],
     ['/memory', '', '/', false],
-    ['/miniclaw/tasks', '', '/miniclaw/', false],
-    ['/miniclaw/', '#/memory', '/miniclaw/', false],
+    ['/fintrace/tasks', '', '/fintrace/', false],
+    ['/fintrace/', '#/memory', '/fintrace/', false],
     ['/chatty', '', '/', false],
   ])('pathname=%s hash=%s base=%s => %s', (pathname, hash, base, expected) => {
     expect(shouldPreloadChatRoute(pathname, hash, base)).toBe(expected);

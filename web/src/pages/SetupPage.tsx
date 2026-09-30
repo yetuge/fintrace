@@ -68,7 +68,7 @@ export function SetupPage() {
             FinTrace 初始设置
           </h1>
           <p className="text-sm text-muted-foreground">
-            先创建管理员账号，完成后进入后台继续配置飞书 Token 与 Claude Key
+            先创建管理员账号，完成后配置模型 Provider 与消息渠道
           </p>
         </div>
 

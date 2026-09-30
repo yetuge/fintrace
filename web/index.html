@@ -10,7 +10,7 @@
     <meta name="theme-color" content="#7461dc" />
     <meta
       name="description"
-      content="FinTrace 多源金融研究 Agent：通过公开财报案例，展示来源核对、证据关联、口径解释与可追溯研究草稿。"
+      content="FinTrace · 基于 Pi Runtime 的金融研究 Agent 工作台，统一管理智能体、工作区、会话、记忆、工具与任务。"
     />
 
     <!-- PWA iOS Support -->
@@ -36,6 +36,7 @@
     <script>
       var route = window.location.pathname.slice('%BASE_URL%'.length);
       if (
+        route === '' ||
         /^(chat|login|register|setup|agent-profiles|tasks|settings|capabilities|memory|monitor|users|usage|billing)(\/|$)/.test(
           route,
         )

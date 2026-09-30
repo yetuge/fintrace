@@ -73,9 +73,6 @@ const CapabilitiesPage = lazy(() =>
     default: m.CapabilitiesPage,
   })),
 );
-const ResearchPage = lazy(() =>
-  import('./pages/ResearchPage').then((m) => ({ default: m.ResearchPage })),
-);
 
 function UsageRouteFallback() {
   return (
@@ -251,22 +248,7 @@ const appRoutes = createRoutesFromElements(
       />
     </Route>
 
-    <Route
-      path="/"
-      element={
-        <Suspense fallback={<div role="status">正在加载研究案例…</div>}>
-          <ResearchPage />
-        </Suspense>
-      }
-    />
-    <Route
-      path="/research"
-      element={
-        <Suspense fallback={<div role="status">正在加载研究案例…</div>}>
-          <ResearchPage />
-        </Suspense>
-      }
-    />
+    <Route path="/" element={<Navigate to="/chat" replace />} />
     <Route path="*" element={<Navigate to="/chat" replace />} />
   </>,
 );

@@ -369,7 +369,7 @@ export function ChatPage() {
             {/* Logo */}
             <div className="w-16 h-16 rounded-2xl overflow-hidden mx-auto mb-6">
               <img
-                src={`${import.meta.env.BASE_URL}icons/icon-192.png`}
+                src={`${import.meta.env.BASE_URL}fintrace.svg`}
                 alt="FinTrace"
                 className="w-full h-full object-cover"
               />

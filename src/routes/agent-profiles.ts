@@ -343,7 +343,7 @@ agentProfileRoutes.post(
     if (!profile) return c.json({ error: '智能体配置不存在' }, 404);
     if (profile.is_default) {
       return c.json(
-        { error: 'Configure the main Miniclaw avatar in system settings' },
+        { error: 'Configure the main FinTrace avatar in system settings' },
         400,
       );
     }
@@ -386,7 +386,7 @@ agentProfileRoutes.delete('/:id/avatar', authMiddleware, (c) => {
   if (!profile) return c.json({ error: '智能体配置不存在' }, 404);
   if (profile.is_default) {
     return c.json(
-      { error: 'Configure the main Miniclaw avatar in system settings' },
+      { error: 'Configure the main FinTrace avatar in system settings' },
       400,
     );
   }
@@ -776,7 +776,7 @@ agentProfileRoutes.delete('/:id', authMiddleware, async (c) => {
       return c.json({ error: '智能体配置不存在' }, 404);
     }
     if (result === 'is_default') {
-      return c.json({ error: '不能删除内置的 Miniclaw 智能体' }, 400);
+      return c.json({ error: '不能删除内置的 FinTrace 智能体' }, 400);
     }
     if (result === 'has_workspaces') {
       return c.json(

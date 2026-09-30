@@ -50,7 +50,7 @@ export function resolveAgentDisplayIdentity({
     name,
     imageUrl:
       imageUrl ||
-      (!emoji ? `${import.meta.env.BASE_URL}icons/icon-192.png` : undefined),
+      (!emoji ? `${import.meta.env.BASE_URL}fintrace.svg` : undefined),
     emoji,
     color,
     fallbackChar: name[0] || 'A',

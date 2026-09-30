@@ -293,11 +293,11 @@ export function buildAgentCapabilityPreview(options: {
     notes.push('选择一个工作区后可检查该工作区的项目级 Skills 与 MCP。');
   if (skills.conflicts.length > 0) {
     notes.push(
-      '同名 Skill 按内置 → 宿主机 → Miniclaw 项目 → 系统附加 → 工作区项目 → 插件的顺序解析；插件 Skill 使用 plugin:skill 限定名。',
+      '同名 Skill 按内置 → 宿主机 → FinTrace 项目 → 系统附加 → 工作区项目 → 插件的顺序解析；插件 Skill 使用 plugin:skill 限定名。',
     );
   }
   notes.push(
-    'Miniclaw 用户 Skills 与宿主机 Skills 独立筛选；内置、项目和工作区 Skills 仍按来源优先级解析。',
+    'FinTrace 用户 Skills 与宿主机 Skills 独立筛选；内置、项目和工作区 Skills 仍按来源优先级解析。',
   );
   if (hostContext) {
     notes.push(
