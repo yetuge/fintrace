@@ -69,10 +69,16 @@ if (candidates.length === 0) {
   process.exit(0);
 }
 
-const prettier = path.join(root, 'node_modules', '.bin', 'prettier');
+const prettier = path.join(
+  root,
+  'node_modules',
+  'prettier',
+  'bin',
+  'prettier.cjs',
+);
 const result = spawnSync(
-  prettier,
-  [write ? '--write' : '--check', ...candidates],
+  process.execPath,
+  [prettier, write ? '--write' : '--check', ...candidates],
   {
     cwd: root,
     stdio: 'inherit',
