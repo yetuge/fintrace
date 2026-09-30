@@ -1,4 +1,4 @@
-# Miniclaw runtime migration
+# FinTrace runtime migration
 
 This document is the migration ledger for replacing the Claude Agent SDK
 execution engine with the Pi Agent Runtime while keeping the existing host,
@@ -37,22 +37,22 @@ consume the existing framed output and delivery receipts.
 
 ## Capability matrix
 
-| Existing capability  | Pi implementation                                                                                          | Status                                        |
-| -------------------- | ---------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
-| Prompt and streaming | `AgentSession.prompt()` + runtime event adapter                                                            | Implemented                                   |
-| Tool calling         | Pi custom tools; Miniclaw handlers are reused                                                             | Implemented                                   |
-| Session persistence  | Pi `SessionManager` in the per-group Pi session directory                                                  | Implemented                                   |
-| Resume               | Open the Pi JSONL session by session id                                                                    | Implemented for Pi-created sessions           |
-| Abort                | `AgentSession.abort()` and IPC interrupt sentinel                                                          | Implemented                                   |
-| Steer / follow-up    | `AgentSession.followUp()` for queued IPC turns                                                             | Implemented in Pi bridge                      |
-| Compaction           | Pi native session compaction; product toggle maps to `SettingsManager.setCompactionEnabled` via `autoCompactEnabled`; legacy percentage/window knobs advisory | Implemented; live-model validation pending |
-| Skills               | Pi `DefaultResourceLoader` skill paths                                                                     | Implemented                                   |
-| Workspace memory     | Existing Miniclaw MCP handlers, adapted as Pi tools                                                       | Implemented in Pi path                        |
-| MCP/capabilities     | In-process capability handlers, namespaced as Pi tools                                                     | Implemented                                   |
-| Subagents            | `@tintinweb/pi-subagents` extension plus adapter                                                           | Implemented; result/steer are extension tools |
-| Background subagents | `run_in_background` is passed through the extension tool contract                                          | Validation pending                            |
-| Providers            | Pi `ModelRuntime`, including Anthropic-compatible custom endpoints                                         | Implemented                                   |
-| Web search/fetch     | No silent Pi substitute; these Claude-only built-ins are omitted until a Pi capability adapter is selected | Explicit limitation                           |
+| Existing capability  | Pi implementation                                                                                                                                             | Status                                        |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
+| Prompt and streaming | `AgentSession.prompt()` + runtime event adapter                                                                                                               | Implemented                                   |
+| Tool calling         | Pi custom tools; FinTrace handlers are reused                                                                                                                 | Implemented                                   |
+| Session persistence  | Pi `SessionManager` in the per-group Pi session directory                                                                                                     | Implemented                                   |
+| Resume               | Open the Pi JSONL session by session id                                                                                                                       | Implemented for Pi-created sessions           |
+| Abort                | `AgentSession.abort()` and IPC interrupt sentinel                                                                                                             | Implemented                                   |
+| Steer / follow-up    | `AgentSession.followUp()` for queued IPC turns                                                                                                                | Implemented in Pi bridge                      |
+| Compaction           | Pi native session compaction; product toggle maps to `SettingsManager.setCompactionEnabled` via `autoCompactEnabled`; legacy percentage/window knobs advisory | Implemented; live-model validation pending    |
+| Skills               | Pi `DefaultResourceLoader` skill paths                                                                                                                        | Implemented                                   |
+| Workspace memory     | Existing FinTrace MCP handlers, adapted as Pi tools                                                                                                           | Implemented in Pi path                        |
+| MCP/capabilities     | In-process capability handlers, namespaced as Pi tools                                                                                                        | Implemented                                   |
+| Subagents            | `@tintinweb/pi-subagents` extension plus adapter                                                                                                              | Implemented; result/steer are extension tools |
+| Background subagents | `run_in_background` is passed through the extension tool contract                                                                                             | Validation pending                            |
+| Providers            | Pi `ModelRuntime`, including Anthropic-compatible custom endpoints                                                                                            | Implemented                                   |
+| Web search/fetch     | No silent Pi substitute; these Claude-only built-ins are omitted until a Pi capability adapter is selected                                                    | Explicit limitation                           |
 
 ## Packages
 
@@ -63,7 +63,7 @@ The runner pins:
 - `typebox@1.3.7`
 
 Pi core intentionally leaves MCP and subagent behavior to extensions or
-custom-tool adapters. The migration therefore keeps Miniclaw capability
+custom-tool adapters. The migration therefore keeps FinTrace capability
 authorization in the existing context and handler layer instead of creating a
 second unrestricted MCP server.
 
@@ -72,7 +72,7 @@ second unrestricted MCP server.
 - `AGENT_RUNTIME` defaults to `pi`. A Claude selector is rejected by the
   production Pi-only entry point rather than silently changing engines.
 - `MINICLAW_*` environment variables and stored session/database identifiers
-  remain readable while the branding migration introduces Miniclaw defaults.
+  remain readable while the branding migration introduces FinTrace defaults.
 - Claude MCP tool names are preserved as `mcp__miniclaw__<name>` in Pi so
   prompt and capability policy references remain stable.
 - Unsupported Pi mappings fail explicitly or remain visible in this matrix;
@@ -82,17 +82,17 @@ second unrestricted MCP server.
 
 ## Rename policy
 
-The product-facing name is moving from Miniclaw to Miniclaw. Existing
+The product-facing name is moving from FinTrace to FinTrace. Existing
 environment variables, database keys, workspace paths, cookie names, and
 deployment identifiers are compatibility surfaces and must not be changed
-without a migration alias. New Miniclaw aliases should take precedence, with
-the old Miniclaw values accepted as fallbacks.
+without a migration alias. New FinTrace aliases should take precedence, with
+the old FinTrace values accepted as fallbacks.
 
 Rename status: package metadata, README, CLAUDE.md, web title, settings
 sections, channel onboarding texts, login/about pages, CLI/status output,
 runtime identity and bootstrap prompts, MCP tool descriptions, subagent
 contract text, and the built-in default Agent profile name (new installs and
-lazy legacy migration) now use Miniclaw. Kept as compatibility surfaces:
+lazy legacy migration) now use FinTrace. Kept as compatibility surfaces:
 `MINICLAW_*` env vars, `mcp__miniclaw__*` tool names, `miniclaw_owner_profile`
 capability, localStorage/IndexedDB keys, `__MINICLAW_HASH_ROUTER__`, PWA
 legacy cleanup, cookie aliases, the published Docker image name, and the
@@ -134,7 +134,7 @@ Migration slices verified:
   (construct, subscribe, abort, dispose);
 - Pi subagent extension session construction smoke test passes;
 - focused runtime migration and subagent contract tests pass;
-- full branding sweep: zero user-visible `Miniclaw` strings remain in
+- full branding sweep: zero user-visible `FinTrace` strings remain in
   `web/src`, `src`, runner prompts, or scripts; only documented compatibility
   surfaces keep the legacy name.
 
@@ -157,8 +157,8 @@ and unit/integration coverage for each are in place.
   threshold. The runtime contract exposes `autoCompactEnabled` and the Pi
   adapter maps it to `SettingsManager.setCompactionEnabled`; the percentage
   inputs no longer steer the trigger point.
-- The built-in main Agent is renamed to Miniclaw; existing databases keep
-  stored `Miniclaw`/`Default Agent` default-profile names until the next
+- The built-in main Agent is renamed to FinTrace; existing databases keep
+  stored `FinTrace`/`Default Agent` default-profile names until the next
   read, which lazily migrates them (one-time version bump and identity-hash
   recompute, so the main agent's sessions restart once).
 - `src/index.ts` (host entry) and `container/agent-runner/src/index.ts` plus

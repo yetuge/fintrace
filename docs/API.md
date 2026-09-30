@@ -1,4 +1,4 @@
-# Miniclaw Web API
+# FinTrace Web API
 
 本文档记录当前公开路由族和主要端点。请求/响应 Schema 以对应的
 `src/routes/*.ts`、`src/schemas.ts` 和前端 API 调用为准。
@@ -6,7 +6,7 @@
 ## 约定
 
 - API 默认前缀为 `/api`，WebSocket 为 `/ws`。
-- 除明确标记 Public 的接口外，均需要有效的 Miniclaw Cookie Session。
+- 除明确标记 Public 的接口外，均需要有效的 FinTrace Cookie Session。
 - 资源接口还会执行 owner、角色、Permission、Host 执行权限等检查，见
   [ACL 权限矩阵](ACL-MATRIX.md)。
 - 其他用户的资源通常以 `404` 返回，避免泄漏资源是否存在。
@@ -90,12 +90,12 @@ Workspace↔AgentProfile 绑定行上，因此：仅 `web:` 前缀工作区可�
 它与 `execution_mode` 共享同一道 quiesce 边界，暖 Runner 只能观察到旧契约或新
 契约；停机失败返回 503 并带 `persisted` 标记。
 
-Home Workspace 固定归属当前用户的内置 Miniclaw。尝试通过
+Home Workspace 固定归属当前用户的内置 FinTrace。尝试通过
 `PATCH /api/groups/:jid/agent-profile` 将 Home 迁移到自定义 Agent 时返回：
 
 ```json
 {
-  "error": "Home Workspace 始终属于内置 Miniclaw，不能迁移到自定义智能体",
+  "error": "Home Workspace 始终属于内置 FinTrace，不能迁移到自定义智能体",
   "code": "HOME_WORKSPACE_AGENT_IMMUTABLE"
 }
 ```
@@ -119,7 +119,7 @@ HTTP 状态为 409；请求不会停止现有 Runner，也不会修改绑定。
 }
 ```
 
-`host_path` 是 Miniclaw/Docker 守护进程所在服务器上的绝对目录，不是浏览器
+`host_path` 是 FinTrace/Docker 守护进程所在服务器上的绝对目录，不是浏览器
 所在设备的目录；`container_path` 是 `/workspace/extra/` 下的相对路径。来源目录
 必须通过 `config/mount-allowlist.json`，目标不能重复、嵌套、穿越或覆盖运行时
 保留目录。普通用户、停用管理员和 host 模式请求都会被拒绝。权限、allowlist、
@@ -188,7 +188,7 @@ HTTP 状态为 409；请求不会停止现有 Runner，也不会修改绑定。
 
 `POST /api/agent-profiles` 只创建隔离的 AgentProfile。它不会隐式创建 Workspace、
 Session 或 Memory，也不会绑定/复制 Home Workspace。用户必须在创建 Workspace 时
-显式选择它，或通过上面的非 Home Workspace 迁移接口建立归属。内置 Miniclaw 的
+显式选择它，或通过上面的非 Home Workspace 迁移接口建立归属。内置 FinTrace 的
 代码级平台身份不存放在这些可编辑的 Prompt 字段中，自定义 Agent 不会继承。
 
 ## Agent-first 工作区投影
@@ -201,12 +201,12 @@ Session 或 Memory，也不会绑定/复制 Home Workspace。用户必须在创�
 
 这些接口是 `registered_groups` 兼容存储之上的只读产品投影。
 
-### Miniclaw Owner Profile
+### FinTrace Owner Profile
 
 - `GET /api/workspaces/:jid/owner-profile`
 - `PATCH /api/workspaces/:jid/owner-profile`
 
-只允许该用户不可删除的 Home Workspace、内置默认 Miniclaw AgentProfile 和实际
+只允许该用户不可删除的 Home Workspace、内置默认 FinTrace AgentProfile 和实际
 owner。无权访问、自定义 Agent 或非 Home 目标统一返回 404。
 
 PATCH 使用 action 联合类型：

@@ -1,6 +1,6 @@
 # 运行 Agent 工作台
 
-FinTrace 保留基于 MiniClaw 的 Agent 运行底座。公开研究首页无需后端，以下步骤用于启动认证、会话、工具与工作区功能。金融演示资料不会自动注入 Agent，也没有金融数据源自动抓取功能。
+FinTrace 使用 Pi Runtime 执行 Agent 任务。公开研究首页无需后端，以下步骤用于启动认证、会话、工具与工作区功能。金融演示资料不会自动注入 Agent，也没有金融数据源自动抓取功能。
 
 ## 安装与启动
 
@@ -24,8 +24,8 @@ npm run dev:all
 
 后端为 3000，前端为 5173。`npm run build:web` 生成包含真实工作台路由的 Web 构建，`npm run build:showcase` 生成静态展示构建，两者均写入 `web/dist/`，后执行的构建覆盖前者。
 
-## 保留的兼容约定
+## 运行配置
 
-后端沿用上游的 `MINICLAW_*` 环境变量、数据布局、API 和内部命名。默认容器镜像仍为 `helsome/miniclaw-agent:latest`；若使用自建镜像，设置 `MINICLAW_CONTAINER_IMAGE`。桌面壳与打包资源沿用上游，当前改造聚焦 Web 展示与 GitHub 文档。
+运行底座提供 Host 与 Docker 两种执行模式。使用容器模式时需要可用的 Runner 镜像，构建方式见 `container/Dockerfile`；通过 `CONTAINER_IMAGE` 指定自己的镜像。
 
-模型与渠道配置见设置页；API 与权限实现见 [API 文档](API.md) 和 [权限矩阵](ACL-MATRIX.md)。上游原始产品说明保留于 [MINICLAW-UPSTREAM.md](MINICLAW-UPSTREAM.md)，仅用于来源归档。
+模型与渠道配置见设置页；API 与权限实现见 [API 文档](API.md) 和 [权限矩阵](ACL-MATRIX.md)。

@@ -1,11 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import {
-  Bug,
-  ImagePlus,
-  X,
-  Loader2,
-  Copy,
-} from 'lucide-react';
+import { Bug, ImagePlus, X, Loader2, Copy } from 'lucide-react';
 import { toast } from 'sonner';
 import { api } from '@/api/client';
 import { Button } from '@/components/ui/button';
@@ -71,9 +65,16 @@ export function BugReportDialog({ open, onClose }: BugReportDialogProps) {
   // Pre-fetch capabilities when dialog opens
   useEffect(() => {
     if (open) {
-      api.get<Capabilities>('/api/bug-report/capabilities').then(setCaps).catch(() => {
-        setCaps({ ghAvailable: false, ghUsername: null, claudeAvailable: false });
-      });
+      api
+        .get<Capabilities>('/api/bug-report/capabilities')
+        .then(setCaps)
+        .catch(() => {
+          setCaps({
+            ghAvailable: false,
+            ghUsername: null,
+            claudeAvailable: false,
+          });
+        });
     }
   }, [open]);
 
@@ -165,24 +166,25 @@ export function BugReportDialog({ open, onClose }: BugReportDialogProps) {
 
   // --- Generate report (Claude analysis) ---
 
-  const generateReport = useCallback(async (): Promise<GenerateResult | null> => {
-    try {
-      return await api.post<GenerateResult>(
-        '/api/bug-report/generate',
-        {
-          description: description.trim(),
-          screenshots: screenshots.length > 0 ? screenshots : undefined,
-        },
-        90000,
-      );
-    } catch (err) {
-      const msg =
-        typeof err === 'object' && err !== null && 'message' in err
-          ? (err as { message: string }).message
-          : '生成报告失败';
-      throw new Error(msg);
-    }
-  }, [description, screenshots]);
+  const generateReport =
+    useCallback(async (): Promise<GenerateResult | null> => {
+      try {
+        return await api.post<GenerateResult>(
+          '/api/bug-report/generate',
+          {
+            description: description.trim(),
+            screenshots: screenshots.length > 0 ? screenshots : undefined,
+          },
+          90000,
+        );
+      } catch (err) {
+        const msg =
+          typeof err === 'object' && err !== null && 'message' in err
+            ? (err as { message: string }).message
+            : '生成报告失败';
+        throw new Error(msg);
+      }
+    }, [description, screenshots]);
 
   // --- Submit flow ---
 
@@ -250,8 +252,7 @@ export function BugReportDialog({ open, onClose }: BugReportDialogProps) {
         showToast('已打开 GitHub', '请在新标签页中登录并提交 Issue', 6000);
       }
     } catch (err) {
-      const msg =
-        err instanceof Error ? err.message : '提交失败，请重试';
+      const msg = err instanceof Error ? err.message : '提交失败，请重试';
       showToast('提交失败', msg, 6000);
     }
   }, [generateReport, handleClose]);
@@ -383,9 +384,13 @@ export function BugReportDialog({ open, onClose }: BugReportDialogProps) {
         {step === 1 && showConfirm && (
           <div className="text-center py-4 space-y-3">
             <p className="text-sm text-foreground">
-              将以 <span className="font-semibold text-foreground">{caps?.ghUsername || 'GitHub'}</span> 的身份提交 Issue 到
+              将以{' '}
+              <span className="font-semibold text-foreground">
+                {caps?.ghUsername || 'GitHub'}
+              </span>{' '}
+              的身份提交 Issue 到
             </p>
-            <p className="text-sm text-muted-foreground">helsome/miniclaw</p>
+            <p className="text-sm text-muted-foreground">yetuge/fintrace</p>
           </div>
         )}
 
@@ -453,12 +458,16 @@ export function BugReportDialog({ open, onClose }: BugReportDialogProps) {
               <Button variant="outline" onClick={() => setShowConfirm(false)}>
                 取消
               </Button>
-              <Button variant="outline" onClick={() => { setShowConfirm(false); handleGenerateForPreview(); }}>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowConfirm(false);
+                  handleGenerateForPreview();
+                }}
+              >
                 手动编辑
               </Button>
-              <Button onClick={handleConfirmSubmit}>
-                确认提交
-              </Button>
+              <Button onClick={handleConfirmSubmit}>确认提交</Button>
             </>
           )}
           {step === 2 && (

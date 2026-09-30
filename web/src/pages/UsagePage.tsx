@@ -494,7 +494,7 @@ export function UsagePage() {
   const handleExport = async () => {
     if (!visibleWindow || visibleBreakdown.length === 0) return;
     setExporting(true);
-    const filename = `miniclaw-usage-${visibleWindow.from}-${visibleWindow.to}.csv`;
+    const filename = `fintrace-usage-${visibleWindow.from}-${visibleWindow.to}.csv`;
     try {
       await downloadFromUrl(
         `/api/usage/export.csv?${buildUsageQueryParams(query)}`,

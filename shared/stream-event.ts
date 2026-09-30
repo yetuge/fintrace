@@ -243,7 +243,7 @@ export interface ClaudeContextAudit {
     runtimePolicyHash?: string;
   };
   cwd?: string;
-  /** Miniclaw repository root used to distinguish platform memory from workspace memory. */
+  /** FinTrace repository root used to distinguish platform memory from workspace memory. */
   projectRoot?: string;
   claudeConfigDir?: string;
   externalClaudeDir?: string;

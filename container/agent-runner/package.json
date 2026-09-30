@@ -1,8 +1,8 @@
 {
-  "name": "miniclaw-agent-runner",
+  "name": "fintrace-agent-runner",
   "version": "1.0.0",
   "type": "module",
-  "description": "Container-side Pi agent runner for Miniclaw",
+  "description": "Pi Runtime agent runner for FinTrace",
   "main": "dist/pi-index.js",
   "scripts": {
     "build": "tsc",
@@ -26,17 +26,18 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/helsome/miniclaw.git",
+    "url": "git+https://github.com/yetuge/fintrace.git",
     "directory": "container/agent-runner"
   },
-  "homepage": "https://github.com/helsome/miniclaw#readme",
+  "homepage": "https://github.com/yetuge/fintrace#readme",
   "bugs": {
-    "url": "https://github.com/helsome/miniclaw/issues"
+    "url": "https://github.com/yetuge/fintrace/issues"
   },
-  "author": "helson",
+  "author": "yetuge",
   "keywords": [
+    "pi-agent",
     "agent-runner",
     "mcp",
-    "miniclaw"
+    "fintrace"
   ]
 }

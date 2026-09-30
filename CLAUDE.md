@@ -1,4 +1,4 @@
-# Miniclaw — 工程协作指南
+# FinTrace — 工程协作指南
 
 本文档描述当前代码的工程约束和导航入口，供人类与 AI 协作者共同使用。
 
@@ -14,12 +14,11 @@
 - 渠道能力与会话路由：`src/im-channel-capabilities.ts`、`src/channel-mount-service.ts`
 - StreamEvent：`shared/stream-event.ts`
 
-`docs/agent-first-architecture-plan.md` 和
-`docs/claude-code-plugin-automation-design.md` 是历史设计记录，不作为当前接口或数据结构的真相源。
+`docs/agent-first-architecture-plan.md` 是历史设计记录，不作为当前接口或数据结构的真相源。
 
 ## 2. 产品模型
 
-Miniclaw 是基于 Pi Agent Runtime 的自托管、多用户 Agent 工作台，支持 Web 与飞书、
+FinTrace 是基于 Pi Agent Runtime 的自托管、多用户 Agent 工作台，支持 Web 与飞书、
 Telegram、QQ、钉钉、微信、Discord、WhatsApp。
 
 当前产品层级：
@@ -58,7 +57,7 @@ Agent Profile（身份、四段 Prompt、能力策略）
 | `src/channel-reliability-store.ts` | Inbox、Turn、Outbox、Streaming Card 的持久状态机       |
 | `src/im-manager.ts`                | 多用户、多账号渠道连接池                               |
 | `src/agent-capability-preview.ts`  | Agent 最终上下文和能力预览                             |
-| `src/claude-context-resolver.ts`   | 兼容上下文、Skills 与来源解析                         |
+| `src/claude-context-resolver.ts`   | 兼容上下文、Skills 与来源解析                          |
 
 渠道实现位于：
 
@@ -103,7 +102,7 @@ Radix UI。路由以 `web/src/App.tsx` 为准：
 - stdout 使用 `OUTPUT_START_MARKER` / `OUTPUT_END_MARKER` 输出结构化结果。
 - 后续消息、工具请求和关闭控制通过独立 IPC 目录传递。
 - `container/agent-runner/prompts/` 中的 Prompt 在启动时加载。
-- Miniclaw MCP 工具由 `container/agent-runner/src/mcp-tools.ts` 注册。
+- FinTrace MCP 工具由 `container/agent-runner/src/mcp-tools.ts` 注册。
 - `shared/stream-event.ts` 同步到主服务、Web 和 Runner。
 
 不要在文档中维护固定的 MCP 工具数量或 StreamEvent 数量；它们会随能力演进变化，
@@ -280,18 +279,18 @@ Web 持久设置 > 环境变量 > 代码默认值
 
 常用环境变量：
 
-| 变量                        | 默认值                            | 说明                              |
-| --------------------------- | --------------------------------- | --------------------------------- |
-| `WEB_PORT`                  | `3000`                            | HTTP、WebSocket 端口              |
-| `WEB_SESSION_SECRET`        | 自动生成并持久化                  | Cookie 签名                       |
-| `CONTAINER_IMAGE`           | `helsome/miniclaw-agent:latest` | GitHub Actions 发布的 Runner 镜像 |
-| `CONTAINER_TIMEOUT`         | `1800000`                         | 默认运行超时                      |
-| `IDLE_TIMEOUT`              | `1800000`                         | 暖 Runner 空闲时间                |
-| `MAX_CONCURRENT_CONTAINERS` | `20`                              | Docker 并发                       |
-| `MAX_FILE_SIZE_MB`          | `50`                              | Web/IM 入站文件上限               |
-| `CORS_ALLOWED_ORIGINS`      | 仅 localhost                      | WebSocket Origin 白名单           |
-| `TRUST_PROXY`               | `false`                           | 是否信任反向代理来源头            |
-| `TZ`                        | 系统时区                          | 调度时区                          |
+| 变量                        | 默认值           | 说明                    |
+| --------------------------- | ---------------- | ----------------------- |
+| `WEB_PORT`                  | `3000`           | HTTP、WebSocket 端口    |
+| `WEB_SESSION_SECRET`        | 自动生成并持久化 | Cookie 签名             |
+| `CONTAINER_IMAGE`           | 按部署设置       | 自建 Runner 镜像        |
+| `CONTAINER_TIMEOUT`         | `1800000`        | 默认运行超时            |
+| `IDLE_TIMEOUT`              | `1800000`        | 暖 Runner 空闲时间      |
+| `MAX_CONCURRENT_CONTAINERS` | `20`             | Docker 并发             |
+| `MAX_FILE_SIZE_MB`          | `50`             | Web/IM 入站文件上限     |
+| `CORS_ALLOWED_ORIGINS`      | 仅 localhost     | WebSocket Origin 白名单 |
+| `TRUST_PROXY`               | `false`          | 是否信任反向代理来源头  |
+| `TZ`                        | 系统时区         | 调度时区                |
 
 Provider 和渠道账号应优先通过 Web 配置。Legacy `/api/config/user-im/*` 只用于兼容，
 新功能统一使用 `/api/channel-accounts`。

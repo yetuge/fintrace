@@ -1,24 +1,24 @@
 # Workspace Memory v2
 
-Workspace Memory v2 是 Miniclaw 的工作区长期知识层。它保存经过提炼、未来
+Workspace Memory v2 是 FinTrace 的工作区长期知识层。它保存经过提炼、未来
 Session 仍可复用的内容，并以 Workspace 作为唯一产品入口和权限边界。
 
 ## 产品边界
 
-Miniclaw 的相关数据分成三个彼此独立的层次：
+FinTrace 的相关数据分成三个彼此独立的层次：
 
 | 层次                   | 用途                                     | 生命周期                         |
 | ---------------------- | ---------------------------------------- | -------------------------------- |
 | 平台/AgentProfile 身份 | Agent 是谁、平台规则和能力策略           | 配置或代码版本管理，不可被忘记   |
-| Home Owner Profile     | 内置 Miniclaw 如何称呼实际 owner        | Home 跨 Session，专用 API 管理   |
+| Home Owner Profile     | 内置 FinTrace 如何称呼实际 owner         | Home 跨 Session，专用 API 管理   |
 | Session 历史           | 一段对话的消息、工具轨迹与即时上下文     | 由 Session/消息管理功能单独处理  |
 | Workspace Memory       | 同一 Workspace 跨 Session 复用的提炼知识 | 忘记后不再检索，但保留修订审计线 |
 
 因此：
 
 - Memory 页面先选择 Workspace，只查询该 Workspace 的数据。
-- 内置 Miniclaw 的平台身份和安全约束不是 Memory；自定义 Agent 的身份由各自
-  AgentProfile 管理，也不会继承 Miniclaw 的内置身份。
+- 内置 FinTrace 的平台身份和安全约束不是 Memory；自定义 Agent 的身份由各自
+  AgentProfile 管理，也不会继承 FinTrace 的内置身份。
 - Workspace Memory 不是用户全局 Profile，也不会在不同 Workspace 之间共享。
 - Session、日期和任意文件路径不是 Memory 页面中的可浏览“记忆源”。
 - 来源 Session 只用于回溯 provenance；忘记一条 Memory 不会删除 Session 或聊天
@@ -31,13 +31,13 @@ Miniclaw 的相关数据分成三个彼此独立的层次：
 
 ### Home、Agent 与首次唤醒
 
-- 每个用户的 Home Workspace 永久绑定内置 Miniclaw，不能删除或迁移给自定义
+- 每个用户的 Home Workspace 永久绑定内置 FinTrace，不能删除或迁移给自定义
   Agent。
 - `POST /api/agent-profiles` 只创建自定义 AgentProfile，不自动创建 Workspace、
   Session 或 Memory，也不继承 Home 的任何内容。
 - 非 Home Workspace 可以由用户显式迁移到另一个 Agent。文件、Session、渠道挂载和
   Workspace Memory 均跟随 Workspace 保留；迁移不是复制。
-- Miniclaw 只在 Home、内置默认 AgentProfile、实际 owner 的人类交互轮次中运行
+- FinTrace 只在 Home、内置默认 AgentProfile、实际 owner 的人类交互轮次中运行
   首次唤醒。宿主用 `workspace_onboarding_states` 原子 claim 一次 lease；只有新 claim
   的 turn 可以说一次“刚醒来”。同一 lease 的后续消息可以完成设置，但不能重复
   first-wake。
@@ -68,7 +68,7 @@ Session 历史中即可。
 
 ## 数据与一致性
 
-Workspace Memory v2 的 canonical store 位于 Miniclaw SQLite 主数据库。每个
+Workspace Memory v2 的 canonical store 位于 FinTrace SQLite 主数据库。每个
 Workspace 有独立的 store revision，每个 item 有单独的 revision：
 
 - 每次创建、编辑或忘记都会递增 item revision 和 store revision。
@@ -102,7 +102,7 @@ Agent Runtime 还按执行上下文收紧写权限：顶层交互式 Main/Runtim
 Workspace ACL 读写；Scheduled Run（group/isolated）和 SDK Task Sub-Agent
 只能读取，不能创建、更新或忘记 Memory。
 
-Owner Profile 的边界更严格：只允许 Home 内置 Miniclaw 的 Main/普通 Runtime
+Owner Profile 的边界更严格：只允许 Home 内置 FinTrace 的 Main/普通 Runtime
 Session，并且宿主必须把本次持久化消息 sender 验证为实际 owner。每个 cold/warm
 turn 都单独读取最新投影；排队 turn 只能用自己的 host-issued turn ID 读取，
 set/clear/skip 还必须是当前 active turn。SDK Sub-Agent 对整个专用工具（包括

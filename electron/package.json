@@ -1,10 +1,10 @@
 {
-  "name": "miniclaw-desktop",
+  "name": "fintrace-desktop",
   "version": "1.0.0",
   "private": true,
-  "description": "Electron Desktop Shell for Miniclaw",
+  "description": "Electron Desktop Shell for FinTrace",
   "main": "dist/main.cjs",
-  "author": "helson",
+  "author": "yetuge",
   "license": "MIT",
-  "homepage": "https://github.com/helsome/miniclaw#readme"
+  "homepage": "https://github.com/yetuge/fintrace#readme"
 }

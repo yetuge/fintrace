@@ -33,7 +33,7 @@ export function isLegacyMiniclawRegistration(
 }
 
 /**
- * Remove registrations and Cache Storage left by Miniclaw releases that used
+ * Remove registrations and Cache Storage left by FinTrace releases that used
  * Workbox. The cleanup is deliberately best-effort and never blocks rendering.
  */
 export async function cleanupLegacyPwaArtifacts(): Promise<void> {

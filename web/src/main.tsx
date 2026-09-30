@@ -16,7 +16,7 @@ if (typeof window !== 'undefined') {
 }
 
 if (typeof window !== 'undefined') {
-  // Miniclaw no longer uses a Service Worker. Clean up registrations and
+  // FinTrace no longer uses a Service Worker. Clean up registrations and
   // Cache Storage left by older releases without delaying the first render.
   void cleanupLegacyPwaArtifacts();
 }

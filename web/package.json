@@ -65,6 +65,6 @@
   "bugs": {
     "url": "https://github.com/yetuge/fintrace/issues"
   },
-  "author": "helson",
+  "author": "yetuge",
   "description": "Multi-source financial research agent with traceable evidence, scope checks and cited reports."
 }

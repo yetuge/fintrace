@@ -11,7 +11,7 @@ permissions:
   contents: read
 
 env:
-  IMAGE_NAME: helsome/miniclaw-agent
+  IMAGE_NAME: yetuge/fintrace-agent
 
 jobs:
   build-and-smoke:
@@ -60,8 +60,8 @@ jobs:
           sbom: true
           provenance: mode=max
           labels: |
-            org.opencontainers.image.title=Miniclaw Agent
-            org.opencontainers.image.description=Isolated multi-platform agent runtime for Miniclaw
+            org.opencontainers.image.title=FinTrace Agent
+            org.opencontainers.image.description=Isolated multi-platform agent runtime for FinTrace
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
 

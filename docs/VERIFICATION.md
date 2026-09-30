@@ -4,11 +4,11 @@
 
 ## 自动检查
 
-- `npm run test:showcase`：2 个文件、18 项测试通过。
-- `npm run build:web`：TypeScript 检查与完整客户端生产构建通过。上游聊天、Markdown 等模块仍有大分片提示。
+- `npm run test:showcase`：5 个文件、57 项测试通过。
+- `npm run build:web`：TypeScript 检查与完整客户端生产构建通过。聊天、Markdown 等模块仍有大分片提示。
 - `VITE_BASE_PATH=/fintrace/ npm run build:showcase`：带子路径的静态展示构建通过。PowerShell 使用 `$env:VITE_BASE_PATH='/fintrace/'` 设置该变量。
 
-测试覆盖原始金额复算、年度与季度增速、分部增量占比、结论引用关联、导出时保留 AI 归因缺口，以及展示首页不预加载聊天模块。
+测试覆盖原始金额复算、年度与季度增速、分部增量占比、结论引用关联、导出时保留 AI 归因缺口、展示首页不预加载聊天模块，以及工作区导航、能力配置文案与渠道账户的前端契约。
 
 ## 浏览器检查
 

@@ -1,4 +1,4 @@
-const DEFAULT_AGENT_NAME = 'Miniclaw';
+const DEFAULT_AGENT_NAME = 'FinTrace';
 
 export interface AgentDisplayIdentity {
   name: string;
@@ -21,7 +21,7 @@ export interface AgentIdentityOptions {
 
 /**
  * Resolve a chat identity from the active Agent. A custom Agent only replaces
- * the global Miniclaw avatar when it owns at least one avatar field.
+ * the global FinTrace avatar when it owns at least one avatar field.
  */
 export function resolveAgentDisplayIdentity({
   agentName,

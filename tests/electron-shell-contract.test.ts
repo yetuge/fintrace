@@ -28,7 +28,7 @@ describe('Electron Desktop Shell contract', () => {
   });
 
   it('keeps packaging focused on the desktop shell', () => {
-    expect(builderConfig).toContain('productName: Miniclaw');
+    expect(builderConfig).toContain('productName: FinTrace');
     expect(builderConfig).toContain('icon: assets/miniclaw-icon.png');
     expect(builderConfig).toContain('icon: assets/miniclaw.icns');
     expect(builderConfig).toContain('assets/**/*');

@@ -10,7 +10,7 @@ import {
 import fs from 'node:fs';
 import path from 'node:path';
 
-const APP_NAME = 'Miniclaw';
+const APP_NAME = 'FinTrace';
 const DEFAULT_SERVER_URL = 'http://127.0.0.1:3000';
 const WINDOW_DEFAULTS = {
   width: 1440,
@@ -71,12 +71,12 @@ function resolveDesktopUrls(): { serverUrl: string; rendererUrl: string } {
     getCliValue('--server-url') ||
     process.env.MINICLAW_SERVER_URL ||
     DEFAULT_SERVER_URL;
-  const serverUrl = normalizeHttpUrl(serverValue, 'Miniclaw server URL');
+  const serverUrl = normalizeHttpUrl(serverValue, 'FinTrace server URL');
   const rendererValue =
     getCliValue('--renderer-url') ||
     process.env.MINICLAW_RENDERER_URL ||
     serverUrl;
-  const rendererUrl = normalizeHttpUrl(rendererValue, 'Miniclaw renderer URL');
+  const rendererUrl = normalizeHttpUrl(rendererValue, 'FinTrace renderer URL');
   return { serverUrl, rendererUrl };
 }
 
@@ -102,10 +102,16 @@ function isFinitePositive(value: unknown): value is number {
 
 function loadWindowState(): WindowState {
   try {
-    const parsed = JSON.parse(fs.readFileSync(getWindowStatePath(), 'utf8')) as Partial<WindowState>;
+    const parsed = JSON.parse(
+      fs.readFileSync(getWindowStatePath(), 'utf8'),
+    ) as Partial<WindowState>;
     return {
-      width: isFinitePositive(parsed.width) ? parsed.width : WINDOW_DEFAULTS.width,
-      height: isFinitePositive(parsed.height) ? parsed.height : WINDOW_DEFAULTS.height,
+      width: isFinitePositive(parsed.width)
+        ? parsed.width
+        : WINDOW_DEFAULTS.width,
+      height: isFinitePositive(parsed.height)
+        ? parsed.height
+        : WINDOW_DEFAULTS.height,
       ...(isFinitePositive(parsed.x) ? { x: parsed.x } : {}),
       ...(isFinitePositive(parsed.y) ? { y: parsed.y } : {}),
       isMaximized: parsed.isMaximized === true,
@@ -128,9 +134,13 @@ function saveWindowState(): void {
 
   try {
     fs.mkdirSync(path.dirname(getWindowStatePath()), { recursive: true });
-    fs.writeFileSync(getWindowStatePath(), `${JSON.stringify(state, null, 2)}\n`, {
-      mode: 0o600,
-    });
+    fs.writeFileSync(
+      getWindowStatePath(),
+      `${JSON.stringify(state, null, 2)}\n`,
+      {
+        mode: 0o600,
+      },
+    );
   } catch (error) {
     console.warn('[desktop] failed to save window state', error);
   }
@@ -139,8 +149,14 @@ function saveWindowState(): void {
 function isAllowedRendererUrl(rawUrl: string): boolean {
   try {
     const candidate = new URL(rawUrl);
-    const allowed = new Set([new URL(serverUrl).origin, new URL(rendererUrl).origin]);
-    return (candidate.protocol === 'http:' || candidate.protocol === 'https:') && allowed.has(candidate.origin);
+    const allowed = new Set([
+      new URL(serverUrl).origin,
+      new URL(rendererUrl).origin,
+    ]);
+    return (
+      (candidate.protocol === 'http:' || candidate.protocol === 'https:') &&
+      allowed.has(candidate.origin)
+    );
   } catch {
     return false;
   }
@@ -163,8 +179,8 @@ async function openExternalUrl(rawUrl: string): Promise<void> {
 function showAbout(): Promise<Electron.MessageBoxReturnValue> {
   const options = {
     type: 'info',
-    title: 'About Miniclaw',
-    message: 'Miniclaw',
+    title: 'About FinTrace',
+    message: 'FinTrace',
     detail: `Pi Agent Runtime workspace\nVersion ${app.getVersion()}`,
   } as const;
   return mainWindow && !mainWindow.isDestroyed()
@@ -175,9 +191,9 @@ function showAbout(): Promise<Electron.MessageBoxReturnValue> {
 function errorPageHtml(failedUrl: string): string {
   const safeUrl = JSON.stringify(failedUrl).replace(/</g, '\\u003c');
   return `<!doctype html>
-<html><head><meta charset="utf-8"><title>Miniclaw is unavailable</title>
+<html><head><meta charset="utf-8"><title>FinTrace is unavailable</title>
 <style>body{font:16px system-ui,sans-serif;background:#101114;color:#f4f4f5;display:grid;place-items:center;min-height:100vh;margin:0}main{max-width:620px;padding:32px;border:1px solid #34363d;border-radius:16px;background:#181a1f}h1{font-size:22px}p{color:#b7bbc5;line-height:1.5}code{word-break:break-all;color:#d8b4fe}button{border:0;border-radius:8px;background:#a78bfa;color:#17131f;padding:10px 16px;font-weight:600;cursor:pointer}</style>
-</head><body><main><h1>Miniclaw Backend 未连接</h1><p>请先启动 Miniclaw Backend，或检查桌面应用配置的服务地址：</p><p><code>${safeUrl}</code></p><button id="retry">重试连接</button><script>document.getElementById('retry').addEventListener('click',()=>window.miniclawDesktop?.retry())</script></main></body></html>`;
+</head><body><main><h1>FinTrace Backend 未连接</h1><p>请先启动 FinTrace Backend，或检查桌面应用配置的服务地址：</p><p><code>${safeUrl}</code></p><button id="retry">重试连接</button><script>document.getElementById('retry').addEventListener('click',()=>window.miniclawDesktop?.retry())</script></main></body></html>`;
 }
 
 async function loadRenderer(): Promise<void> {
@@ -187,7 +203,9 @@ async function loadRenderer(): Promise<void> {
   } catch (error) {
     console.warn('[desktop] renderer could not load', error);
     if (!mainWindow.isDestroyed()) {
-      await mainWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(errorPageHtml(rendererUrl))}`);
+      await mainWindow.loadURL(
+        `data:text/html;charset=utf-8,${encodeURIComponent(errorPageHtml(rendererUrl))}`,
+      );
     }
   }
 }
@@ -215,21 +233,33 @@ function createMainWindow(): BrowserWindow {
   });
 
   window.webContents.setWindowOpenHandler(({ url }) => {
-    void openExternalUrl(url).catch((error) => console.warn('[desktop] blocked external URL', error));
+    void openExternalUrl(url).catch((error) =>
+      console.warn('[desktop] blocked external URL', error),
+    );
     return { action: 'deny' };
   });
 
   window.webContents.on('will-navigate', (event, url) => {
     if (isAllowedRendererUrl(url)) return;
     event.preventDefault();
-    void openExternalUrl(url).catch((error) => console.warn('[desktop] blocked navigation', error));
+    void openExternalUrl(url).catch((error) =>
+      console.warn('[desktop] blocked navigation', error),
+    );
   });
 
-  window.webContents.on('did-fail-load', (_event, errorCode, errorDescription, validatedURL, isMainFrame) => {
-    if (!isMainFrame || errorCode === -3 || validatedURL.startsWith('data:')) return;
-    console.warn(`[desktop] renderer load failed (${errorCode}): ${errorDescription}`);
-    void window.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(errorPageHtml(validatedURL || rendererUrl))}`);
-  });
+  window.webContents.on(
+    'did-fail-load',
+    (_event, errorCode, errorDescription, validatedURL, isMainFrame) => {
+      if (!isMainFrame || errorCode === -3 || validatedURL.startsWith('data:'))
+        return;
+      console.warn(
+        `[desktop] renderer load failed (${errorCode}): ${errorDescription}`,
+      );
+      void window.loadURL(
+        `data:text/html;charset=utf-8,${encodeURIComponent(errorPageHtml(validatedURL || rendererUrl))}`,
+      );
+    },
+  );
 
   window.once('ready-to-show', () => {
     if (state.isMaximized) window.maximize();
@@ -248,7 +278,8 @@ function createMainWindow(): BrowserWindow {
 function registerIpcHandlers(): void {
   ipcMain.handle('desktop:get-config', () => getDesktopConfig());
   ipcMain.handle('desktop:open-external', (_event, url: unknown) => {
-    if (typeof url !== 'string') throw new Error('External URL must be a string');
+    if (typeof url !== 'string')
+      throw new Error('External URL must be a string');
     return openExternalUrl(url);
   });
   ipcMain.handle('desktop:retry', () => loadRenderer());
@@ -268,9 +299,9 @@ function createApplicationMenu(): void {
   const template: MenuItemConstructorOptions[] = [
     ...(process.platform === 'darwin' ? [{ role: 'appMenu' as const }] : []),
     {
-      label: 'Miniclaw',
+      label: 'FinTrace',
       submenu: [
-        { label: 'About Miniclaw', click: () => void showAbout() },
+        { label: 'About FinTrace', click: () => void showAbout() },
         { type: 'separator' },
         { role: 'quit' },
       ],
@@ -279,7 +310,11 @@ function createApplicationMenu(): void {
     {
       label: 'Help',
       submenu: [
-        { label: 'Miniclaw on GitHub', click: () => void openExternalUrl('https://github.com/helsome/miniclaw') },
+        {
+          label: 'FinTrace on GitHub',
+          click: () =>
+            void openExternalUrl('https://github.com/yetuge/fintrace'),
+        },
       ],
     },
   ];

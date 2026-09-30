@@ -13,7 +13,7 @@
 
 ![FinTrace 研究工作台](docs/screenshots/fintrace-overview.png)
 
-FinTrace 将通用 Agent 工作台场景化为金融研究工作区：以微软 FY2024 收入核对为例，集中查看原始数据、计算依据、来源定位、口径差异与待确认判断。首页无需登录、模型密钥或后端服务，适合项目展示与研究流程讲解。
+FinTrace 是基于 Pi Runtime 的多源金融研究 Agent 工作台。以微软 FY2024 收入核对为例，集中查看原始数据、计算依据、来源定位、口径差异与待确认判断。首页无需登录、模型密钥或后端服务，适合项目展示与研究流程讲解。
 
 > 当前版本是可交互的金融研究展示层，使用人工整理的公开财报案例与确定性计算。金融数据 Adapter、自动补证与真实 Agent 执行轨迹尚未接入；已有运行底座与场景设计的边界见下文。
 
@@ -91,8 +91,8 @@ Pi Agent Runner · Host / Docker
 | ---------------------------------------------------- | ------------------------------------ |
 | 金融研究首页、证据浏览、筛选与导出                   | 本次实现，可离线使用内置资料进行展示 |
 | 案例数值复算与引用关联                               | 本次实现，包含针对性测试             |
-| Agent / Workspace / Session、流式输出、取消与恢复    | 基于 MiniClaw 的已有运行底座         |
-| Workspace Memory、Skills、MCP、任务调度、执行边界    | 保留上游实现，未声称本次重新开发     |
+| Agent / Workspace / Session、流式输出、取消与恢复    | Pi Runtime 驱动的运行底座            |
+| Workspace Memory、Skills、MCP、任务调度、执行边界    | 工作区与能力治理模块                 |
 | 财报与公告自动拉取、来源失败与替代来源处理           | 待接入                               |
 | 证据 Schema 到 Memory 的映射、自动口径校验与补证预算 | 设计阶段                             |
 | 真实金融任务的工具 Trace 与端到端验收                | 待验证                               |
@@ -101,7 +101,7 @@ Pi Agent Runner · Host / Docker
 
 真实会话需要后端及模型配置，按 [运行说明](docs/RUNTIME.md) 安装和启动。Web 首页仍进入案例展示，通过 `/chat` 访问工作台。模型调用可能产生所选 Provider 的费用。
 
-保留上游的 `MINICLAW_*` 环境变量、API 与内部数据命名，避免破坏兼容性。当前品牌改造集中在 Web；Electron 打包资源沿用上游。
+运行底座采用 Pi Runtime，提供工作区、会话、记忆、工具与任务调度。Web 展示版与需要后端支持的 Agent 工作台分别构建。
 
 ## 开发与验证
 
@@ -128,8 +128,8 @@ GitHub Actions 验证展示层计算、引用与路由策略，构建后发布�
 | `web/src/App.tsx`                   | 展示与真实工作台路由           |
 | `src/` / `container/agent-runner/`  | 保留的后端与 Pi 运行底座       |
 
-## 来源与许可
+## 技术栈与许可
 
-本项目基于 [MiniClaw](https://github.com/helsome/miniclaw) 进行场景化改造，保留原作者与贡献者的 MIT 版权声明。FinTrace 新增金融研究展示界面、公开案例模型、确定性复算、证据与草稿交互，以及展示部署配置；上游功能说明归档在 [MINICLAW-UPSTREAM.md](docs/MINICLAW-UPSTREAM.md)。
+FinTrace 使用 Pi Runtime、TypeScript、React、Vite、Hono 与 SQLite，围绕金融研究组织数据、证据、工作区和执行上下文。
 
 [MIT License](LICENSE) · [API 文档](docs/API.md) · [权限矩阵](docs/ACL-MATRIX.md) · [安全策略](SECURITY.md)
