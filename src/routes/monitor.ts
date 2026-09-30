@@ -30,7 +30,7 @@ import { logger } from '../logger.js';
 
 const execFileAsync = promisify(execFile);
 
-// --- Pi Runtime version cache ---
+// --- Pi Agent Runtime version cache ---
 
 interface VersionInfo {
   host: string | null;
@@ -50,7 +50,7 @@ let cachedLatestVersion: { version: string | null; fetchedAt: number } | null =
   null;
 const LATEST_VERSION_CACHE_TTL = 30 * 60 * 1000; // 30min
 
-/** Query latest Pi Runtime version from npm registry */
+/** Query latest Pi Agent Runtime version from npm registry */
 async function getLatestPiRuntimeVersion(): Promise<string | null> {
   const now = Date.now();
   if (
@@ -77,7 +77,7 @@ async function getLatestPiRuntimeVersion(): Promise<string | null> {
   }
 }
 
-/** Get the host-installed Pi Runtime version. */
+/** Get the host-installed Pi Agent Runtime version. */
 async function getHostPiRuntimeVersion(): Promise<string | null> {
   try {
     const { stdout } = await execFileAsync(
@@ -121,7 +121,7 @@ async function getDockerImageId(): Promise<string | null> {
   return id;
 }
 
-/** Get container Pi Runtime version from the Docker image. */
+/** Get container Pi Agent Runtime version from the Docker image. */
 async function getContainerPiRuntimeVersion(): Promise<string | null> {
   try {
     const { stdout } = await execFileAsync(

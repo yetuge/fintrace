@@ -1,6 +1,6 @@
 # 运行 Agent 工作台
 
-FinTrace 使用 Pi Runtime 执行 Agent 任务。Web 客户端需要后端服务；执行研究任务还需要配置模型 Provider 和相关工具。
+FinTrace 使用 Pi Agent Runtime 执行 Agent 任务。Web 客户端需要后端服务；执行研究任务还需要配置模型 Provider 和相关工具。
 
 ## 安装与启动
 

@@ -2,7 +2,7 @@
   "name": "fintrace-agent-runner",
   "version": "1.0.0",
   "type": "module",
-  "description": "Pi Runtime agent runner for FinTrace",
+  "description": "Pi Agent Runtime agent runner for FinTrace",
   "main": "dist/pi-index.js",
   "scripts": {
     "build": "tsc",

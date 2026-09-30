@@ -345,7 +345,7 @@ export function UnifiedSidebar({
               <img
                 src={`${import.meta.env.BASE_URL}icons/logo-text.svg`}
                 alt={appearance?.appName || 'FinTrace'}
-                className="h-10"
+                className="h-10 dark:brightness-[1.7]"
               />
               <div className="flex-1" />
               <button

@@ -1,7 +1,7 @@
 {
   "name": "fintrace",
   "version": "1.0.0",
-  "description": "Financial research agent workbench powered by Pi Runtime, with agents, workspaces, sessions, memory and tools.",
+  "description": "Financial research agent workbench powered by Pi Agent Runtime, with agents, workspaces, sessions, memory and tools.",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {

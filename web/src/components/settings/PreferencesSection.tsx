@@ -44,8 +44,8 @@ const SCHEME_OPTIONS: {
 }[] = [
   {
     value: 'default',
-    label: '经典绿',
-    preview: { bg: '#f8fafc', accent: '#0d9488', text: '#0f172a' },
+    label: '深青绿',
+    preview: { bg: '#f5f6f3', accent: '#18766b', text: '#202b29' },
   },
   {
     value: 'orange',

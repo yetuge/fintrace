@@ -10,7 +10,7 @@ export function AboutSection() {
       <div>
         <h2 className="text-lg font-semibold text-foreground mb-1">FinTrace</h2>
         <p className="text-sm text-muted-foreground">
-          基于 Pi Runtime 的多源金融研究 Agent 工作台
+          基于 Pi Agent Runtime 的多源金融研究 Agent 工作台
         </p>
         <p className="mt-1 text-xs text-muted-foreground">版本 1.0.0</p>
       </div>
@@ -47,7 +47,7 @@ export function AboutSection() {
           <h3 className="text-sm font-medium text-foreground">研究与执行</h3>
         </div>
         <p className="text-sm text-muted-foreground leading-relaxed">
-          Pi Runtime 负责模型交互、工具调用与会话执行；FinTrace
+          Pi Agent Runtime 负责模型交互、工具调用与会话执行；FinTrace
           组织工作区、研究资料、记忆、能力配置和任务调度。公开财报案例展示来源核对、证据关联、口径解释与带引用的研究草稿。
         </p>
       </div>

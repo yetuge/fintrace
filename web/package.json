@@ -65,5 +65,5 @@
     "url": "https://github.com/yetuge/fintrace/issues"
   },
   "author": "yetuge",
-  "description": "Financial research agent workbench powered by Pi Runtime, with agents, workspaces, sessions, memory and tools."
+  "description": "Financial research agent workbench powered by Pi Agent Runtime, with agents, workspaces, sessions, memory and tools."
 }

@@ -50,7 +50,7 @@ build-web: ## 仅编译前端
 # ─── Production ──────────────────────────────────────────────
 
 start: ## 一键启动生产环境（前台阻塞运行）
-	@# 生产启动不得隐式改写依赖图；Pi Runtime 升级请显式执行 make update-pi-runtime，
+	@# 生产启动不得隐式改写依赖图；Pi Agent Runtime 升级请显式执行 make update-pi-runtime，
 	@# 验证通过后再提交 package.json 与 lockfile。
 	@# 检查端口是否被占用
 	@if lsof -ti:$(PORT) -sTCP:LISTEN >/dev/null 2>&1; then \
@@ -187,29 +187,29 @@ docker-pull: ## 拉取 GitHub Actions 发布的 Agent 镜像
 sync-types: ## 同步 shared/ 下的类型定义到各子项目
 	@./scripts/sync-stream-event.sh
 
-# ─── Pi Runtime ──────────────────────────────────────────────
+# ─── Pi Agent Runtime ──────────────────────────────────────────────
 
-update-pi-runtime: ## 显式更新 agent-runner 的 Pi Runtime 与 SubAgents 扩展
+update-pi-runtime: ## 显式更新 agent-runner 的 Pi Agent Runtime 与 SubAgents 扩展
 	@PI_LATEST=$$(npm view @earendil-works/pi-coding-agent version --fetch-timeout=5000); \
 	SUBAGENTS_LATEST=$$(npm view @tintinweb/pi-subagents version --fetch-timeout=5000); \
-	echo "🔄 更新 Pi Runtime → $$PI_LATEST，SubAgents → $$SUBAGENTS_LATEST"; \
+	echo "🔄 更新 Pi Agent Runtime → $$PI_LATEST，SubAgents → $$SUBAGENTS_LATEST"; \
 	$(PKG) --prefix container/agent-runner install --save-exact \
 	  @earendil-works/pi-coding-agent@$$PI_LATEST \
 	  @tintinweb/pi-subagents@$$SUBAGENTS_LATEST; \
 	$(PKG) --prefix container/agent-runner run build; \
-	echo "✅ Pi Runtime 与 runner lockfile 已更新。请运行 make typecheck && npm test -- --run 验证。"
+	echo "✅ Pi Agent Runtime 与 runner lockfile 已更新。请运行 make typecheck && npm test -- --run 验证。"
 
-update-sdk: update-pi-runtime ## 兼容旧工作流名称；实际更新 Pi Runtime
+update-sdk: update-pi-runtime ## 兼容旧工作流名称；实际更新 Pi Agent Runtime
 
-ensure-latest-pi-runtime: ## 只读检查 Pi Runtime 与 SubAgents 的最新版本
+ensure-latest-pi-runtime: ## 只读检查 Pi Agent Runtime 与 SubAgents 的最新版本
 	@PI_LOCAL=$$(node -p "require('./container/agent-runner/node_modules/@earendil-works/pi-coding-agent/package.json').version" 2>/dev/null || echo "0.0.0"); \
 	SUBAGENTS_LOCAL=$$(node -p "require('./container/agent-runner/node_modules/@tintinweb/pi-subagents/package.json').version" 2>/dev/null || echo "0.0.0"); \
 	PI_LATEST=$$(npm view @earendil-works/pi-coding-agent version --fetch-timeout=5000 2>/dev/null || echo "$$PI_LOCAL"); \
 	SUBAGENTS_LATEST=$$(npm view @tintinweb/pi-subagents version --fetch-timeout=5000 2>/dev/null || echo "$$SUBAGENTS_LOCAL"); \
-	echo "Pi Runtime: $$PI_LOCAL → $$PI_LATEST"; \
+	echo "Pi Agent Runtime: $$PI_LOCAL → $$PI_LATEST"; \
 	echo "SubAgents: $$SUBAGENTS_LOCAL → $$SUBAGENTS_LATEST";
 
-ensure-latest-sdk: ensure-latest-pi-runtime ## 兼容旧工作流名称；实际检查 Pi Runtime
+ensure-latest-sdk: ensure-latest-pi-runtime ## 兼容旧工作流名称；实际检查 Pi Agent Runtime
 
 # ─── Setup ───────────────────────────────────────────────────
 

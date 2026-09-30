@@ -2,7 +2,7 @@
   <img src="web/public/fintrace.svg" alt="FinTrace" width="72" />
 </p>
 <h1 align="center">FinTrace</h1>
-<p align="center"><strong>基于 Pi Runtime 的金融研究 Agent 工作台</strong></p>
+<p align="center"><strong>基于 Pi Agent Runtime 的金融研究 Agent 工作台</strong></p>
 <p align="center">统一管理智能体、研究工作区、会话、记忆、工具与自动化任务。</p>
 <p align="center">
   <a href="#快速开始">快速开始</a> ·
@@ -13,7 +13,7 @@
 
 ![FinTrace 工作台](docs/screenshots/workbench.png)
 
-FinTrace 面向需要持续整理资料、调用工具和积累研究上下文的金融研究工作。它将 Pi Runtime 的 Agent 执行能力放入统一工作台，用工作区组织资料与记忆，用会话推进任务，通过 Skills、MCP 和插件扩展能力。
+FinTrace 面向需要持续整理资料、调用工具和积累研究上下文的金融研究工作。它将 Pi Agent Runtime 的 Agent 执行能力放入统一工作台，用工作区组织资料与记忆，用会话推进任务，通过 Skills、MCP 和插件扩展能力。
 
 可以用于阅读财报、对比资料、核对指标口径、整理研究笔记，也可以承担一般的信息分析与自动化任务。具体数据源和研究方法由使用者的工具、提示词与工作区配置决定。
 
@@ -107,12 +107,12 @@ GitHub Actions 执行前端测试、文档检查与 Web 构建。当前验证范
 | ------------------------- | ---------------------------------- |
 | `web/src/`                | React 工作台、能力管理与配置界面   |
 | `src/`                    | Hono API、认证、工作区、会话与调度 |
-| `container/agent-runner/` | Pi Runtime 集成与 Agent 执行       |
+| `container/agent-runner/` | Pi Agent Runtime 集成与 Agent 执行 |
 | `shared/`                 | 前后端共享协议与类型               |
 | `electron/`               | 桌面入口与打包配置                 |
 
 ## 技术栈
 
-Pi Runtime · TypeScript · React · Vite · Hono · SQLite · Electron
+Pi Agent Runtime · TypeScript · React · Vite · Hono · SQLite · Electron
 
 [MIT License](LICENSE) · [API 文档](docs/API.md) · [权限矩阵](docs/ACL-MATRIX.md) · [安全策略](SECURITY.md)

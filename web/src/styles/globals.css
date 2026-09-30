@@ -143,58 +143,58 @@
 }
 
 /* =====================================================
-   Design Token values — Teal theme (classic FinTrace)
-   Primary: #0d9488 (Teal) | Base: Slate
+   Design Token values — FinTrace deep teal and warm gray
+   Primary: #18766b | Base: #f5f6f3
    ===================================================== */
 :root {
   /* shadcn/ui semantic tokens */
-  --background: #ffffff;
-  --foreground: #0f172a;
+  --background: #f5f6f3;
+  --foreground: #202b29;
   --card: #ffffff;
-  --card-foreground: #0f172a;
+  --card-foreground: #202b29;
   --popover: #ffffff;
-  --popover-foreground: #0f172a;
-  --primary: #0d9488;
+  --popover-foreground: #202b29;
+  --primary: #18766b;
   --primary-foreground: #ffffff;
-  --secondary: #f1f5f9;
-  --secondary-foreground: #0f172a;
-  --muted: #f1f5f9;
-  --muted-foreground: #64748b;
-  --accent: #f0fdfa;
-  --accent-foreground: #134e4a;
+  --secondary: #edf1ee;
+  --secondary-foreground: #202b29;
+  --muted: #edf1ee;
+  --muted-foreground: #63736e;
+  --accent: #e5f2ee;
+  --accent-foreground: #155d54;
   --destructive: #dc2626;
   --destructive-foreground: #ffffff;
-  --border: #e2e8f0;
-  --input: #e2e8f0;
-  --ring: #0d9488;
+  --border: #dde5e0;
+  --input: #dde5e0;
+  --ring: #18766b;
   --radius: 0.625rem;
 
   /* Brand color scale (Teal) */
-  --brand-50: #f0fdfa;
-  --brand-100: #ccfbf1;
-  --brand-200: #99f6e4;
-  --brand-300: #5eead4;
-  --brand-400: #2dd4bf;
-  --brand-500: #0d9488;
-  --brand-600: #0f766e;
-  --brand-700: #115e59;
+  --brand-50: #e5f2ee;
+  --brand-100: #d3eae3;
+  --brand-200: #b0d5ca;
+  --brand-300: #83b8aa;
+  --brand-400: #4c9987;
+  --brand-500: #18766b;
+  --brand-600: #155d54;
+  --brand-700: #104b44;
 
   /* Chart colors */
-  --chart-1: #0d9488;
+  --chart-1: #18766b;
   --chart-2: #d97706;
   --chart-3: #4c6ef5;
   --chart-4: #9333ea;
   --chart-5: #dc2626;
 
   /* Sidebar */
-  --sidebar-background: #f8fafc;
-  --sidebar-foreground: #0f172a;
-  --sidebar-primary: #0d9488;
+  --sidebar-background: #f5f6f3;
+  --sidebar-foreground: #202b29;
+  --sidebar-primary: #18766b;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f1f5f9;
-  --sidebar-accent-foreground: #0f172a;
-  --sidebar-border: #e2e8f0;
-  --sidebar-ring: #0d9488;
+  --sidebar-accent: #edf1ee;
+  --sidebar-accent-foreground: #202b29;
+  --sidebar-border: #dde5e0;
+  --sidebar-ring: #18766b;
 
   /* Feedback colors */
   --success: #16a34a;
@@ -209,8 +209,8 @@
 
   /* Code colors */
   --code-block-bg: #f6f8fa;
-  --inline-code-bg: rgba(13, 148, 136, 0.1);
-  --inline-code-text: #0d9488;
+  --inline-code-bg: rgba(24, 118, 107, 0.1);
+  --inline-code-text: #18766b;
 
   /* AI message card shadow */
   --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
@@ -231,7 +231,7 @@
     rgba(255, 255, 255, 0) 60%
   );
   --glass-inner-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.6);
-  --sidebar: #f8fafc;
+  --sidebar: #f5f6f3;
 }
 
 /* =====================================================
@@ -477,34 +477,34 @@ html.font-anthropic .font-mono {
    Dark mode token overrides
    ===================================================== */
 .dark {
-  --background: #0f172a;
-  --foreground: #e2e8f0;
-  --card: #1e293b;
-  --card-foreground: #e2e8f0;
-  --popover: #1e293b;
-  --popover-foreground: #e2e8f0;
-  --primary: #2dd4bf;
-  --primary-foreground: #0f172a;
-  --secondary: #1e293b;
-  --secondary-foreground: #e2e8f0;
-  --muted: #1e293b;
-  --muted-foreground: #94a3b8;
-  --accent: #134e4a;
-  --accent-foreground: #99f6e4;
+  --background: #14201d;
+  --foreground: #e3ece7;
+  --card: #1c2b26;
+  --card-foreground: #e3ece7;
+  --popover: #1c2b26;
+  --popover-foreground: #e3ece7;
+  --primary: #79cbb8;
+  --primary-foreground: #14201d;
+  --secondary: #1c2b26;
+  --secondary-foreground: #e3ece7;
+  --muted: #1c2b26;
+  --muted-foreground: #a0b3aa;
+  --accent: #23443a;
+  --accent-foreground: #b6e4d8;
   --destructive: #f87171;
   --destructive-foreground: #ffffff;
-  --border: #334155;
-  --input: #334155;
-  --ring: #2dd4bf;
+  --border: #34483e;
+  --input: #34483e;
+  --ring: #79cbb8;
 
-  --sidebar-background: #0f172a;
-  --sidebar-foreground: #cbd5e1;
-  --sidebar-primary: #2dd4bf;
-  --sidebar-primary-foreground: #0f172a;
-  --sidebar-accent: #1e293b;
-  --sidebar-accent-foreground: #cbd5e1;
-  --sidebar-border: #1e293b;
-  --sidebar-ring: #2dd4bf;
+  --sidebar-background: #14201d;
+  --sidebar-foreground: #d3e1d9;
+  --sidebar-primary: #79cbb8;
+  --sidebar-primary-foreground: #14201d;
+  --sidebar-accent: #1c2b26;
+  --sidebar-accent-foreground: #d3e1d9;
+  --sidebar-border: #1c2b26;
+  --sidebar-ring: #79cbb8;
 
   --success: #4ade80;
   --success-bg: #14532d;
@@ -513,16 +513,16 @@ html.font-anthropic .font-mono {
   --error: #f87171;
   --error-bg: #450a0a;
 
-  --surface: #1e293b;
+  --surface: #1c2b26;
 
   --code-block-bg: #22272e;
   --inline-code-bg: rgba(45, 212, 191, 0.15);
-  --inline-code-text: #2dd4bf;
+  --inline-code-text: #79cbb8;
 
   --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 
-  --glass-bg: rgba(15, 23, 42, 0.55);
-  --glass-bg-heavy: rgba(15, 23, 42, 0.8);
+  --glass-bg: rgba(20, 32, 29, 0.55);
+  --glass-bg-heavy: rgba(20, 32, 29, 0.8);
   --glass-border: rgba(255, 255, 255, 0.08);
   --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   --glass-highlight: linear-gradient(
@@ -532,21 +532,21 @@ html.font-anthropic .font-mono {
   );
   --glass-inner-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.06);
   /* Brand color scale (Teal) — inverted for dark mode */
-  --brand-50: #042f2e;
-  --brand-100: #134e4a;
-  --brand-200: #115e59;
-  --brand-300: #0f766e;
-  --brand-400: #0d9488;
-  --brand-500: #14b8a6;
-  --brand-600: #2dd4bf;
-  --brand-700: #5eead4;
+  --brand-50: #203a31;
+  --brand-100: #23443a;
+  --brand-200: #2e5c4d;
+  --brand-300: #427b69;
+  --brand-400: #56a08a;
+  --brand-500: #68b49e;
+  --brand-600: #79cbb8;
+  --brand-700: #a3dccd;
 
-  --chart-1: #2dd4bf;
+  --chart-1: #79cbb8;
   --chart-2: #fbbf24;
   --chart-3: #818cf8;
   --chart-4: #c084fc;
   --chart-5: #f87171;
-  --sidebar: #0f172a;
+  --sidebar: #14201d;
 }
 
 /* =====================================================
@@ -940,72 +940,44 @@ pre code.hljs {
   }
 }
 
-/* =====================================================
-   Landing Page — Hero, Glass Cards, Animations
-   Scoped orange theme: override tokens inside .landing-page
-   so buttons, links, badges, icons all render orange
-   regardless of the global theme setting.
-
-   注意：登录页作为品牌入口固定使用橙色配色，不随用户主题
-   偏好切换。这是产品决策，不要将这些 token 改回依赖 :root。
-   ===================================================== */
-
-/* Landing-page scoped orange tokens (light mode) */
+/* Brand entry uses the FinTrace palette, independently of optional themes. */
 .landing-page {
-  --background: #fffbf5;
-  --foreground: #1c1210;
-  --primary: #f97316;
+  --background: #f5f6f3;
+  --foreground: #202b29;
+  --primary: #18766b;
   --primary-foreground: #ffffff;
-  --ring: #f97316;
-  --muted: #f5ede4;
-  --muted-foreground: #8b7b6b;
-  --border: #ede3d8;
-  --input: #ede3d8;
-  --brand-50: #fff7ed;
-  --brand-100: #ffedd5;
-  --brand-200: #fed7aa;
-  --brand-300: #fdba74;
-  --brand-400: #fb923c;
-  --brand-500: #f97316;
-  --brand-600: #ea580c;
-  --brand-700: #c2410c;
-  --glass-bg: rgba(255, 251, 245, 0.6);
-  --glass-bg-heavy: rgba(255, 251, 245, 0.8);
-  --glass-border: rgba(237, 227, 216, 0.6);
-  --glass-shadow: 0 8px 32px rgba(180, 120, 60, 0.06);
-  --glass-inner-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.7);
-  --glass-blur: 20px;
-  --glass-saturate: 1.8;
-  --error: #dc2626;
-  --error-bg: #fee2e2;
+  --ring: #18766b;
+  --muted: #edf1ee;
+  --muted-foreground: #63736e;
+  --border: #dde5e0;
+  --input: #dde5e0;
+  --brand-50: #e5f2ee;
+  --brand-100: #d3eae3;
+  --brand-200: #b0d5ca;
+  --brand-300: #83b8aa;
+  --brand-400: #4c9987;
+  --brand-500: #18766b;
+  --brand-600: #155d54;
+  --brand-700: #104b44;
 }
-
-/* Landing-page scoped orange tokens (dark mode) */
 .dark .landing-page {
-  --background: #1a1210;
-  --foreground: #f5ede4;
-  --primary: #fb923c;
-  --primary-foreground: #1a1210;
-  --ring: #fb923c;
-  --muted: #2a2018;
-  --muted-foreground: #a08b7a;
-  --border: #3a2a1e;
-  --input: #3a2a1e;
-  --brand-50: #431407;
-  --brand-100: #7c2d12;
-  --brand-200: #9a3412;
-  --brand-300: #c2410c;
-  --brand-400: #ea580c;
-  --brand-500: #f97316;
-  --brand-600: #fb923c;
-  --brand-700: #fdba74;
-  --glass-bg: rgba(26, 18, 16, 0.6);
-  --glass-bg-heavy: rgba(26, 18, 16, 0.8);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  --glass-inner-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.06);
-  --error: #f87171;
-  --error-bg: #450a0a;
+  --background: #14201d;
+  --foreground: #e3ece7;
+  --primary: #79cbb8;
+  --primary-foreground: #14201d;
+  --ring: #79cbb8;
+  --muted: #1c2b26;
+  --muted-foreground: #a0b3aa;
+  --border: #34483e;
+  --input: #34483e;
+  --brand-50: #203a31;
+  --brand-100: #23443a;
+  --brand-200: #2e5c4d;
+  --brand-300: #427b69;
+  --brand-400: #56a08a;
+  --brand-500: #68b49e;
+  --brand-600: #79cbb8;
+  --brand-700: #a3dccd;
 }
 
 /* Aurora mesh background — organic blobs with noise overlay */
@@ -1058,7 +1030,7 @@ pre code.hljs {
   height: 65vh;
   top: -20%;
   left: -15%;
-  background: rgba(251, 146, 60, 0.12);
+  background: rgba(24, 118, 107, 0.12);
   border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
   animation: aurora-morph-1 20s ease-in-out infinite;
 }
@@ -1069,7 +1041,7 @@ pre code.hljs {
   height: 55vh;
   bottom: -15%;
   right: -10%;
-  background: rgba(167, 139, 250, 0.1);
+  background: rgba(131, 184, 170, 0.1);
   border-radius: 50% 50% 30% 70% / 40% 60% 40% 60%;
   animation: aurora-morph-2 25s ease-in-out infinite;
 }
@@ -1080,7 +1052,7 @@ pre code.hljs {
   height: 45vh;
   top: 35%;
   left: 25%;
-  background: rgba(56, 189, 248, 0.08);
+  background: rgba(76, 153, 135, 0.08);
   border-radius: 40% 60% 50% 50% / 60% 40% 60% 40%;
   animation: aurora-morph-3 22s ease-in-out infinite;
 }
@@ -1091,22 +1063,22 @@ pre code.hljs {
   height: 40vh;
   top: -10%;
   right: 5%;
-  background: rgba(251, 113, 133, 0.08);
+  background: rgba(176, 213, 202, 0.08);
   border-radius: 50% 50% 30% 70% / 40% 60% 40% 60%;
   animation: aurora-morph-2 28s ease-in-out infinite reverse;
 }
 
 .dark .landing-aurora-blob-1 {
-  background: rgba(251, 146, 60, 0.08);
+  background: rgba(24, 118, 107, 0.08);
 }
 .dark .landing-aurora-blob-2 {
-  background: rgba(167, 139, 250, 0.07);
+  background: rgba(131, 184, 170, 0.07);
 }
 .dark .landing-aurora-blob-3 {
-  background: rgba(56, 189, 248, 0.05);
+  background: rgba(76, 153, 135, 0.05);
 }
 .dark .landing-aurora-blob-4 {
-  background: rgba(251, 113, 133, 0.05);
+  background: rgba(176, 213, 202, 0.05);
 }
 
 /* Mobile: scale blobs to cover small screens */
@@ -1193,7 +1165,7 @@ pre code.hljs {
 
 /* Gradient text — orange spectrum */
 .landing-gradient-text {
-  background: linear-gradient(135deg, #ea580c 0%, #fb923c 50%, #f97316 100%);
+  background: linear-gradient(135deg, #104b44 0%, #4c9987 50%, #18766b 100%);
   background-size: 200% 200%;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
