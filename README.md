@@ -105,6 +105,8 @@ Pi Agent Runner · Host / Docker
 
 ## 开发与验证
 
+具体检查结果与未覆盖范围见 [展示层验证记录](docs/VERIFICATION.md)。
+
 ```bash
 # 安装展示层依赖后，从仓库根目录执行
 npm run test:showcase

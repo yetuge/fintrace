@@ -61,6 +61,7 @@ skills-lock.json
 --connect
 .playwright-mcp/
 output/playwright/
+output/lock-refresh/
 .playwright-cli/
 
 # OS
