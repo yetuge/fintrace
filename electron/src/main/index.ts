@@ -188,8 +188,17 @@ function showAbout(): Promise<Electron.MessageBoxReturnValue> {
     : dialog.showMessageBox(options);
 }
 
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function errorPageHtml(failedUrl: string): string {
-  const safeUrl = JSON.stringify(failedUrl).replace(/</g, '\\u003c');
+  const safeUrl = escapeHtml(failedUrl);
   return `<!doctype html>
 <html><head><meta charset="utf-8"><title>FinTrace is unavailable</title>
 <style>body{font:16px system-ui,sans-serif;background:#101114;color:#f4f4f5;display:grid;place-items:center;min-height:100vh;margin:0}main{max-width:620px;padding:32px;border:1px solid #34363d;border-radius:16px;background:#181a1f}h1{font-size:22px}p{color:#b7bbc5;line-height:1.5}code{word-break:break-all;color:#d8b4fe}button{border:0;border-radius:8px;background:#a78bfa;color:#17131f;padding:10px 16px;font-weight:600;cursor:pointer}</style>

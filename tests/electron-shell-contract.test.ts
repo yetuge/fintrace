@@ -27,6 +27,12 @@ describe('Electron Desktop Shell contract', () => {
     expect(preloadSource).not.toContain('child_process');
   });
 
+  it('escapes the failed URL as HTML on the offline error page', () => {
+    expect(mainSource).toContain('function escapeHtml');
+    expect(mainSource).toContain('const safeUrl = escapeHtml(failedUrl)');
+    expect(mainSource).not.toContain('JSON.stringify(failedUrl)');
+  });
+
   it('keeps packaging focused on the desktop shell', () => {
     expect(builderConfig).toContain('productName: FinTrace');
     expect(builderConfig).toContain('icon: assets/fintrace.png');

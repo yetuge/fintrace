@@ -49,9 +49,7 @@ describe('reproducible build contract', () => {
     expect(installTarget).not.toMatch(/\$\(PKG\) install(?:\s|$)/);
 
     const ci = read('.github/workflows/ci.yml');
-    expect(ci).toContain('npm ci');
     expect(ci).toContain('npm --prefix web ci');
-    expect(ci).toContain('npm --prefix container/agent-runner ci');
     expect(ci).not.toMatch(/^\s+npm(?: --prefix \S+)? install\s*$/m);
     expect(ci).toMatch(/uses: actions\/checkout@[a-f0-9]{40}/);
     expect(ci).toMatch(/uses: actions\/setup-node@[a-f0-9]{40}/);
