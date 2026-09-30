@@ -49,6 +49,9 @@ test-results/
 /admin-mail-*.png
 /inbox-after-readall.png
 
+# Skill-governance test staging fixtures — regenerated on every test run
+/container/skills/__governance_test_*/
+
 # Local tooling metadata
 .claude/
 .mcp.json
@@ -62,6 +65,7 @@ skills-lock.json
 .playwright-mcp/
 output/playwright/
 output/lock-refresh/
+/output/desktop-*.png
 .playwright-cli/
 
 # OS
