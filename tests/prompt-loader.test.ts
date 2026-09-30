@@ -22,8 +22,8 @@ const REQUIRED_FILES = [
   'delivery-contract.assistant.md',
   'delivery-contract.proactive.md',
   'memory-system.workspace.md',
-  'identity.miniclaw.md',
-  'bootstrap.miniclaw.md',
+  'identity.fintrace.md',
+  'bootstrap.fintrace.md',
 ];
 
 const REQUIRED_CHANNELS = [
@@ -111,17 +111,21 @@ describe('prompts/ files', () => {
     );
   });
 
-  test('built-in Miniclaw identity and one-shot owner bootstrap are explicit', () => {
+  test('built-in FinTrace identity and one-shot owner bootstrap are explicit', () => {
     const identity = fs.readFileSync(
-      path.join(PROMPTS_DIR, 'identity.miniclaw.md'),
+      path.join(PROMPTS_DIR, 'identity.fintrace.md'),
       'utf-8',
     );
     const bootstrap = fs.readFileSync(
-      path.join(PROMPTS_DIR, 'bootstrap.miniclaw.md'),
+      path.join(PROMPTS_DIR, 'bootstrap.fintrace.md'),
       'utf-8',
     );
 
-    expect(identity).toContain('你是 **Miniclaw**');
+    expect(identity).toContain('你是 **FinTrace**');
+    expect(identity).toContain('Pi Agent Runtime');
+    expect(identity).not.toContain('Miniclaw');
+    expect(bootstrap).toContain('说明自己是 FinTrace');
+    expect(bootstrap).not.toContain('说明自己是 Miniclaw');
     expect(identity).toContain('AgentProfile');
     expect(identity).toContain('Home Workspace');
     expect(identity).toContain('Agent Builder');

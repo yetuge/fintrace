@@ -10,9 +10,7 @@ export interface MiniclawBootstrapTurn {
  * built-in Miniclaw in Home. Process warmups have no turnId; scheduled runs,
  * custom Agents, and non-Home workspaces are always excluded.
  */
-export function isMiniclawBootstrapTurn(
-  input: MiniclawBootstrapTurn,
-): boolean {
+export function isMiniclawBootstrapTurn(input: MiniclawBootstrapTurn): boolean {
   return Boolean(
     input.turnId &&
     input.isHome &&

@@ -39,8 +39,7 @@ import { PiRuntimeAdapter } from './runtime/pi/pi-runtime.js';
 import { runPiQueryAttempt } from './runtime/pi/pi-runner.js';
 
 const WORKSPACE_GROUP =
-  process.env.MINICLAW_WORKSPACE_GROUP ||
-  '/workspace/group';
+  process.env.MINICLAW_WORKSPACE_GROUP || '/workspace/group';
 const WORKSPACE_IPC =
   process.env.MINICLAW_WORKSPACE_IPC ||
   process.env.MINICLAW_WORKSPACE_IPC ||
@@ -248,11 +247,11 @@ function buildSystemPrompt(input: ContainerInput, ctx: McpContext): string {
   const identity = input.agentProfile?.identityPrompt?.trim();
   const plan = buildMiniclawPromptPlan({
     platformIdentity: input.agentProfile?.isDefault
-      ? loadPrompt('identity.miniclaw.md')
+      ? loadPrompt('identity.fintrace.md')
       : undefined,
     platformBootstrap:
       input.agentProfile?.isDefault && input.miniclawOwnerProfileEnabled
-        ? loadPrompt('bootstrap.miniclaw.md')
+        ? loadPrompt('bootstrap.fintrace.md')
         : undefined,
     agentIdentity: identity
       ? `<agent-identity profile_id="${input.agentProfile?.id}"><profile-prompt>${identity}</profile-prompt></agent-identity>`

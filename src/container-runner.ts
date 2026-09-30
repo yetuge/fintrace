@@ -1469,7 +1469,7 @@ export function buildVolumeMounts(
 
   // Prompts must ride along with the source for the same reason: the image
   // bakes a copy at build time, so a prompt file added after the last image
-  // build (e.g. identity.miniclaw.md) is missing inside the container while
+  // build (e.g. identity.fintrace.md) is missing inside the container while
   // the freshly-mounted runner code already requires it — every container
   // startup then dies with ENOENT. The entrypoint's /tmp/prompts symlink
   // resolves through this mount.

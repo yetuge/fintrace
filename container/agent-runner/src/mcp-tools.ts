@@ -2308,7 +2308,7 @@ Returns null if the current chat is a DM (DMs do not belong to a server). Only w
     tools.push(
       tool(
         'agent_profile_list',
-        "List the current user's top-level Agents and resumable ready drafts. Use this before editing or resuming work so you can identify the target, current version, draft ID, and draft revision. The main Miniclaw is returned for context but cannot edit itself with Agent Builder.",
+        "List the current user's top-level Agents and resumable ready drafts. Use this before editing or resuming work so you can identify the target, current version, draft ID, and draft revision. The main FinTrace is returned for context but cannot edit itself with Agent Builder.",
         {},
         async () => {
           const result = await callAgentBuilder('agent_profile_list', {});

@@ -152,25 +152,25 @@ export function buildMiniclawPromptPlan(
 
   if (sources.platformIdentity) {
     inputs.push({
-      id: 'identity.miniclaw',
+      id: 'identity.fintrace',
       version: 1,
       scope: 'main',
       owner: 'platform',
       required: true,
-      condition: 'built-in default Miniclaw AgentProfile',
+      condition: 'built-in default FinTrace AgentProfile',
       text: wrap('platform-identity', sources.platformIdentity),
     });
   }
 
   if (sources.platformBootstrap) {
     inputs.push({
-      id: 'bootstrap.miniclaw',
+      id: 'bootstrap.fintrace',
       version: 1,
       scope: 'main',
       owner: 'platform',
       required: false,
       condition:
-        'built-in Miniclaw Home runtime; each turn follows the host-authoritative owner-profile block',
+        'built-in FinTrace Home runtime; each turn follows the host-authoritative owner-profile block',
       text: wrap('platform-bootstrap', sources.platformBootstrap),
     });
   }

@@ -209,7 +209,7 @@ import { type WorkspaceMemoryMutationContext } from './memory-store.js';
 import {
   isMiniclawBootstrapTurn,
   isMiniclawOwnerProfileRuntimeStructurallyEligible,
-} from './miniclaw-bootstrap.js';
+} from './fintrace-bootstrap.js';
 import {
   acknowledgeMiniclawOwnerIntroduction,
   claimMiniclawOwnerIntroduction,
@@ -5815,7 +5815,7 @@ async function processGroupMessages(chatJid: string): Promise<boolean> {
         limit: 30,
         maxMessageLength: 700,
         intro:
-          '检测到当前 workspace 切换或更新了顶层 AgentProfile 身份提示词，底层模型 session 已重置。以下是 Miniclaw 保存的最近对话记录，供你在新身份下延续上下文。',
+          '检测到当前 workspace 切换或更新了顶层 AgentProfile 身份提示词，底层模型 session 已重置。以下是 FinTrace 保存的最近对话记录，供你在新身份下延续上下文。',
       },
     );
     if (historyContext) {
@@ -5845,7 +5845,7 @@ async function processGroupMessages(chatJid: string): Promise<boolean> {
         limit: 30,
         maxMessageLength: 700,
         intro:
-          '检测到本次因切换 provider 需要使用新的底层模型 session。以下是 Miniclaw 保存的最近对话记录，供你延续上下文。',
+          '检测到本次因切换 provider 需要使用新的底层模型 session。以下是 FinTrace 保存的最近对话记录，供你延续上下文。',
       },
     );
     if (historyContext) {
@@ -14253,8 +14253,8 @@ async function processAgentConversation(
         limit: 30,
         maxMessageLength: 700,
         intro: resetForAgentProfile
-          ? '检测到当前 workspace 切换或更新了顶层 AgentProfile 身份提示词，当前 agent 的底层模型 session 已重置。以下是 Miniclaw 保存的最近对话记录，供你在新身份下延续上下文。'
-          : '检测到当前 agent 的底层模型 session 是新的（可能因为切换 provider/model 或恢复失败）。以下是 Miniclaw 保存的最近对话记录，供你延续上下文。',
+          ? '检测到当前 workspace 切换或更新了顶层 AgentProfile 身份提示词，当前 agent 的底层模型 session 已重置。以下是 FinTrace 保存的最近对话记录，供你在新身份下延续上下文。'
+          : '检测到当前 agent 的底层模型 session 是新的（可能因为切换 provider/model 或恢复失败）。以下是 FinTrace 保存的最近对话记录，供你延续上下文。',
       },
     );
     if (historyContext) {

@@ -339,7 +339,7 @@ describe('Agent Builder runtime eligibility', () => {
         ...base,
         sourceProfileIsDefault: false,
       }),
-    ).toMatch(/main Miniclaw/);
+    ).toMatch(/main FinTrace/);
     expect(
       getAgentBuilderRuntimeRejection({
         ...base,

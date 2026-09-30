@@ -21,8 +21,8 @@ describe('Miniclaw PromptPlan', () => {
     });
 
     expect(plan.blocks.map((block) => block.id)).toEqual([
-      'identity.miniclaw',
-      'bootstrap.miniclaw',
+      'identity.fintrace',
+      'bootstrap.fintrace',
       'agent-profile',
       'interaction',
       'security-rules',

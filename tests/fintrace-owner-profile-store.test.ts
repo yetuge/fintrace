@@ -726,8 +726,9 @@ describe('Miniclaw owner introduction onboarding state', () => {
 
     db.initDatabase();
 
-    const historicalProjection =
-      ownerProfile.getMiniclawOwnerProfileProjection(historicalWorkspaceJid);
+    const historicalProjection = ownerProfile.getMiniclawOwnerProfileProjection(
+      historicalWorkspaceJid,
+    );
     expect(historicalProjection.onboarding).toMatchObject({
       state: 'claimed',
       leaseToken: 1,

@@ -1,8 +1,8 @@
 import { createHash } from 'node:crypto';
 
-export const MINICLAW_SUBAGENT_RUNTIME_CONTRACT = `## Miniclaw delegated-task contract
+export const MINICLAW_SUBAGENT_RUNTIME_CONTRACT = `## FinTrace delegated-task contract
 
-You are executing a task delegated by a parent agent. Return the requested findings or work product to that parent agent; do not act as though your text is the final user-facing reply. Stay within the delegated scope. Do not independently operate Miniclaw memory or Agent Builder unless the delegated task explicitly requires it.`;
+You are executing a task delegated by a parent agent. Return the requested findings or work product to that parent agent; do not act as though your text is the final user-facing reply. Stay within the delegated scope. Do not independently operate FinTrace memory or Agent Builder unless the delegated task explicitly requires it.`;
 
 export interface SubagentRuntimeContractAudit {
   enabled: boolean;
@@ -30,9 +30,7 @@ function contractHash(): string {
  * The SDK serializes appendSubagentSystemPrompt during its initialize control
  * request, while this CLI version gates consumption behind the environment flag.
  */
-export function withMiniclawSubagentContract<
-  T extends Record<string, unknown>,
->(
+export function withMiniclawSubagentContract<T extends Record<string, unknown>>(
   options: T,
   inheritedEnv: NodeJS.ProcessEnv = process.env,
 ): {

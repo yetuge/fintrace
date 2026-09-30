@@ -282,7 +282,7 @@ export function prepareAgentBuilderDraft(
     throw new Error('Target Agent not found');
   if (target?.is_default) {
     throw new Error(
-      'The main Miniclaw cannot edit itself through Agent Builder',
+      'The main FinTrace cannot edit itself through Agent Builder',
     );
   }
   if (
@@ -468,7 +468,7 @@ export async function publishAgentBuilderDraft(
         }
         if (target?.is_default) {
           throw new Error(
-            'The main Miniclaw cannot edit itself through Agent Builder',
+            'The main FinTrace cannot edit itself through Agent Builder',
           );
         }
         if (target && target.version !== currentDraft.base_agent_version) {

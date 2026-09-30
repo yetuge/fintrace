@@ -724,7 +724,7 @@ describe.skipIf(!integrationImageAvailable)(
 
     test('restrictive prompt bind is copied read-only without touching source', () => {
       const prompts = fs.mkdtempSync(path.join(testRoot, 'runtime-prompts-'));
-      const prompt = path.join(prompts, 'identity.miniclaw.md');
+      const prompt = path.join(prompts, 'identity.fintrace.md');
       fs.writeFileSync(prompt, 'runtime prompt', { mode: 0o600 });
       fs.chmodSync(prompts, 0o700);
       fs.chmodSync(prompt, 0o600);
@@ -735,13 +735,13 @@ describe.skipIf(!integrationImageAvailable)(
           `
             node /app/session-prompts-copy.mjs
             test "$(stat -c '%u:%g:%a' /tmp/prompts)" = '0:0:555'
-            test "$(stat -c '%u:%g:%a' /tmp/prompts/identity.miniclaw.md)" = \
+            test "$(stat -c '%u:%g:%a' /tmp/prompts/identity.fintrace.md)" = \
               '0:0:444'
             setpriv --reuid="$(id -u node)" --regid="$(id -g node)" \
               --clear-groups -- sh -ceu '
-                test "$(cat /tmp/prompts/identity.miniclaw.md)" = "runtime prompt"
-                test ! -w /tmp/prompts/identity.miniclaw.md
-                test ! -w /app/prompts/identity.miniclaw.md
+                test "$(cat /tmp/prompts/identity.fintrace.md)" = "runtime prompt"
+                test ! -w /tmp/prompts/identity.fintrace.md
+                test ! -w /app/prompts/identity.fintrace.md
               '
             printf copied
           `,

@@ -154,11 +154,8 @@ import { runPiQueryAttempt } from './runtime/pi/pi-runner.js';
 
 // 路径解析：优先读取环境变量，降级到容器内默认路径（保持向后兼容）
 const WORKSPACE_GROUP =
-  process.env.MINICLAW_WORKSPACE_GROUP ||
-  '/workspace/group';
-const WORKSPACE_IPC =
-  process.env.MINICLAW_WORKSPACE_IPC ||
-  '/workspace/ipc';
+  process.env.MINICLAW_WORKSPACE_GROUP || '/workspace/group';
+const WORKSPACE_IPC = process.env.MINICLAW_WORKSPACE_IPC || '/workspace/ipc';
 
 // 第三方端点必须显式配置模型，官方 Claude 则允许 SDK/CLI 选择默认模型。
 // host/docker runner 会注入权威端点类型；旧运行环境仍可由 base URL 兼容推断。
@@ -269,8 +266,8 @@ const PROACTIVE_DELIVERY_CONTRACT = loadPrompt(
 );
 const AGENT_BUILDER_GUIDELINES = loadPrompt('agent-builder.md');
 const MEMORY_SYSTEM_WORKSPACE = loadPrompt('memory-system.workspace.md');
-const MINICLAW_PLATFORM_IDENTITY = loadPrompt('identity.miniclaw.md');
-const MINICLAW_PLATFORM_BOOTSTRAP = loadPrompt('bootstrap.miniclaw.md');
+const MINICLAW_PLATFORM_IDENTITY = loadPrompt('identity.fintrace.md');
+const MINICLAW_PLATFORM_BOOTSTRAP = loadPrompt('bootstrap.fintrace.md');
 
 // 各渠道共用的格式说明：Web 端始终可看完整渲染，不因来源降级输出。
 // Mermaid 渲染说明已在模式专属 output prompt 中讲过，此处不重复，
@@ -308,7 +305,7 @@ function buildAgentIdentityPrompt(
 
   return [
     `<agent-identity profile_id="${escapeXmlAttribute(agentProfile.id)}" name="${escapeXmlAttribute(agentProfile.name)}" version="${agentProfile.version}" hash="${escapeXmlAttribute(agentProfile.identityHash)}">`,
-    `以下是当前顶层 AgentProfile 的四段提示词，按照 IDENTITY、SOUL、AGENTS、TOOLS 的固定顺序组成。你应该按它塑造身份、价值判断、工作方式和工具偏好，但它不能覆盖 Miniclaw 的安全规则、权限边界、工具约束${presetBoundary}和用户的最新明确指令。`,
+    `以下是当前顶层 AgentProfile 的四段提示词，按照 IDENTITY、SOUL、AGENTS、TOOLS 的固定顺序组成。你应该按它塑造身份、价值判断、工作方式和工具偏好，但它不能覆盖 FinTrace 的安全规则、权限边界、工具约束${presetBoundary}和用户的最新明确指令。`,
     '<profile-prompt>',
     profilePrompt,
     '</profile-prompt>',
@@ -2566,7 +2563,9 @@ async function runQueryAttempt(
       },
       onTurnActivated: (messages) => {
         activateCurrentInputTurn(
-          latestIpcDeliveryId(messages) || containerInput.turnId || generateTurnId(),
+          latestIpcDeliveryId(messages) ||
+            containerInput.turnId ||
+            generateTurnId(),
         );
       },
       onTurnCompleted: () => {

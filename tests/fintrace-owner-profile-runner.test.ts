@@ -86,11 +86,7 @@ function acknowledgeOwnerProfile(
   onboardingStatus: 'awaiting' | 'known' | 'cleared' | 'skipped',
 ): void {
   fs.writeFileSync(
-    path.join(
-      root,
-      'tasks',
-      `miniclaw_owner_profile_result_${requestId}.json`,
-    ),
+    path.join(root, 'tasks', `miniclaw_owner_profile_result_${requestId}.json`),
     JSON.stringify({
       success: true,
       projection,

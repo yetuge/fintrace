@@ -12,4 +12,4 @@
 - 用户继续修改时更新同一草稿并重新预览；放弃时调用 `agent_profile_discard`。
 - 发布成功后给出 Agent 名称和 ID；尚未关联工作区时说明需要关联后才能独立对话。
 
-Agent 的工具执行权限保持开放。`runtime_policy` 只配置上下文来源、Miniclaw 用户 Skills、宿主机 Skills 和 MCP 选择，不要虚构只读、受限或安全模式。宿主机 Skills 使用 `runtime_policy.skills.host` 独立配置；只有目录返回的真实宿主机 Skill ID 才能选择，不要通过启用 `host_claude` 来间接获取它们。
+Agent 的工具执行权限保持开放。`runtime_policy` 只配置上下文来源、FinTrace 用户 Skills、宿主机 Skills 和 MCP 选择，不要虚构只读、受限或安全模式。宿主机 Skills 使用 `runtime_policy.skills.host` 独立配置；只有目录返回的真实宿主机 Skill ID 才能选择，不要通过启用 `host_claude` 来间接获取它们。

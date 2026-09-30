@@ -3,7 +3,7 @@ import { describe, expect, test } from 'vitest';
 import {
   isMiniclawBootstrapTurn,
   isMiniclawOwnerProfileRuntimeStructurallyEligible,
-} from '../src/miniclaw-bootstrap.js';
+} from '../src/fintrace-bootstrap.js';
 
 describe('Miniclaw first-wake eligibility', () => {
   test('allows only a real interactive Home turn of the built-in profile', () => {
