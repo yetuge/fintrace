@@ -667,7 +667,11 @@ function resolveAgentProfileUserSkillsPolicy(
     fs.mkdirSync(stagingRoot, { recursive: true });
     try {
       for (const { id, source } of selectedSkills) {
-        fs.symlinkSync(source, path.join(stagingRoot, id));
+        fs.symlinkSync(
+          path.resolve(source),
+          path.join(stagingRoot, id),
+          process.platform === 'win32' ? 'junction' : 'dir',
+        );
       }
       fs.mkdirSync(path.dirname(runtimeRoot), { recursive: true });
       try {

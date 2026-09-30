@@ -124,12 +124,37 @@ describe('EffectiveSkillResolver', () => {
 
     expect(result.quarantined).toEqual(['ghost']);
     expect(fs.existsSync(path.join(session, 'skills', 'ghost'))).toBe(false);
-    expect(fs.readlinkSync(path.join(session, 'skills', 'selected'))).toBe(
-      selected,
+    expect(fs.realpathSync(path.join(session, 'skills', 'selected'))).toBe(
+      fs.realpathSync(selected),
     );
     expect(
       fs.existsSync(path.join(result.quarantineDir!, 'ghost', 'SKILL.md')),
     ).toBe(true);
+  });
+
+  test('directory projections can be rebuilt and disabled without removing source skills', () => {
+    const selected = skill('host', 'selected');
+    const session = path.join(root, 'session-rebuild', '.claude');
+    const manifest = resolveEffectiveSkills({
+      layers: [{ source: 'host', root: path.join(root, 'host') }],
+      hostPolicy: { mode: 'inherit' },
+    });
+    reconcileSessionSkills(session, manifest, { materializeLinks: true });
+    expect(
+      fs.readFileSync(
+        path.join(session, 'skills', 'selected', 'SKILL.md'),
+        'utf8',
+      ),
+    ).toBe('# host/selected');
+    expect(
+      reconcileSessionSkills(session, manifest, { materializeLinks: true })
+        .quarantined,
+    ).toEqual([]);
+    reconcileSessionSkills(session, manifest, { materializeLinks: false });
+    expect(fs.readdirSync(path.join(session, 'skills'))).toEqual([]);
+    expect(fs.readFileSync(path.join(selected, 'SKILL.md'), 'utf8')).toBe(
+      '# host/selected',
+    );
   });
 
   test('plugin Skills use qualified ids and remain plugin-owned', () => {

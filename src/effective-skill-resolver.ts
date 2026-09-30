@@ -322,7 +322,12 @@ export function reconcileSessionSkills(
         // Plugin definitions are loaded by options.plugins and only contribute
         // their qualified id to the SDK skills selector.
         if (skill.source === 'plugin') continue;
-        fs.symlinkSync(skill.path, path.join(staging, skill.id));
+        // Windows directory junctions work without symlink privileges.
+        fs.symlinkSync(
+          path.resolve(skill.path),
+          path.join(staging, skill.id),
+          process.platform === 'win32' ? 'junction' : 'dir',
+        );
       }
     }
     if (fs.existsSync(skillsDir)) fs.renameSync(skillsDir, previous);
