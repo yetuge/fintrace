@@ -222,7 +222,12 @@ function createMainWindow(): BrowserWindow {
     show: false,
     title: APP_NAME,
     backgroundColor: '#101114',
-    icon: path.join(__dirname, '..', 'assets', 'miniclaw-icon.png'),
+    icon: path.join(
+      __dirname,
+      '..',
+      'assets',
+      process.platform === 'win32' ? 'fintrace.ico' : 'fintrace.png',
+    ),
     webPreferences: {
       preload: path.join(__dirname, '..', 'dist', 'preload.cjs'),
       contextIsolation: true,
@@ -322,6 +327,7 @@ function createApplicationMenu(): void {
 }
 
 app.setName(APP_NAME);
+if (process.platform === 'win32') app.setAppUserModelId('cc.fintrace.desktop');
 
 if (!app.requestSingleInstanceLock()) {
   app.quit();

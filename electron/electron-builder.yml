@@ -1,8 +1,8 @@
-appId: cc.miniclaw.desktop
+appId: cc.fintrace.desktop
 productName: FinTrace
 copyright: Copyright © 2026 FinTrace contributors
 electronVersion: 39.8.10
-icon: assets/miniclaw-icon.png
+icon: assets/fintrace.png
 
 directories:
   output: release
@@ -20,12 +20,13 @@ asar: true
 
 mac:
   category: public.app-category.productivity
-  icon: assets/miniclaw.icns
+  icon: assets/fintrace.icns
   target:
     - dmg
     - zip
 
 win:
+  icon: assets/fintrace.ico
   target:
     - nsis
 
