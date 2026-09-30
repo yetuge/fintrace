@@ -1,0 +1,21 @@
+{
+  "name": "FinTrace · 多源金融研究 Agent",
+  "short_name": "FinTrace",
+  "description": "从一手披露到可追溯研究结论",
+  "start_url": "./",
+  "display": "standalone",
+  "display_override": ["standalone"],
+  "background_color": "#f5f6fa",
+  "theme_color": "#7461dc",
+  "lang": "zh-CN",
+  "scope": "./",
+  "id": "./",
+  "icons": [
+    {
+      "src": "fintrace.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
