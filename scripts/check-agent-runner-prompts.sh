@@ -63,7 +63,7 @@ trap 'rm -f "$HITS_FILE" "$ALL_MD_FILE" "$CAPTURED_FILE"' EXIT
 # .md literals that are intentionally not agent-runner prompts: they name the
 # user's workspace memory files and are resolved against the workspace dir at
 # runtime, not against container/agent-runner/prompts/.
-NON_PROMPT_MD='^(CLAUDE|CLAUDE\.local)\.md$'
+NON_PROMPT_MD='^(CLAUDE|CLAUDE\.local|report)\.md$'
 
 # Pattern 1: loadPrompt(...) — pull the final quoted .md arg before the closing paren.
 #            Works for loadPrompt('foo.md') and loadPrompt('seg', 'foo.md').

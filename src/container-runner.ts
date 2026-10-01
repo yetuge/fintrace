@@ -1302,6 +1302,16 @@ export function buildVolumeMounts(
   // the container can load the same plugin directories referenced by
   // ContainerInput.plugins.
   //
+  // All Docker runners share the SEC contact declaration and request limiter.
+  // This is independent of model/provider configuration.
+  const secRuntimeDir = path.join(DATA_DIR, 'sec');
+  fs.mkdirSync(secRuntimeDir, { recursive: true });
+  mounts.push({
+    hostPath: secRuntimeDir,
+    containerPath: '/workspace/sec',
+    readonly: false,
+  });
+
   // Admin home runs in `host` mode and bypasses container mounts entirely,
   // so plugin materialization for that path happens inside runHostAgent's
   // host-runtime loadUserPlugins. Here we only handle docker-mode containers.

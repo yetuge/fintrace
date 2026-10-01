@@ -18,6 +18,7 @@ import {
   type ChannelTurnContext,
 } from './types.js';
 import { signWorkspaceMemoryMutation } from './workspace-memory-auth.js';
+import { createSecTools } from './financial/sec-tools.js';
 import {
   defineMcpTool as tool,
   type McpToolDefinition,
@@ -2813,5 +2814,6 @@ Use the skills panel in the UI to find the skill ID (directory name, e.g. "memor
     );
   }
 
+  tools.push(...createSecTools(ctx.workspaceGroup));
   return tools;
 }
