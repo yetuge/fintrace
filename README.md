@@ -15,7 +15,7 @@
 
 FinTrace 面向需要持续整理资料、调用工具和积累研究上下文的金融研究工作。它将 Pi Agent Runtime 的 Agent 执行能力放入统一工作台，用工作区组织资料与记忆，用会话推进任务，通过 Skills、MCP 和插件扩展能力。
 
-可以用于阅读财报、对比资料、核对指标口径、整理研究笔记，也可以承担一般的信息分析与自动化任务。具体数据源和研究方法由使用者的工具、提示词与工作区配置决定。
+内置 SEC 官方年度财务研究工具，可以获取真实财务数据、计算指标并保存带官方引用的报告；也可以承担一般的信息分析与自动化任务。
 
 ## 核心能力
 
@@ -27,6 +27,39 @@ FinTrace 面向需要持续整理资料、调用工具和积累研究上下文�
 | 能力库           | 管理 Skills、MCP 服务与插件，为智能体提供外部工具和专业流程              |
 | 自动化任务       | 配置任务调度，在工作区内执行重复性工作                                   |
 | 多入口与运行控制 | Web、Electron 与消息渠道入口；Host / Docker 执行模式；用户权限与用量统计 |
+| SEC 财务研究     | 公司名称 / 股票代码 / CIK 识别，年度指标计算、官方引用与工作区文件保存   |
+
+## SEC 真实财务研究
+
+先配置真实模型，再在当前工作区提问，例如：
+
+> 分析 Microsoft 最近年度财务数据，列出营收、净利润、经营现金流、现金和总负债及可比同比，注明口径和 SEC 来源，把原始数据、指标与报告保存到当前工作区。
+
+支持英文公司名称、股票代码（如 `MSFT`）及 CIK（如 `789019` 或 `CIK0000789019`）。名称匹配不唯一时会要求指定代码或 CIK，不猜测公司。
+
+SEC 数据无需 API Key，但自动请求需要应用名称与真实联系邮箱。创建 Git 忽略的本地 `data/sec/sec.json`，内容为 `userAgent` 字段，值填写应用名称、空格和你同意公开给 SEC 的真实联系邮箱；不要提交此文件。也可设置 Runner 的 `SEC_USER_AGENT` 环境变量，Docker 工作区可使用现有环境变量设置。联系方式不会进入工具参数、报告或模型提示词。本地配置与模型配置独立，修改此文件后无需重启后端；若旧暖 Runner 尚未加载新增工具，请新建会话。
+
+工具沿用 Pi 会话、当前工作区和文件面板：
+
+- `fetch_sec_financials` 从 SEC 的股票代码表、Submissions 和 Company Facts 获取数据，由代码提取年度指标并计算同比。
+- `save_sec_report` 将 Agent 的简短定性发现与代码生成的指标表、口径、截至时间及官方链接一起保存。
+- 每次研究保存在 `financial-research/<CIK>-<唯一标识>/`，包含 `raw.json`、`metrics.json`、`manifest.json` 与 `report.md`。在右侧上下文面板的文件页签中打开；新目录不会覆盖已有研究。
+
+流量指标按实际年度起止日期选择，现金及总负债按同一财年期末选择。金额直接使用 SEC JSON 的基础货币单位，不推断千/百万倍数。修订与重复申报按截至日期和 accession 核验，采用最新披露的同期间数值；每个本期、上期值均保留标签、日期、单位和申报链接。同比只比较相同标签与币种的相邻年度；上期非正数、期间长度不可比时明确标注未计算。
+
+当前范围：公司整体的标准 **US-GAAP** 标签、最近年度申报及可比上期。现金为现金及现金等价物，总负债为全部会计负债；净利润归属口径按选用标签注明。自定义标签、IFRS、短过渡财年、冲突事实及无法可靠匹配的数据标为缺失，不由模型填数。不含行情、估值、季度分析、多数据源或投资建议。申报可能滞后；报告注明抓取时间、申报筛选截至日和财年期末。
+
+SEC 请求在共享目录中串行限流（最多每秒两次，Docker Runner 共用同一挂载），单次请求超时二十秒，网络与短暂服务错误最多尝试三次。长 Retry-After、拒绝访问、限流、缺失或无效响应明确报错，不切换模拟数据。Docker 需共享本地 `data/sec/` 挂载；多台独立部署共用出口 IP 时仍需统一外部限流。
+
+官方说明：[公开数据 API](https://www.sec.gov/search-filings/edgar-application-programming-interfaces) · [访问策略与 User-Agent](https://www.sec.gov/search-filings/edgar-search-assistance/accessing-edgar-data)。
+
+确定性测试：`npx vitest run tests/sec-financials.test.ts`。显式真实 SEC 验证：`npx tsx scripts/verify-sec-live.ts`（默认写入 Git 忽略的 `data/sec-verification/`，不调用模型）。真实模型研究通过正常登录后的工作台执行，会消耗所配置模型的用量。
+
+以下为实际运行中从文件面板打开的报告与原始数据目录，完整验证与限制见 [验证记录](docs/VERIFICATION.md)，任务、结果与证据说明见 [Microsoft 真实运行案例](docs/cases/microsoft-sec-real-run.md)。
+
+![SEC 报告实际预览](docs/screenshots/sec-report.png)
+
+![SEC 研究工作区文件](docs/screenshots/sec-files.png)
 
 ## 界面预览
 
@@ -88,7 +121,7 @@ flowchart TD
     Runner --> Models[模型 Provider]
 ```
 
-FinTrace 提供 Agent 工作台与执行底座。金融资料获取、口径检查和报告格式通过能力配置扩展；当前仓库没有内置证券行情服务或自动财报采集流水线。
+FinTrace 通过现有 Pi 工具机制提供 SEC 年度财务采集、指标计算和引用报告保存；工作台、会话与文件面板保持统一。其他研究能力可通过 Skills、MCP 和插件扩展。
 
 ## 开发与验证
 
