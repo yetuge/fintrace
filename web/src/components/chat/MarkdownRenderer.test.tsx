@@ -20,7 +20,9 @@ async function render(content: string) {
   const root = createRoot(host);
   mounted.push({ host, root });
   await act(async () =>
-    root.render(<MarkdownRenderer content={content} variant="docs" />),
+    root.render(
+      React.createElement(MarkdownRenderer, { content, variant: 'docs' }),
+    ),
   );
   return host;
 }
