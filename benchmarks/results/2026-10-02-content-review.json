@@ -1,0 +1,342 @@
+{
+  "schemaVersion": 1,
+  "reviewedAt": "2026-10-02T14:22:49.200Z",
+  "reviewer": {
+    "name": "Codex",
+    "type": "ai_assisted_content_review",
+    "method": "Read and assess the existing manual checklist against final answers, findings, reports, citations and immutable input artifacts.",
+    "independentHumanSignoff": false
+  },
+  "reviewGitCommit": "f02bf55127b4b246d57000320d7a2e9cd2d3992a",
+  "taskSetVersion": "fintrace-agent-v1",
+  "taskSetSha256": "05f3b0043bbd96b8f45516be9bdc5b18d2ddbd107d5cd169909df6bcb8392395",
+  "scope": "Original six selected executions; local snapshot consistency plus limited external verification. Original automatic results remain unchanged.",
+  "summary": {
+    "reviewed": 6,
+    "passed": 2,
+    "revisionRequired": 3,
+    "failed": 1,
+    "notReviewed": 0
+  },
+  "newAgentModelRequests": 0,
+  "originalAutomaticSummary": {
+    "needsReview": 5,
+    "failed": 1
+  },
+  "externalChecks": [
+    {
+      "company": "Apple",
+      "url": "https://www.sec.gov/Archives/edgar/data/320193/000032019325000079/aapl-20250927.htm",
+      "status": "checked",
+      "scope": "FY2025/FY2024 sales, net income, operating cash flow, cash and total liabilities; million USD table units."
+    },
+    {
+      "company": "Microsoft",
+      "urls": [
+        "https://www.sec.gov/Archives/edgar/data/789019/000119312526323660/msft-20260630.htm",
+        "https://www.sec.gov/Archives/edgar/data/789019/000095017025100235/msft-20250630.htm"
+      ],
+      "status": "unavailable",
+      "reason": "Browsing returned Internal Error; no inference of invalid URL, missing filing or source financial truth."
+    }
+  ],
+  "limitations": [
+    "No independent human reviewer signature.",
+    "No full filing, causal, solvency or investment assessment.",
+    "No model reruns, new workbench end-to-end validation or general success-rate inference.",
+    "Dispositions are supplementary content review, not replacements for historical automatic scores."
+  ],
+  "reviews": [
+    {
+      "taskId": "annual-aapl",
+      "mode": "live_sec",
+      "sourceBatch": "first-round-repair-2026-10-02",
+      "traceSha256": "6272bd699b35d89224b051e3820c5c86c8515a8567c22a28bac5dd9cd5774619",
+      "datasetIds": ["0000320193-ad16e5cd-54df-40c4-a445-e702f7c3f8fb"],
+      "originalAutomaticOverall": "needs_review",
+      "disposition": "passed",
+      "rationale": "五项金额和同比、财年日期、申报信息与保存数据及官方申报表格一致；营收同比低于净利润同比的引用支持该数值关系，没有扩展为盈利质量或因果判断。",
+      "checks": {
+        "answerConsistency": "passed",
+        "citationSupport": "passed",
+        "judgmentBoundary": "passed",
+        "failureExplanation": "not_applicable",
+        "delivery": "passed"
+      },
+      "observations": [
+        "官方表格以百万美元列示，与基础 USD 金额换算一致。",
+        "最终 summary 重复五项数值，未遵守简短交付、不重复指标表的执行提示；不影响任务集要求的数值与引用正确性，记为非阻断表达问题。"
+      ],
+      "issues": [],
+      "reviewedArtifacts": [
+        {
+          "path": "financial-research/0000320193-ad16e5cd-54df-40c4-a445-e702f7c3f8fb/findings.json",
+          "sha256": "38731f0b746120cf94c97a965eca8305be88858c8e51227f0d0aac9350f63734"
+        },
+        {
+          "path": "financial-research/0000320193-ad16e5cd-54df-40c4-a445-e702f7c3f8fb/manifest.json",
+          "sha256": "6242895a92609dbb695bdfa193649742d091c4368df80de29a83278373113399"
+        },
+        {
+          "path": "financial-research/0000320193-ad16e5cd-54df-40c4-a445-e702f7c3f8fb/metrics.json",
+          "sha256": "35b87489ba519392ba2d80e4faa9ba18890916d480227e66e715d3b48c10c898"
+        },
+        {
+          "path": "financial-research/0000320193-ad16e5cd-54df-40c4-a445-e702f7c3f8fb/raw.json",
+          "sha256": "7c798e0f99de18fe94264cbf57e7986e5961cd979d9a0c07194f850f7fce310a"
+        },
+        {
+          "path": "financial-research/0000320193-ad16e5cd-54df-40c4-a445-e702f7c3f8fb/report.md",
+          "sha256": "4bbb6678f3d448a681ad4feb87baff04aaa66e1beb7027f6fd829b64a792041f"
+        }
+      ]
+    },
+    {
+      "taskId": "trend-msft",
+      "mode": "live_sec",
+      "sourceBatch": "first-round-repair-2026-10-02",
+      "traceSha256": "9afd322d929dd719a99a1e9ba4e7cfe1039627d5615f9e849ade6f4dda3bdfe0",
+      "datasetIds": ["0000789019-7975d11f-2fc9-4d75-92af-26cbbfd8bacf"],
+      "originalAutomaticOverall": "needs_review",
+      "disposition": "revision_required",
+      "rationale": "三年十五个值、十个相邻同比和营收连续增加事实与证据一致；图表方向及单位正确，但最终回答的更早基数限制说明不准确。",
+      "checks": {
+        "answerConsistency": "failed",
+        "citationSupport": "passed_for_main_finding",
+        "judgmentBoundary": "revision_required",
+        "failureExplanation": "not_applicable",
+        "delivery": "passed"
+      },
+      "observations": [
+        "已查看本任务原 SVG 的渲染图：五项独立坐标轴、USD 十亿、三期标签与数据点吻合，现金先升后降。",
+        "FY2024 不展示同比是三年展示范围的选择，不等于 SEC 原始数据没有 FY2023 基数。",
+        "Microsoft 官方正文打开失败，本项只对保存的原始 SEC 数据和报告关系作结论。"
+      ],
+      "issues": [
+        {
+          "id": "TREND_PRIOR_YEAR_SCOPE",
+          "severity": "medium",
+          "location": "trace.finalAnswer.limitations[1]",
+          "original": "FY2024-06-30 为展示范围内最早年度，缺 FY2023 同口径基数，工具未推算其同比；其余可比同比由工具计算",
+          "evidence": "raw.json 包含 2022-07-01 至 2023-06-30 的 USD 营收 211915000000、净利润 72361000000、经营现金流 87582000000，使用相同 US-GAAP 标签。",
+          "suggestedRevision": "FY2024 为本次三年展示范围的最早年度，工具按展示规则未计算该年度同比；这不表示 SEC 原始数据缺少 FY2023。"
+        }
+      ],
+      "reviewedArtifacts": [
+        {
+          "path": "financial-research/0000789019-7975d11f-2fc9-4d75-92af-26cbbfd8bacf/chart-data.json",
+          "sha256": "cb49887fe9461733727015f759ba38cb1ef6822a285e028b496ff63b4a7e2fb6"
+        },
+        {
+          "path": "financial-research/0000789019-7975d11f-2fc9-4d75-92af-26cbbfd8bacf/findings.json",
+          "sha256": "0a3cba5fd546add322a27d07140db85acc0173465c3cb99878a80c9e1df77df4"
+        },
+        {
+          "path": "financial-research/0000789019-7975d11f-2fc9-4d75-92af-26cbbfd8bacf/manifest.json",
+          "sha256": "98aa29ea8ab06a7aed18dd5e137e01c726335378fba98dd4fe2b64b73e980eb7"
+        },
+        {
+          "path": "financial-research/0000789019-7975d11f-2fc9-4d75-92af-26cbbfd8bacf/metrics.json",
+          "sha256": "d95b4b79f18dc3de0e2aecaa83d7559871dffb547363d76f280f45022c813504"
+        },
+        {
+          "path": "financial-research/0000789019-7975d11f-2fc9-4d75-92af-26cbbfd8bacf/raw.json",
+          "sha256": "45cc8ad7810e12c7b6ecf4fc2d7842b11301b1a97dfeceba1175bf986d588582"
+        },
+        {
+          "path": "financial-research/0000789019-7975d11f-2fc9-4d75-92af-26cbbfd8bacf/report.md",
+          "sha256": "4ed04300387d1e5c718d6a864752b1aae5fd74baa14126ed9ef7df95159b01de"
+        },
+        {
+          "path": "financial-research/0000789019-7975d11f-2fc9-4d75-92af-26cbbfd8bacf/trends.svg",
+          "sha256": "c2b70ec0b0160914f37d3bab4a858b4dcaacdc85b45aab6ba63a8953606ff359"
+        }
+      ]
+    },
+    {
+      "taskId": "missing-cash",
+      "mode": "injected_failure",
+      "sourceBatch": "first-round-repair-2026-10-02",
+      "traceSha256": "33dd374217dff1314b28c18672d286c4723eb34729fa2c0093cea967cc932a8e",
+      "datasetIds": ["0000789019-4fb7095e-9e29-41d2-9d66-5815f52bc7c3"],
+      "originalAutomaticOverall": "needs_review",
+      "disposition": "revision_required",
+      "rationale": "现金未补造，数据模式与缺失表格正确；回答及报告对已知注入原因又称无法确认，引用的营收和负债证据也不能证明现金缺失原因。",
+      "checks": {
+        "answerConsistency": "failed",
+        "citationSupport": "failed_for_missing_cause",
+        "judgmentBoundary": "revision_required",
+        "failureExplanation": "failed",
+        "delivery": "passed"
+      },
+      "observations": [
+        "原公开快照保留 2025-06-30 与 2026-06-30 的现金值，注入后 raw 中现金标签删除，dataContext.injection 明确为 remove_cash_tag。",
+        "有关原始 SEC 是否缺少现金的疑问已被原快照排除；未读正文不能成为否认已知测试注入原因的理由。",
+        "应使用模式元数据、原始快照与注入后差异解释缺失，避免强配无关指标引用。"
+      ],
+      "issues": [
+        {
+          "id": "KNOWN_INJECTION_DENIED",
+          "severity": "medium",
+          "location": "trace.finalAnswer.limitations[2]; findings.findings[0].content/limitations",
+          "original": "无法确认缺失源于注入故障还是原始数据缺口",
+          "evidence": "固定快照含现金标签及两期 USD 现金值；注入后的 raw 不含该标签且明确记录 remove_cash_tag。",
+          "suggestedRevision": "现金缺失由本次测试显式移除标签造成，不能据此推断 SEC 真实披露缺失；原快照含现金数据。"
+        },
+        {
+          "id": "UNRELATED_MISSING_EVIDENCE",
+          "severity": "medium",
+          "location": "findings.findings[0].evidenceIds",
+          "original": "revenue:current 与 liabilities:current",
+          "evidence": "这两个指标只支持营收和总负债金额，不能支持现金缺失或缺失原因。",
+          "suggestedRevision": "将缺失原因作为工具/输入元数据观察呈现，并注明取证位置，不把无关金额引用当作支持证据。"
+        }
+      ],
+      "reviewedArtifacts": [
+        {
+          "path": "financial-research/0000789019-4fb7095e-9e29-41d2-9d66-5815f52bc7c3/findings.json",
+          "sha256": "f8aa24432df1e19290a63203e29c1780037ddfc84880e7488ee0c6b2600aa78c"
+        },
+        {
+          "path": "financial-research/0000789019-4fb7095e-9e29-41d2-9d66-5815f52bc7c3/manifest.json",
+          "sha256": "3dafb1ff335d2331b26aaaa429dff459bb0933c8961ef083acd7ff1d6d249112"
+        },
+        {
+          "path": "financial-research/0000789019-4fb7095e-9e29-41d2-9d66-5815f52bc7c3/metrics.json",
+          "sha256": "8d6cd45df94513640f1ada683fce2b03cc9748cffdb0b1435b4ef18ace9787d3"
+        },
+        {
+          "path": "financial-research/0000789019-4fb7095e-9e29-41d2-9d66-5815f52bc7c3/raw.json",
+          "sha256": "495b9d7efd47ad675f1ecc2a80d20c45a91f33aeb6257a064c55ff0114abee3d"
+        },
+        {
+          "path": "financial-research/0000789019-4fb7095e-9e29-41d2-9d66-5815f52bc7c3/report.md",
+          "sha256": "58f57e431457ad7849856386b9d31e9b0c777a690297c0e8f013f080d9c426a2"
+        }
+      ]
+    },
+    {
+      "taskId": "incomparable-revenue",
+      "mode": "injected_failure",
+      "sourceBatch": "first-round-repair-2026-10-02",
+      "traceSha256": "6215fb333e986fb1c3df0a1e69e6ac40e4aa48d3d99e2f8379834b1eac79c4dc",
+      "datasetIds": ["0000789019-e09aa8a4-a661-4d93-ab53-52af436df67f"],
+      "originalAutomaticOverall": "failed",
+      "disposition": "failed",
+      "rationale": "提取器正确排除 EUR 上期且不计算跨币种同比，但 Agent 在 length 停止后没有最终回答、findings 或报告，任务交付失败。",
+      "checks": {
+        "answerConsistency": "not_assessable",
+        "citationSupport": "not_assessable",
+        "judgmentBoundary": "not_assessable",
+        "failureExplanation": "not_assessable",
+        "delivery": "failed"
+      },
+      "observations": [
+        "原始 USD 仅保留本期，EUR 存上期；metrics.revenue.previous 与 yoyPercent 为空。",
+        "不能把代码正确处理币种视为 Agent 已说明不可比原因；也没有依据说 Agent 造数或具备已验证的拒绝比较能力。",
+        "长度截断与预算是执行条件，不能据此推出更宽预算下模型必然失败。"
+      ],
+      "issues": [
+        {
+          "id": "BUDGET_TRUNCATED_DELIVERY",
+          "severity": "high",
+          "location": "trace.stopReason/finalAnswer/tools",
+          "original": "stopReason=length；finalAnswer 为空；只有 fetch 调用",
+          "evidence": "没有 save_sec_report 调用；仅 raw/metrics/manifest 三个产物，缺 findings.json 与 report.md。",
+          "suggestedRevision": "在另行获准且确有执行策略修改后，定向重跑本任务，保留此次失败，不能补写原回答或追认通过。"
+        }
+      ],
+      "reviewedArtifacts": [
+        {
+          "path": "financial-research/0000789019-e09aa8a4-a661-4d93-ab53-52af436df67f/manifest.json",
+          "sha256": "da76a9323d34d06327a4b5912961649e0323adb55f0825b143aac461222aa4ac"
+        },
+        {
+          "path": "financial-research/0000789019-e09aa8a4-a661-4d93-ab53-52af436df67f/metrics.json",
+          "sha256": "18b4650802985b2f70911a95a3486c62f1439094800e7338f463f7f73ccae183"
+        },
+        {
+          "path": "financial-research/0000789019-e09aa8a4-a661-4d93-ab53-52af436df67f/raw.json",
+          "sha256": "458c6ea38b85f08503d65504daff37ccde372096bb57266bdc0e371921ebc193"
+        }
+      ]
+    },
+    {
+      "taskId": "sec-unavailable",
+      "mode": "injected_failure",
+      "sourceBatch": "completion-2026-10-02",
+      "traceSha256": "55ab9a058000c8a55e589301af4e2622354c266cfe795c7e0e037f0841c2cf2d",
+      "datasetIds": [],
+      "originalAutomaticOverall": "needs_review",
+      "disposition": "passed",
+      "rationale": "如实说明注入 SEC_HTTP_429、未联网和未产生成功数据，未调用保存工具，下一步要求离开注入模式后重新取数，没有把注入故障描述为已证实的线上 SEC 故障。",
+      "checks": {
+        "answerConsistency": "passed",
+        "citationSupport": "not_applicable",
+        "judgmentBoundary": "passed",
+        "failureExplanation": "passed",
+        "delivery": "passed_as_expected_absence"
+      },
+      "observations": [
+        "该场景的通过条件是合理失败反馈，状态 failed 与 Benchmark 通过不矛盾。",
+        "不据此评价真实 SEC 故障恢复、正常工作台入口或投资判断。"
+      ],
+      "issues": [],
+      "reviewedArtifacts": []
+    },
+    {
+      "taskId": "judgment-evidence",
+      "mode": "snapshot",
+      "sourceBatch": "completion-2026-10-02",
+      "traceSha256": "3eb0baa833c2dc78956cc0fc2e0b2af4c02256292ff4593c9bfa54697f7053bc",
+      "datasetIds": ["0000789019-9748f2c1-86df-4c00-bdf3-3c40ffec430c"],
+      "originalAutomaticOverall": "needs_review",
+      "disposition": "revision_required",
+      "rationale": "因果与偿债能力证据缺口列得具体，未冒充读取正文；但待核验发现中的现金和总负债方向错误，必须修订。",
+      "checks": {
+        "answerConsistency": "failed",
+        "citationSupport": "failed_for_direction_claim",
+        "judgmentBoundary": "passed_for_causal_limit_only",
+        "failureExplanation": "not_applicable",
+        "delivery": "passed"
+      },
+      "observations": [
+        "营收、净利润、经营现金流同比增长均由保存数据支持。",
+        "现金下降、总负债上升；unverified 分类不能使与已有数值矛盾的陈述变成可接受解释。",
+        "现金/负债变化不足以单独判断偿债能力；尚缺债务期限、流动负债结构、利息支出及正文等依据。"
+      ],
+      "issues": [
+        {
+          "id": "CASH_LIABILITIES_DIRECTION",
+          "severity": "high",
+          "location": "findings.findings[0].content; report.md 主要发现",
+          "original": "现金及总负债亦同向变动",
+          "evidence": "现金 30242000000 → 20935000000 USD（-30.78%）；总负债 275524000000 → 315989000000 USD（+14.69%），方向相反。",
+          "suggestedRevision": "营收、净利润和经营现金流同比增长，现金下降、总负债上升；仅凭这些汇总指标无法确认营收增长原因或偿债能力强弱，仍需补充正文及债务结构。"
+        }
+      ],
+      "reviewedArtifacts": [
+        {
+          "path": "financial-research/0000789019-9748f2c1-86df-4c00-bdf3-3c40ffec430c/findings.json",
+          "sha256": "0b86041059f0b3c8d36419573bf2023571a417b84c42a0eb2336715310d2ef32"
+        },
+        {
+          "path": "financial-research/0000789019-9748f2c1-86df-4c00-bdf3-3c40ffec430c/manifest.json",
+          "sha256": "27bff1495a6c0f54abd1d31598821a31a9d1288af2e08439a94deed234b80d34"
+        },
+        {
+          "path": "financial-research/0000789019-9748f2c1-86df-4c00-bdf3-3c40ffec430c/metrics.json",
+          "sha256": "2e985732dfd1a9ed255730c1f80545a0f4309606e801b56f8d646e433b80f8a4"
+        },
+        {
+          "path": "financial-research/0000789019-9748f2c1-86df-4c00-bdf3-3c40ffec430c/raw.json",
+          "sha256": "c920ce67b8d279aa782b19b2719427e8c5d07fd56a4763c1b7d04b38a04d76a2"
+        },
+        {
+          "path": "financial-research/0000789019-9748f2c1-86df-4c00-bdf3-3c40ffec430c/report.md",
+          "sha256": "e6d4ba0e07bd1b0378e266bb4ef37c16e6f177cf50426e5512bc1b4c806848fd"
+        }
+      ]
+    }
+  ]
+}

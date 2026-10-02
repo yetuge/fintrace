@@ -90,3 +90,5 @@ npm run benchmark -- run --live --batch=bounded-run --tasks=sec-unavailable,judg
 本阶段必须阅读最终回答、发现和引用证据后，才可人工判断解释是否合理；自动状态不代表人工签署。没有普遍成功率、成本收益或与聊天/其他框架/模型的比较结论。CLI 入口不覆盖工作台登录、消息投递、实时 UI 或文件面板；已有工作台验证不能替代本批次的入口验证。全仓历史失败仍按 [验证记录](VERIFICATION.md) 披露。
 
 本次真实运行的失败、预算停止和未执行结果见 [实测结果](AGENT-BENCHMARK-RESULTS.md)。
+
+六项原始记录的逐项内容检查见 [内容复核](AGENT-BENCHMARK-CONTENT-REVIEW.md)。该补充记录由 Codex 按人工清单审阅，明确区分通过、需要修订与交付失败，不覆盖原自动成绩，也不冒充独立人类签署。
