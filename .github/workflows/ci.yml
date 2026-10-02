@@ -23,9 +23,6 @@ jobs:
   financial:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
-    env:
-      # Deterministic tests must inject their transport; no local configuration.
-      SEC_RUNTIME_DIR: ${{ runner.temp }}/fintrace-sec-unconfigured
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
@@ -38,6 +35,9 @@ jobs:
       - run: npm ci
       - run: npm --prefix container/agent-runner ci
       - run: npm run test:financial
+        env:
+          # Deterministic tests inject their transport; no local configuration.
+          SEC_RUNTIME_DIR: ${{ runner.temp }}/fintrace-sec-unconfigured
       - run: npm --prefix container/agent-runner run build
       - run: npm run build
       - run: bash scripts/check-stream-event-sync.sh
