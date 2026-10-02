@@ -13,6 +13,7 @@
 - 在独立干净检出 `data/sec-verification/trends-clean/` 应用本轮暂存补丁，分别 `npm ci` 安装根目录、Web 与 Runner，不复制本地 data 或配置。金融 75 项、前端 102 项、会话/ACL 48 项、后端/Web/Runner 构建及文档/格式检查全部通过，日志为 `data/sec-verification/trends-clean-*.log`。暂存二十个文件，经本地敏感配置值及凭据模式扫描没有匹配；没有加入配置、原始研究数据或日志。
 - 首次功能提交 `3dd194e` 的 [CI](https://github.com/yetuge/fintrace/actions/runs/37007170472) 中金融 job 全部通过；前端测试与文档通过，但 Web 构建因新增预览测试跨项目导入 Runner 类型，间接依赖未安装的根目录 Zod 而失败。三套依赖均已安装的本地干净检出未暴露这项隔离问题，归属本轮。修复为独立的静态绘图 fixture，前端测试不再导入 Runner 或金融服务类型；保留 CI 仅安装 Web 依赖的边界。
 - 修复后本地及独立检出的前端 102 项测试和 Web 生产构建均通过；编译文件列表确认没有金融服务类型依赖。独立检出复验日志为 `trends-clean-ci-fix-{frontend,web-build}.log`。
+- 修复提交 `2192a55` 的 [GitHub CI](https://github.com/yetuge/fintrace/actions/runs/37007955675) 全部通过，`validate` 与 `financial` 两个 job 成功；在独立 Linux 环境分别验证仅有 Web 依赖及根目录/Runner 依赖的边界，包含前端 102 项、金融 75 项、会话/ACL 48 项与全部 CI 构建/文档/共享类型/Prompt 检查。
 - 继续交付检查时后端已停止，使用现有 `scripts/start-desktop.mjs` 正常启动服务和桌面端，初始化状态保留；未修改认证或重复真实模型流程。
 
 ### 两家真实 SEC 数据
