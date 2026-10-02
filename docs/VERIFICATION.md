@@ -19,7 +19,7 @@
 - 新研究目录：`data/groups/main/financial-research/0000789019-6f11bc73-abad-4148-a4ca-54529c6a9b47/`，五个产物为 `raw.json`、`metrics.json`、`manifest.json`、`findings.json` 和 `report.md`。原始响应约 13.1 MB；测试 fixture 不含该真实数据。
 - 新报告四条发现均有有效依据：营收同比低于经营现金流、净利润同比低于经营现金流两条是代码生成的直接事实；盈利质量与杠杆压力两条是待验证判断，明确尚缺营运资本/现金流构成、非经常性影响、资产权益、有息债务、利息费用与申报正文等资料。没有将证据不足结论标为事实。
 - 从实际文件面板逐层打开新研究目录与 `report.md`，Markdown 预览、分类与缺失资料展示成功。截图：[报告数值表](screenshots/sec-evidence-report.png)、[代码事实与证据](screenshots/sec-evidence-facts.png)、[待验证判断](screenshots/sec-evidence-judgments.png)。截图来自实际界面，未构造产品画面。
-- 通用 Markdown 渲染器原本将片段链接也作为外链，并丢弃锚点 ID。本轮补充当前预览内的证据跳转，保留 sanitizer 的 ID 前缀与 HTML 清洗；不新建页面或改变配色。Web 仅新增 DOM 测试所需开发依赖，原有可选平台依赖条目保留。
+- 通用 Markdown 渲染器原本将片段链接也作为外链，并丢弃锚点 ID。本轮补充当前预览内的证据跳转，实际点击成功跳到指标记录（[实际导航截图](screenshots/sec-evidence-navigation.png)），保留 sanitizer 的 ID 前缀与 HTML 清洗；不新建页面或改变配色。Web 仅新增 DOM 测试所需开发依赖，原有可选平台依赖条目保留。
 - 离线核验重建全部指标、证据目录、事实、分类并逐字匹配报告通过；报告 SHA-256：`e5ffef6d6afb97ceb11a51fcfe419cf2b23fede0e5585b52a9454be89b1338ec`。脱敏摘要保存在 `data/sec-verification/goal-real-model-audit.json`，不包含模型地址、名称、密钥或联系信息。
 
 ### 本轮限制与交付检查
@@ -27,7 +27,7 @@
 - 未读取申报正文，未完成定性语义与因果核验；引用关联、哈希与格式通过不代表盈利质量或杠杆结论成立。自由模型解释保守归为待验证判断是当前契约。
 - 旧报告保持原样，其历史定性分析未审计；不将版本二核验结果追认到旧报告。
 - Docker 真实运行、打包安装版、跨服务器共享限流未实测；IFRS、自定义标签、季度、多源、趋势与公司比较不在本轮范围。
-- 初次干净检出发现 Windows 自动换行转换使合成旧产物的字节哈希不一致。本轮增加精确 fixture 路径的 LF 属性，保留严格哈希断言，没有把产品原始数据核验改为忽略换行。干净检出与 GitHub CI 的最终结果将在交付检查完成后补充。
+- 初次干净检出发现 Windows 自动换行转换使合成旧产物的字节哈希不一致。本轮增加精确 fixture 路径的 LF 属性，保留严格哈希断言，没有把产品原始数据核验改为忽略换行。在独立干净检出安装根目录、Web、Runner 依赖后，金融 57 项、前端 57 项、Runner/后端/Web 构建、文档、共享类型和 Prompt 检查全部通过；该环境没有本地 SEC 配置或历史研究 data。GitHub CI 的最终结果将在推送后补充。
 
 ## SEC 最小闭环：已通过
 
