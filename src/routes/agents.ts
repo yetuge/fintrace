@@ -1,9 +1,15 @@
 import { Hono } from 'hono';
 import {
   assertSessionDeletionPathsSafe,
+  deleteSessionFilesTransactionally,
   deleteMainSession,
+  getConversationSessionBindings,
   getMainSessionBindings,
   getMainSessionSummary,
+  getSessionDeletionVersion,
+  isSessionBindingBlocked,
+  quiesceSessionForDeletion,
+  SessionDeletionConflict,
 } from '../main-session.js';
 import crypto from 'crypto';
 import fs from 'fs';
@@ -19,6 +25,7 @@ import {
   listAgentsByJid,
   getAgent,
   deleteAgent,
+  deleteConversationSession,
   updateAgentStatus,
   createAgent,
   ensureChatExists,
@@ -909,7 +916,12 @@ router.delete('/:jid/sessions/:sessionId', authMiddleware, async (c) => {
     if (!deps) return c.json({ error: 'Server not initialized' }, 503);
     try {
       return c.json(await deleteMainSession(jid, group, deps));
-    } catch {
+    } catch (error) {
+      if (error instanceof SessionDeletionConflict)
+        return c.json(
+          { error: error.message, linked_im_groups: error.bindings },
+          409,
+        );
       return c.json({ error: 'Failed to delete session' }, 500);
     }
   }
@@ -993,28 +1005,54 @@ router.delete('/:jid/sessions/:sessionId', authMiddleware, async (c) => {
   } catch {
     return c.json({ error: 'Unsafe session path' }, 400);
   }
-  const virtualJid = `${jid}#agent:${sessionId}`;
-  const pause = deps.queue.pauseGroupsForMutation([virtualJid]);
   try {
-    await deps.queue.stopGroup(virtualJid, { force: true });
-    for (const dir of removalDirs) {
-      fs.rmSync(dir, { recursive: true, force: true });
+    await quiesceSessionForDeletion(jid, sessionId, deps, () => {
+      const freshGroup = getRegisteredGroup(jid);
+      const freshSession = getAgent(sessionId);
+      if (
+        !freshGroup ||
+        freshGroup.folder !== group.folder ||
+        !canModifyGroup(user, { ...freshGroup, jid }) ||
+        !freshSession ||
+        freshSession.chat_jid !== jid ||
+        freshSession.kind !== 'conversation' ||
+        isNativeManagedSession(freshSession)
+      )
+        throw new SessionDeletionConflict(
+          'Session or workspace changed during deletion; retry',
+        );
+      const bindings = getConversationSessionBindings(sessionId);
+      if (bindings.length)
+        throw new SessionDeletionConflict(
+          'Session has active IM bindings. Unbind before deleting.',
+          bindings,
+        );
+      assertSessionDeletionPathsSafe(removalDirs);
+      deleteSessionFilesTransactionally(removalDirs, () =>
+        deleteConversationSession(group.folder, jid, sessionId),
+      );
+    });
+
+    // Notification failure must not report a committed deletion as a failed one.
+    try {
+      const { broadcastAgentRemoved } = await import('../web.js');
+      broadcastAgentRemoved(jid, sessionId, session.name);
+    } catch {
+      logger.warn(
+        { jid, sessionId },
+        'Session deleted; removal notification failed',
+      );
     }
-
-    deleteMessagesForChatJid(`${jid}#agent:${sessionId}`);
-    deleteSession(group.folder, sessionId);
-    clearSessionChannelOwner(group.folder, sessionId);
-    deleteAgent(sessionId);
-
-    const { broadcastAgentRemoved } = await import('../web.js');
-    broadcastAgentRemoved(jid, sessionId, session.name);
 
     logger.info({ sessionId, jid, userId: user.id }, 'Session deleted by user');
     return c.json({ success: true });
-  } catch {
+  } catch (error) {
+    if (error instanceof SessionDeletionConflict)
+      return c.json(
+        { error: error.message, linked_im_groups: error.bindings },
+        409,
+      );
     return c.json({ error: 'Failed to delete session' }, 500);
-  } finally {
-    deps.queue.resumeGroupsAfterMutation(pause);
   }
 });
 
@@ -1275,6 +1313,7 @@ router.put(
   async (c) => {
     const jid = decodeURIComponent(c.req.param('jid'));
     const sessionId = c.req.param('sessionId');
+    const deletionVersion = getSessionDeletionVersion(jid, sessionId);
     const user = c.get('user');
 
     const group = getRegisteredGroup(jid);
@@ -1311,6 +1350,14 @@ router.put(
       return c.json({ error: 'Invalid or inaccessible channel account' }, 400);
     }
 
+    if (isSessionBindingBlocked(jid, sessionId, deletionVersion))
+      return c.json(
+        {
+          error:
+            'Session deletion in progress or target changed; retry binding',
+        },
+        409,
+      );
     const force = body.force === true;
     const replyPolicy =
       body.reply_policy === 'mirror' ? 'mirror' : 'source_only';
@@ -1325,6 +1372,14 @@ router.put(
         return c.json({ error: 'Session not found' }, 404);
       }
       const { chatInfo } = await fetchLiveChatInfo(user.id, imJid);
+      if (isSessionBindingBlocked(jid, sessionId, deletionVersion))
+        return c.json(
+          {
+            error:
+              'Session deletion in progress or target changed; retry binding',
+          },
+          409,
+        );
       // Re-read after the await: fetchLiveChatInfo makes a live network
       // call (e.g. Feishu getFeishuChatInfo) that yields the event loop,
       // during which a concurrent bind request or the message router's
@@ -1401,6 +1456,14 @@ router.put(
     }
 
     const { chatInfo } = await fetchLiveChatInfo(user.id, imJid);
+    if (isSessionBindingBlocked(jid, sessionId, deletionVersion))
+      return c.json(
+        {
+          error:
+            'Session deletion in progress or target changed; retry binding',
+        },
+        409,
+      );
     // Re-read after the await — see the analogous comment in the
     // session-bind branch above: fetchLiveChatInfo yields the event loop
     // on a live network call, and a concurrent write to this imJid must
@@ -1618,6 +1681,7 @@ router.delete(
 router.put('/:jid/agents/:agentId/im-binding', authMiddleware, async (c) => {
   const jid = decodeURIComponent(c.req.param('jid'));
   const agentId = c.req.param('agentId');
+  const deletionVersion = getSessionDeletionVersion(jid, agentId);
   const user = c.get('user');
 
   const group = getRegisteredGroup(jid);
@@ -1664,7 +1728,21 @@ router.put('/:jid/agents/:agentId/im-binding', authMiddleware, async (c) => {
   if (!hasConsistentChannelAccount(user.id, imJid, imGroup)) {
     return c.json({ error: 'Invalid or inaccessible channel account' }, 400);
   }
+  if (isSessionBindingBlocked(jid, agentId, deletionVersion))
+    return c.json(
+      {
+        error: 'Session deletion in progress or target changed; retry binding',
+      },
+      409,
+    );
   const { chatInfo } = await fetchLiveChatInfo(user.id, imJid);
+  if (isSessionBindingBlocked(jid, agentId, deletionVersion))
+    return c.json(
+      {
+        error: 'Session deletion in progress or target changed; retry binding',
+      },
+      409,
+    );
   // Re-read + re-authorize after the await — see the analogous comment on
   // the PUT /:jid/sessions/:sessionId/im-binding route above.
   const freshImGroup = getRegisteredGroup(imJid);
@@ -1798,6 +1876,7 @@ router.delete(
 // PUT /api/groups/:jid/im-binding — bind an IM group to this workspace's main conversation
 router.put('/:jid/im-binding', authMiddleware, async (c) => {
   const jid = decodeURIComponent(c.req.param('jid'));
+  const deletionVersion = getSessionDeletionVersion(jid, 'main');
   const user = c.get('user');
 
   const group = getRegisteredGroup(jid);
@@ -1834,7 +1913,21 @@ router.put('/:jid/im-binding', authMiddleware, async (c) => {
   if (!hasConsistentChannelAccount(user.id, imJid, imGroup)) {
     return c.json({ error: 'Invalid or inaccessible channel account' }, 400);
   }
+  if (isSessionBindingBlocked(jid, 'main', deletionVersion))
+    return c.json(
+      {
+        error: 'Session deletion in progress or target changed; retry binding',
+      },
+      409,
+    );
   const { chatInfo } = await fetchLiveChatInfo(user.id, imJid);
+  if (isSessionBindingBlocked(jid, 'main', deletionVersion))
+    return c.json(
+      {
+        error: 'Session deletion in progress or target changed; retry binding',
+      },
+      409,
+    );
   // Re-read after the await — fetchLiveChatInfo yields the event loop on a
   // live network call, and a concurrent write to this imJid must not be
   // silently overwritten by the pre-await snapshot below.

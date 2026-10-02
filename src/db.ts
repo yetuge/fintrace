@@ -13025,6 +13025,20 @@ export function deleteMainConversation(
   })();
 }
 
+/** Commit every database projection of an independent conversation together. */
+export function deleteConversationSession(
+  groupFolder: string,
+  chatJid: string,
+  agentId: string,
+): void {
+  db.transaction(() => {
+    deleteMessagesForChatJid(`${chatJid}#agent:${agentId}`);
+    deleteSession(groupFolder, agentId);
+    clearSessionChannelOwner(groupFolder, agentId);
+    deleteAgent(agentId);
+  })();
+}
+
 export function getMessage(
   chatJid: string,
   messageId: string,

@@ -10,12 +10,121 @@ import {
   getRouterState,
   getSession,
   getGroupsByTargetMainJid,
+  getGroupsByTargetAgent,
+  listChannelMountsBySession,
+  listImContextBindingsByAgent,
   listChannelMountsByWorkspace,
   peekAgentProfileForWorkspace,
 } from './db.js';
 import type { RegisteredGroup } from './types.js';
 import type { WebDeps } from './web-context.js';
 import { logger } from './logger.js';
+
+export class SessionDeletionConflict extends Error {
+  constructor(
+    message: string,
+    readonly bindings?: Array<{ jid: string; name: string }>,
+  ) {
+    super(message);
+  }
+}
+
+const deletingSessions = new Set<string>();
+const deletionVersions = new Map<string, number>();
+const deletionKey = (jid: string, sessionId: string) =>
+  JSON.stringify([jid, sessionId]);
+
+export function getSessionDeletionVersion(jid: string, sessionId: string) {
+  return deletionVersions.get(deletionKey(jid, sessionId)) ?? 0;
+}
+
+/** Also reject a metadata lookup that crossed a completed deletion attempt. */
+export function isSessionBindingBlocked(
+  jid: string,
+  sessionId: string,
+  version: number,
+) {
+  return (
+    deletingSessions.has(deletionKey(jid, sessionId)) ||
+    getSessionDeletionVersion(jid, sessionId) !== version
+  );
+}
+
+/** The final validation and file/DB commit are synchronous after quiescing. */
+export async function quiesceSessionForDeletion(
+  jid: string,
+  sessionId: string,
+  deps: WebDeps,
+  commit: () => void,
+) {
+  const key = deletionKey(jid, sessionId);
+  if (deletingSessions.has(key))
+    throw new SessionDeletionConflict(
+      'Session deletion is already in progress',
+    );
+  deletingSessions.add(key);
+  deletionVersions.set(key, getSessionDeletionVersion(jid, sessionId) + 1);
+  try {
+    const virtualJid = sessionId === 'main' ? jid : `${jid}#agent:${sessionId}`;
+    const token = deps.queue.pauseGroupsForMutation([virtualJid]);
+    try {
+      await deps.queue.stopGroup(virtualJid, { force: true });
+      commit();
+    } finally {
+      deps.queue.resumeGroupsAfterMutation(token);
+    }
+  } finally {
+    deletingSessions.delete(key);
+  }
+}
+
+/** Stage validated context roots/children; restore them if the DB commit fails. */
+export function deleteSessionFilesTransactionally(
+  sources: string[],
+  commit: () => void,
+) {
+  const archiveDir = path.resolve(
+    DATA_DIR,
+    '.session-deletion',
+    crypto.randomUUID(),
+  );
+  // Checking parents allows moving a leaf symlink without following its target.
+  assertSessionDeletionPathsSafe([
+    ...sources.map((p) => path.dirname(p)),
+    archiveDir,
+  ]);
+  const moved: Array<{ source: string; backup: string }> = [];
+  let committed = false;
+  let restored = false;
+  try {
+    for (const [index, source] of sources.entries()) {
+      if (
+        !fs.existsSync(source) &&
+        !fs.lstatSync(source, { throwIfNoEntry: false })
+      )
+        continue;
+      const backup = path.join(archiveDir, String(index));
+      fs.mkdirSync(archiveDir, { recursive: true });
+      fs.renameSync(source, backup);
+      moved.push({ source, backup });
+    }
+    commit();
+    committed = true;
+  } catch (error) {
+    for (const { source, backup } of moved.reverse())
+      fs.renameSync(backup, source);
+    restored = true;
+    throw error;
+  } finally {
+    if ((committed || restored) && fs.existsSync(archiveDir)) {
+      try {
+        fs.rmSync(archiveDir, { recursive: true, force: true });
+      } catch {
+        logger.warn('Session deletion staging cleanup failed');
+      }
+    }
+  }
+}
 
 export function getMainSessionSummary(jid: string, group: RegisteredGroup) {
   const latest = getLatestMessagePreviewPerChat([jid]).get(jid);
@@ -68,6 +177,20 @@ export function getMainSessionBindings(jid: string, group: RegisteredGroup) {
     }));
 }
 
+export function getConversationSessionBindings(sessionId: string) {
+  const jids = new Set([
+    ...getGroupsByTargetAgent(sessionId).map((item) => item.jid),
+    ...listChannelMountsBySession(sessionId).map((mount) => mount.channel_jid),
+    ...listImContextBindingsByAgent(sessionId).map(
+      (binding) => binding.source_jid,
+    ),
+  ]);
+  return [...jids].map((jid) => ({
+    jid,
+    name: getRegisteredGroup(jid)?.name ?? jid,
+  }));
+}
+
 /** Reject computed paths and links escaping FinTrace's runtime data directory. */
 export function assertSessionDeletionPathsSafe(targets: string[]) {
   const dataRoot = fs.realpathSync(DATA_DIR);
@@ -99,58 +222,41 @@ export async function deleteMainSession(
     throw new Error('Unsafe session folder');
   const claudeDir = path.resolve(DATA_DIR, 'sessions', group.folder, '.claude');
   const inputDir = path.resolve(DATA_DIR, 'ipc', group.folder, 'input');
-  const archiveDir = path.resolve(
-    DATA_DIR,
-    '.session-deletion',
-    crypto.randomUUID(),
-  );
   // Validate every computed absolute target before moving or recursively deleting.
-  assertSessionDeletionPathsSafe([claudeDir, inputDir, archiveDir]);
-  const token = deps.queue.pauseGroupsForMutation([jid]);
-  const moved: Array<{ source: string; backup: string }> = [];
-  let committed = false;
-  try {
-    await deps.queue.stopGroup(jid, { force: true });
-    const stage = (source: string, backup: string) => {
-      fs.mkdirSync(path.dirname(backup), { recursive: true });
-      fs.renameSync(source, backup);
-      moved.push({ source, backup });
-    };
-    if (fs.existsSync(claudeDir)) {
-      for (const entry of fs.readdirSync(claudeDir)) {
-        if (entry === 'settings.json') continue;
-        stage(
-          path.join(claudeDir, entry),
-          path.join(archiveDir, '.claude', entry),
-        );
-      }
-    }
-    if (fs.existsSync(inputDir))
-      stage(inputDir, path.join(archiveDir, 'input'));
-    deleteMainConversation(group.folder, jid);
-    committed = true;
+  assertSessionDeletionPathsSafe([claudeDir, inputDir]);
+  await quiesceSessionForDeletion(jid, 'main', deps, () => {
+    const freshGroup = getRegisteredGroup(jid);
+    if (
+      !freshGroup ||
+      freshGroup.folder !== group.folder ||
+      freshGroup.created_by !== group.created_by
+    )
+      throw new SessionDeletionConflict(
+        'Workspace changed during deletion; retry',
+      );
+    const bindings = getMainSessionBindings(jid, freshGroup);
+    if (bindings.length)
+      throw new SessionDeletionConflict(
+        'Session has active channel bindings. Unbind before deleting.',
+        bindings,
+      );
+    assertSessionDeletionPathsSafe([claudeDir, inputDir]);
+    const sources = fs.existsSync(claudeDir)
+      ? fs
+          .readdirSync(claudeDir)
+          .filter((entry) => entry !== 'settings.json')
+          .map((entry) => path.join(claudeDir, entry))
+      : [];
+    sources.push(inputDir);
+    deleteSessionFilesTransactionally(sources, () =>
+      deleteMainConversation(group.folder, jid),
+    );
     try {
       delete deps.getSessions()[group.folder];
       deps.setLastAgentTimestamp(jid, { timestamp: '', id: '' });
     } catch {
       logger.warn({ jid }, 'Session deleted; runtime cache refresh failed');
     }
-    return { success: true as const };
-  } catch (error) {
-    if (!committed) {
-      for (const { source, backup } of moved.reverse())
-        fs.renameSync(backup, source);
-    }
-    throw error;
-  } finally {
-    // Workspace files, memory and agents/{id} are never staged or removed.
-    if (committed && fs.existsSync(archiveDir)) {
-      try {
-        fs.rmSync(archiveDir, { recursive: true, force: true });
-      } catch {
-        logger.warn({ jid }, 'Session deleted; staged backup cleanup failed');
-      }
-    }
-    deps.queue.resumeGroupsAfterMutation(token);
-  }
+  });
+  return { success: true as const };
 }
