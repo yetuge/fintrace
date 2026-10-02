@@ -29,7 +29,8 @@
     "desktop:dev": "npm run desktop:build && electron electron",
     "desktop:package": "npm run build:all && npm run desktop:build && electron-builder --projectDir electron --config electron-builder.yml",
     "desktop:package:dir": "npm run build:all && npm run desktop:build && electron-builder --dir --projectDir electron --config electron-builder.yml",
-    "test:frontend": "node web/node_modules/vitest/vitest.mjs run --config web/vitest.config.ts"
+    "test:frontend": "node web/node_modules/vitest/vitest.mjs run --config web/vitest.config.ts",
+    "test:financial": "vitest run tests/sec-financials.test.ts tests/sec-evidence.test.ts tests/agent-runner-tool-init.integration.test.ts tests/container-runner-plugin-mount.test.ts tests/agent-runner-provider-runtime.test.ts"
   },
   "dependencies": {
     "@earendil-works/pi-coding-agent": "0.84.2",

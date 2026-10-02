@@ -19,70 +19,7 @@ import {
 import { createSecTools } from '../container/agent-runner/src/financial/sec-tools.js';
 import { adaptClaudeMcpToolsToPi } from '../container/agent-runner/src/runtime/pi/pi-tools.js';
 
-const columns = {
-  accessionNumber: [
-    '0000000001-25-000001',
-    '0000000001-24-000001',
-    '0000000001-25-000002',
-  ],
-  form: ['10-K', '10-K', '10-K/A'],
-  filingDate: ['2025-02-01', '2024-02-01', '2025-03-01'],
-  reportDate: ['2024-12-31', '2023-12-31', '2024-12-31'],
-  primaryDocument: ['annual.htm', 'prior.htm', 'amended.htm'],
-};
-const filings = filingsFromColumns(columns, '0000000001');
-function fact(
-  val: number,
-  end = '2024-12-31',
-  start: string | undefined = '2024-01-01',
-  accn = columns.accessionNumber[0],
-): Fact {
-  const i = columns.accessionNumber.indexOf(accn);
-  return {
-    val,
-    end,
-    ...(start ? { start } : {}),
-    accn,
-    filed: columns.filingDate[i],
-    form: columns.form[i],
-    fy: 2024,
-    fp: 'FY',
-  };
-}
-function fixture(): CompanyFacts {
-  const duration = [
-    fact(120),
-    fact(100, '2023-12-31', '2023-01-01'),
-    fact(90, '2023-12-31', '2023-01-01', columns.accessionNumber[1]),
-  ];
-  const instant = [
-    fact(50, '2024-12-31', undefined),
-    fact(40, '2023-12-31', undefined),
-  ];
-  // Avoid the function's default start in instantaneous fixtures.
-  instant.forEach((f) => delete f.start);
-  return {
-    cik: 1,
-    entityName: 'Example Corp',
-    facts: {
-      'us-gaap': {
-        RevenueFromContractWithCustomerExcludingAssessedTax: {
-          units: { USD: duration },
-        },
-        NetIncomeLoss: {
-          units: { USD: duration.map((f) => ({ ...f, val: f.val / 10 })) },
-        },
-        NetCashProvidedByUsedInOperatingActivities: {
-          units: { USD: duration.map((f) => ({ ...f, val: f.val / 5 })) },
-        },
-        CashAndCashEquivalentsAtCarryingValue: { units: { USD: instant } },
-        Liabilities: {
-          units: { USD: instant.map((f) => ({ ...f, val: f.val * 3 })) },
-        },
-      },
-    },
-  };
-}
+import { columns, filings, fixture, fact } from './fixtures/sec-synthetic.js';
 const extract = (facts = fixture(), asOf = '2025-04-01') =>
   extractFinancials(facts, filings, ['EXM'], '2025-04-01T00:00:00Z', asOf, [
     'https://data.sec.gov/api/xbrl/companyfacts/CIK0000000001.json',
@@ -362,10 +299,21 @@ describe('SEC identity, requests and workspace tools', () => {
     );
     const dataset = JSON.parse(
       (fetched.content[0] as { text: string }).text,
-    ) as { datasetId: string };
+    ) as import('../container/agent-runner/src/financial/sec-evidence.js').EvidenceDataset;
     const args = {
       dataset_id: dataset.datasetId,
-      findings: ['营收与净利润较上期增长，现金余额上升。'],
+      findings: [
+        {
+          type: 'direct_fact',
+          fact_id: dataset.verifiedFacts.find((f) =>
+            f.id.endsWith(':revenue:yoy'),
+          )!.id,
+          evidence_ids: dataset.verifiedFacts.find((f) =>
+            f.id.endsWith(':revenue:yoy'),
+          )!.evidenceIds,
+          limitations: [],
+        },
+      ],
     };
     await piTools[1].execute('save', args, undefined, undefined, {} as never);
     const directory = path.join(

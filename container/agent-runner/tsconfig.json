@@ -11,6 +11,6 @@
     "incremental": true,
     "tsBuildInfoFile": "./dist/.tsbuildinfo"
   },
-  "include": ["src/pi-index.ts"],
+  "include": ["src/pi-index.ts", "src/financial/sec-audit.ts"],
   "exclude": ["node_modules", "dist"]
 }

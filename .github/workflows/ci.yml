@@ -1,4 +1,4 @@
-name: Frontend CI
+name: FinTrace CI
 on:
   pull_request:
   push:
@@ -20,3 +20,25 @@ jobs:
       - run: npm run test:frontend
       - run: npm run docs:check
       - run: npm run build:web
+  financial:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      # Deterministic tests must inject their transport; no local configuration.
+      SEC_RUNTIME_DIR: ${{ runner.temp }}/fintrace-sec-unconfigured
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            container/agent-runner/package-lock.json
+      - run: npm ci
+      - run: npm --prefix container/agent-runner ci
+      - run: npm run test:financial
+      - run: npm --prefix container/agent-runner run build
+      - run: npm run build
+      - run: bash scripts/check-stream-event-sync.sh
+      - run: bash scripts/check-agent-runner-prompts.sh

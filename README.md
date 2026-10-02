@@ -42,8 +42,10 @@ SEC 数据无需 API Key，但自动请求需要应用名称与真实联系邮�
 工具沿用 Pi 会话、当前工作区和文件面板：
 
 - `fetch_sec_financials` 从 SEC 的股票代码表、Submissions 和 Company Facts 获取数据，由代码提取年度指标并计算同比。
-- `save_sec_report` 将 Agent 的简短定性发现与代码生成的指标表、口径、截至时间及官方链接一起保存。
-- 每次研究保存在 `financial-research/<CIK>-<唯一标识>/`，包含 `raw.json`、`metrics.json`、`manifest.json` 与 `report.md`。在右侧上下文面板的文件页签中打开；新目录不会覆盖已有研究。
+- `save_sec_report` 接收逐条结构化发现，校验当前研究的证据 ID，并与代码生成的指标表、口径、截至时间及官方链接一起保存。直接事实只取自代码事实目录；模型定性解释在只有指标依据时保守降为待验证判断，列出尚缺资料。
+- 每次研究保存在 `financial-research/<CIK>-<唯一标识>/`，包含 `raw.json`、版本二 `metrics.json`、`manifest.json`、`findings.json` 与 `report.md`。在右侧上下文面板的文件页签中打开；新目录不会覆盖已有研究。旧版产物保留只读，不原地升级。
+
+报告每条发现明确区分直接事实、原始分析解释与待验证判断，并链接到带数值、期间、标签、filed、accession 和官方出处的指标证据。引用有效、文件哈希一致和格式通过均不等于结论语义成立；本轮未读取申报正文，不宣称正文或因果已核验。工具结构、兼容策略和可复现命令见 [SEC 证据契约](docs/SEC-EVIDENCE.md)。
 
 流量指标按实际年度起止日期选择，现金及总负债按同一财年期末选择。金额直接使用 SEC JSON 的基础货币单位，不推断千/百万倍数。修订与重复申报按截至日期和 accession 核验，采用最新披露的同期间数值；每个本期、上期值均保留标签、日期、单位和申报链接。同比只比较相同标签与币种的相邻年度；上期非正数、期间长度不可比时明确标注未计算。
 
@@ -53,7 +55,7 @@ SEC 请求在共享目录中串行限流（最多每秒两次，Docker Runner �
 
 官方说明：[公开数据 API](https://www.sec.gov/search-filings/edgar-application-programming-interfaces) · [访问策略与 User-Agent](https://www.sec.gov/search-filings/edgar-search-assistance/accessing-edgar-data)。
 
-确定性测试：`npx vitest run tests/sec-financials.test.ts`。显式真实 SEC 验证：`npx tsx scripts/verify-sec-live.ts`（默认写入 Git 忽略的 `data/sec-verification/`，不调用模型）。真实模型研究通过正常登录后的工作台执行，会消耗所配置模型的用量。
+确定性测试：`npm run test:financial`。离线核验：`npx tsx scripts/verify-sec-artifacts.ts <research-directory>`（只读支持旧版与版本二产物）。显式真实 SEC 验证：`npx tsx scripts/verify-sec-live.ts`（默认写入 Git 忽略的 `data/sec-verification/`，不调用模型）。真实模型研究通过正常登录后的工作台执行，会消耗所配置模型的用量。
 
 以下为实际运行中从文件面板打开的报告与原始数据目录，完整验证与限制见 [验证记录](docs/VERIFICATION.md)，任务、结果与证据说明见 [Microsoft 真实运行案例](docs/cases/microsoft-sec-real-run.md)。
 
@@ -136,7 +138,7 @@ npm test -- --run
 npm run self-test
 ```
 
-GitHub Actions 执行前端测试、文档检查与 Web 构建。当前验证范围见 [验证记录](docs/VERIFICATION.md)。
+GitHub Actions 保留前端测试、文档检查与 Web 构建，并增加 SEC 确定性测试、必要工具集成测试、Agent Runner 与后端构建。日常 CI 不访问真实模型或 SEC，无需密钥、本地 SEC 配置或运行数据。当前验证范围见 [验证记录](docs/VERIFICATION.md)。
 
 | 目录                      | 职责                               |
 | ------------------------- | ---------------------------------- |

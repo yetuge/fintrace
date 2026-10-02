@@ -1,0 +1,178 @@
+{
+  "schemaVersion": 1,
+  "company": {
+    "cik": "0000000001",
+    "name": "Example Corp",
+    "tickers": ["EXM"]
+  },
+  "fetchedAt": "2025-04-01T00:00:00Z",
+  "asOf": "2025-04-01",
+  "latestAnnual": {
+    "accession": "0000000001-25-000002",
+    "form": "10-K/A",
+    "filed": "2025-03-01",
+    "end": "2024-12-31",
+    "document": "amended.htm",
+    "url": "https://www.sec.gov/Archives/edgar/data/1/000000000125000002/amended.htm"
+  },
+  "previousAnnualEnd": "2023-12-31",
+  "annualStart": "2024-01-01",
+  "currency": "USD",
+  "metrics": [
+    {
+      "key": "revenue",
+      "label": "营收",
+      "basis": "合并年度营业收入，优先不含代收税的客户合同收入",
+      "current": {
+        "value": 120,
+        "unit": "USD",
+        "tag": "us-gaap:RevenueFromContractWithCustomerExcludingAssessedTax",
+        "start": "2024-01-01",
+        "end": "2024-12-31",
+        "accession": "0000000001-25-000001",
+        "filed": "2025-02-01",
+        "form": "10-K",
+        "source": "https://www.sec.gov/Archives/edgar/data/1/000000000125000001/annual.htm"
+      },
+      "previous": {
+        "value": 100,
+        "unit": "USD",
+        "tag": "us-gaap:RevenueFromContractWithCustomerExcludingAssessedTax",
+        "start": "2023-01-01",
+        "end": "2023-12-31",
+        "accession": "0000000001-25-000001",
+        "filed": "2025-02-01",
+        "form": "10-K",
+        "source": "https://www.sec.gov/Archives/edgar/data/1/000000000125000001/annual.htm"
+      },
+      "yoyPercent": 20,
+      "missingReason": null,
+      "yoyReason": null
+    },
+    {
+      "key": "netIncome",
+      "label": "净利润",
+      "basis": "年度净利润/亏损，非每股收益；NetIncomeLoss 为归属于母公司，ProfitLoss 包含非控股权益，标签不同不混算",
+      "current": {
+        "value": 12,
+        "unit": "USD",
+        "tag": "us-gaap:NetIncomeLoss",
+        "start": "2024-01-01",
+        "end": "2024-12-31",
+        "accession": "0000000001-25-000001",
+        "filed": "2025-02-01",
+        "form": "10-K",
+        "source": "https://www.sec.gov/Archives/edgar/data/1/000000000125000001/annual.htm"
+      },
+      "previous": {
+        "value": 10,
+        "unit": "USD",
+        "tag": "us-gaap:NetIncomeLoss",
+        "start": "2023-01-01",
+        "end": "2023-12-31",
+        "accession": "0000000001-25-000001",
+        "filed": "2025-02-01",
+        "form": "10-K",
+        "source": "https://www.sec.gov/Archives/edgar/data/1/000000000125000001/annual.htm"
+      },
+      "yoyPercent": 20,
+      "missingReason": null,
+      "yoyReason": null
+    },
+    {
+      "key": "operatingCashFlow",
+      "label": "经营现金流",
+      "basis": "年度经营活动净现金流",
+      "current": {
+        "value": 24,
+        "unit": "USD",
+        "tag": "us-gaap:NetCashProvidedByUsedInOperatingActivities",
+        "start": "2024-01-01",
+        "end": "2024-12-31",
+        "accession": "0000000001-25-000001",
+        "filed": "2025-02-01",
+        "form": "10-K",
+        "source": "https://www.sec.gov/Archives/edgar/data/1/000000000125000001/annual.htm"
+      },
+      "previous": {
+        "value": 20,
+        "unit": "USD",
+        "tag": "us-gaap:NetCashProvidedByUsedInOperatingActivities",
+        "start": "2023-01-01",
+        "end": "2023-12-31",
+        "accession": "0000000001-25-000001",
+        "filed": "2025-02-01",
+        "form": "10-K",
+        "source": "https://www.sec.gov/Archives/edgar/data/1/000000000125000001/annual.htm"
+      },
+      "yoyPercent": 20,
+      "missingReason": null,
+      "yoyReason": null
+    },
+    {
+      "key": "cash",
+      "label": "现金",
+      "basis": "财年末现金及现金等价物，不含短期投资及受限现金",
+      "current": {
+        "value": 50,
+        "unit": "USD",
+        "tag": "us-gaap:CashAndCashEquivalentsAtCarryingValue",
+        "end": "2024-12-31",
+        "accession": "0000000001-25-000001",
+        "filed": "2025-02-01",
+        "form": "10-K",
+        "source": "https://www.sec.gov/Archives/edgar/data/1/000000000125000001/annual.htm"
+      },
+      "previous": {
+        "value": 40,
+        "unit": "USD",
+        "tag": "us-gaap:CashAndCashEquivalentsAtCarryingValue",
+        "end": "2023-12-31",
+        "accession": "0000000001-25-000001",
+        "filed": "2025-02-01",
+        "form": "10-K",
+        "source": "https://www.sec.gov/Archives/edgar/data/1/000000000125000001/annual.htm"
+      },
+      "yoyPercent": 25,
+      "missingReason": null,
+      "yoyReason": null
+    },
+    {
+      "key": "liabilities",
+      "label": "总负债",
+      "basis": "财年末全部负债，包括流动与非流动负债，非仅有息债务",
+      "current": {
+        "value": 150,
+        "unit": "USD",
+        "tag": "us-gaap:Liabilities",
+        "end": "2024-12-31",
+        "accession": "0000000001-25-000001",
+        "filed": "2025-02-01",
+        "form": "10-K",
+        "source": "https://www.sec.gov/Archives/edgar/data/1/000000000125000001/annual.htm"
+      },
+      "previous": {
+        "value": 120,
+        "unit": "USD",
+        "tag": "us-gaap:Liabilities",
+        "end": "2023-12-31",
+        "accession": "0000000001-25-000001",
+        "filed": "2025-02-01",
+        "form": "10-K",
+        "source": "https://www.sec.gov/Archives/edgar/data/1/000000000125000001/annual.htm"
+      },
+      "yoyPercent": 25,
+      "missingReason": null,
+      "yoyReason": null
+    }
+  ],
+  "sources": [
+    "https://data.sec.gov/api/xbrl/companyfacts/CIK0000000001.json",
+    "https://data.sec.gov/submissions/CIK0000000001.json"
+  ],
+  "warnings": [
+    "只提取 Company Facts 的公司整体标准 US-GAAP 标签；不推算缺失值，不使用自定义标签、季度累计值或行情数据。",
+    "优先采用截至日期内最近年度申报披露的同期间数值；修订仅对实际披露的事实生效，保留每个值的 accession。",
+    "总负债指全部会计负债，现金不含短期投资；不同标签、币种或不可比期间不计算同比。"
+  ]
+}

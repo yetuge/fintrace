@@ -5,6 +5,13 @@ import { z } from 'zod';
 import { defineMcpTool, type McpToolDefinition } from '../mcp-tool-types.js';
 import { createSecFetch, fetchCompany, type SecFetch } from './sec-client.js';
 import {
+  buildEvidenceDataset,
+  findingSchema,
+  normalizeFindings,
+  type EvidenceDataset,
+  type Finding,
+} from './sec-evidence.js';
+import {
   extractFinancials,
   type FinancialDataset,
   type SelectedValue,
@@ -28,8 +35,8 @@ const format = (value: SelectedValue | null) =>
     : '缺失';
 
 export function renderSecReport(
-  dataset: FinancialDataset,
-  findings: string[],
+  dataset: EvidenceDataset,
+  findings: Finding[],
 ): string {
   const links = [
     ...new Set([
@@ -84,17 +91,35 @@ export function renderSecReport(
       ...(m.yoyReason ? [`  - 同比未计算：${m.yoyReason}。`] : []),
     ]),
     '',
-    '## 主要发现（Agent 定性分析）',
+    '## 主要发现（逐条分类与证据）',
     '',
-    ...findings.map((f) => `- ${escape(f)}`),
+    ...findings.flatMap((f, i) => [
+      `### 发现 ${i + 1} · ${f.type === 'direct_fact' ? '直接事实（代码核验）' : f.type === 'interpretation' ? '分析解释（未语义核验）' : '待验证判断'}`,
+      '',
+      escape(f.content),
+      '',
+      `关联证据：${f.evidenceIds.length ? f.evidenceIds.map((id) => `[${id}](#evidence-${dataset.evidence.findIndex((e) => e.id === id) + 1})`).join('、') : '无可用指标证据'}。`,
+      ...(f.requestedType !== f.type
+        ? ['原始类型：分析解释；当前只有指标依据，降为待验证判断。']
+        : []),
+      ...f.limitations.map((l) => `- 限制 / 尚缺：${escape(l)}`),
+      '',
+    ]),
     '',
-    '以上发现由 Agent 基于工具返回的指标生成；数值及引用由代码写入。因果判断需结合申报正文核查。',
+    '直接事实的内容由代码事实目录生成，模型自由文本不能取得该标签。分析解释与待验证判断的引用只表示关联，不代表结论已得到充分支持。本轮模型定性解释保守归为待验证判断；未读取申报正文，未完成正文或因果核验。文件哈希和格式校验不等于语义核验。',
+    '',
+    '## 指标证据目录',
+    '',
+    ...dataset.evidence.flatMap((e, i) => [
+      `<a id="evidence-${i + 1}"></a>`,
+      `- **${e.id}**：${e.label}（${e.period === 'current' ? '本期' : '上期'}）；${e.tag}；${format(e)}；${e.start ? e.start + ' 至 ' : '期末 '}${e.end}；filed ${e.filed}；accession ${e.accession}；[SEC 官方申报](${e.source})。`,
+    ]),
     '',
     '## 限制',
     '',
     ...dataset.warnings.map((w) => `- ${w}`),
     '',
-    '原始 Company Facts 与 Submissions JSON 保存于同目录 raw.json，结构化指标见 metrics.json，完整性摘要见 manifest.json。',
+    '原始 Company Facts 与 Submissions JSON 保存于同目录 raw.json，版本二结构化指标与证据见 metrics.json，发现记录见 findings.json，完整性摘要见 manifest.json。',
     '',
     '## SEC 官方来源',
     '',
@@ -121,7 +146,7 @@ export function createSecTools(
         const fetched = await fetchCompany(company, request, signal);
         signal?.throwIfAborted();
         const fetchedAt = new Date().toISOString();
-        const dataset = extractFinancials(
+        const extracted = extractFinancials(
           fetched.facts,
           fetched.filings,
           fetched.tickers,
@@ -130,6 +155,7 @@ export function createSecTools(
           fetched.raw.map((r) => r.url),
         );
         const datasetId = `${fetched.cik}-${randomUUID()}`;
+        const dataset = buildEvidenceDataset(extracted, datasetId);
         const root = await researchRoot(workspace);
         const directory = path.join(root, datasetId);
         await fs.mkdir(directory);
@@ -144,7 +170,12 @@ export function createSecTools(
         await fs.writeFile(
           path.join(directory, 'manifest.json'),
           JSON.stringify(
-            { rawSha256: digest(raw), metricsSha256: digest(metrics) },
+            {
+              schemaVersion: 2,
+              datasetId,
+              rawSha256: digest(raw),
+              metricsSha256: digest(metrics),
+            },
             null,
             2,
           ) + '\n',
@@ -155,11 +186,10 @@ export function createSecTools(
             {
               type: 'text',
               text: JSON.stringify({
-                datasetId,
                 directory: `financial-research/${datasetId}`,
                 ...dataset,
                 nextStep:
-                  '调用 save_sec_report，findings 只写基于这些指标的定性发现，不含数字、不推断缺失值或无证据因果。数值表与来源自动写入报告。',
+                  '调用 save_sec_report。findings 每项包含 type、evidence_ids、limitations；直接事实 type=direct_fact 必须从 verifiedFacts 选择 fact_id 和完整 evidenceIds，内容由代码生成。其他发现提供 content 与具体尚缺证据，不含数字；interpretation 在指标证据范围内保守降为 unverified。不要宣称已读取正文或完成因果核验。',
               }),
             },
           ],
@@ -168,27 +198,14 @@ export function createSecTools(
     ),
     defineMcpTool(
       'save_sec_report',
-      '将 fetch_sec_financials 的数据集写为当前工作区 report.md。数值、口径、同比、截至时间和 SEC 引用由代码自动生成。findings 仅传入基于工具结果的简短定性分析，不包含任何数字、虚构值、无证据因果或投资建议；缺失信息须说明。不要再用 write 重写此报告。',
+      '保存版本二带证据报告。findings 是结构化记录：type 为 direct_fact/interpretation/unverified，evidence_ids 只能引用本数据集 evidence。direct_fact 必须选择 verifiedFacts 中的 fact_id 及完整 evidenceIds，发现内容由代码生成；模型 content 不会成为已核验事实。定性 content 不含数字，limitations 必须具体说明尚缺信息；仅有指标不足以核验定性解释，interpretation 保守降为 unverified。未读取正文或核验因果。保存 findings.json 与 report.md，不覆盖历史报告，不用 write 重写。',
       {
         dataset_id: z
           .string()
           .regex(
             /^\d{10}-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
           ),
-        findings: z
-          .array(
-            z
-              .string()
-              .trim()
-              .min(1)
-              .max(500)
-              .refine(
-                (s) => !/[0-9０-９]|\b(?:NaN|Infinity)\b/.test(s),
-                '定性发现不得包含数值；指标表由代码生成',
-              ),
-          )
-          .min(1)
-          .max(6),
+        findings: z.array(findingSchema).min(1).max(6),
       },
       async ({ dataset_id, findings }) => {
         const directory = path.join(await researchRoot(workspace), dataset_id);
@@ -209,19 +226,59 @@ export function createSecTools(
           throw new Error(
             'SEC_INTEGRITY: 原始数据或指标文件已变更，请重新获取数据',
           );
-        const report = renderSecReport(
-          JSON.parse(metrics) as FinancialDataset,
-          findings,
+        const saved = JSON.parse(metrics) as EvidenceDataset | FinancialDataset;
+        if (saved.schemaVersion !== 2 || saved.datasetId !== dataset_id)
+          throw new Error(
+            'SEC_VERSION: 旧产物只读保留，请重新获取生成版本二报告',
+          );
+        const dataset = buildEvidenceDataset(
+          { ...saved, schemaVersion: 1 },
+          dataset_id,
         );
-        const reportPath = path.join(directory, 'report.md');
-        try {
-          await fs.writeFile(reportPath, report, { flag: 'wx' });
-        } catch (error) {
-          if (
-            (error as NodeJS.ErrnoException).code !== 'EEXIST' ||
-            (await fs.readFile(reportPath, 'utf8')) !== report
-          )
-            throw error;
+        const records = normalizeFindings(dataset, findings);
+        const report = renderSecReport(dataset, records);
+        const findingsText =
+          JSON.stringify(
+            {
+              schemaVersion: 2,
+              datasetId: dataset_id,
+              inputs: findings,
+              findings: records,
+            },
+            null,
+            2,
+          ) + '\n';
+        // Preflight both outputs before writing: retries are idempotent, history is immutable.
+        for (const [name, contents] of [
+          ['report.md', report],
+          ['findings.json', findingsText],
+        ]) {
+          try {
+            if (
+              (await fs.readFile(path.join(directory, name), 'utf8')) !==
+              contents
+            )
+              throw new Error('SEC_EXISTS: 已有报告或发现不同，请新建研究');
+          } catch (error) {
+            if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+          }
+        }
+        for (const [name, contents] of [
+          ['findings.json', findingsText],
+          ['report.md', report],
+        ]) {
+          try {
+            await fs.writeFile(path.join(directory, name), contents, {
+              flag: 'wx',
+            });
+          } catch (error) {
+            if (
+              (error as NodeJS.ErrnoException).code !== 'EEXIST' ||
+              (await fs.readFile(path.join(directory, name), 'utf8')) !==
+                contents
+            )
+              throw error;
+          }
         }
         return {
           content: [
@@ -232,6 +289,11 @@ export function createSecTools(
                 report: `financial-research/${dataset_id}/report.md`,
                 metrics: `financial-research/${dataset_id}/metrics.json`,
                 raw: `financial-research/${dataset_id}/raw.json`,
+                findings: `financial-research/${dataset_id}/findings.json`,
+                classification: records.map((f) => ({
+                  type: f.type,
+                  verification: f.verification,
+                })),
                 reportSha256: digest(report),
               }),
             },
