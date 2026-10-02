@@ -394,6 +394,64 @@ export async function scoreTrace(
         'Product/agent execution or delivery failure; inspect trace and artifacts. Scorer errors require review before attribution.',
       );
   }
+  if (response) {
+    try {
+      if (failedSource) {
+        assert.equal(response.artifacts.length, 0, 'FAILURE_ARTIFACT_CLAIM');
+      } else {
+        assert.ok(fetch?.datasetId, 'NO_REPLY_DATASET');
+        const directory = `financial-research/${fetch.datasetId}`;
+        const requiredReply = [
+          `${directory}/report.md`,
+          ...(task.years === 3 ? [`${directory}/trends.svg`] : []),
+        ];
+        for (const required of requiredReply)
+          assert.ok(
+            response.artifacts.includes(required),
+            'MISSING_REPLY_PATH',
+          );
+        for (const relative of response.artifacts) {
+          assert.ok(
+            !path.win32.isAbsolute(relative) &&
+              !relative.includes('\\') &&
+              relative
+                .split('/')
+                .every((part) => part && part !== '.' && part !== '..') &&
+              relative.startsWith(`${directory}/`),
+            'INVALID_REPLY_PATH',
+          );
+          const recorded = trace.artifacts.find((a) => a.path === relative);
+          assert.ok(recorded, 'UNRECORDED_REPLY_PATH');
+          assert.equal(
+            hash(await fs.readFile(await within(workspace, relative))),
+            recorded.sha256,
+            'REPLY_PATH_HASH_MISMATCH',
+          );
+        }
+      }
+      scores.artifact_delivery.evidence.push(
+        failedSource
+          ? 'Final response claims no artifacts after source failure.'
+          : 'Final response report/chart paths and all listed artifacts match current recorded files and hashes.',
+      );
+    } catch {
+      scores.artifact_delivery = check('failed', [
+        'Final response claims missing, unsafe, unrecorded or wrong-dataset artifacts, or omits required report/chart paths.',
+      ]);
+      scores.task_completion = check('failed', [
+        'Final response artifact delivery does not match the task workspace.',
+      ]);
+      if (failedSource)
+        scores.failure_handling = check('failed', [
+          'Final response claims artifacts despite source failure.',
+        ]);
+    }
+  } else if (scores.artifact_delivery.status === 'passed') {
+    scores.artifact_delivery = check('needs_review', [
+      ...scores.artifact_delivery.evidence,
+      'Final response envelope unavailable; user-facing delivery paths require review.',
+    ]);
+  }
   if (
     response &&
     (response.dataMode !== task.mode || response.filingBodyRead)

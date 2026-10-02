@@ -64,7 +64,7 @@ npm run benchmark -- score --batch=completion-2026-10-02 --task=judgment-evidenc
 npm run benchmark -- summarize --batches=first-round-2026-10-02,first-round-repair-2026-10-02,completion-2026-10-02
 ```
 
-真实数据目录仅在本地，公开 JSON 提供 trace 原始字节/产物哈希、工具参数、回答和评分依据；克隆不含本机 data 或凭据。在线数据和模型输出会变化，不保证他日结果一致。最新 21 项离线测试通过（含跨批次失败保留），金融 75 项、前端 102 项、会话/ACL 48 项及必要构建/类型/文档/格式检查通过。测试数不计成绩。实测执行提交 [CI](https://github.com/yetuge/fintrace/actions/runs/37015093938) 已通过；最新交付提交 CI 状态以 GitHub 为准。
+真实数据目录仅在本地，公开 JSON 提供 trace 原始字节/产物哈希、工具参数、回答和评分依据；克隆不含本机 data 或凭据。在线数据和模型输出会变化，不保证他日结果一致。原始交付时 21 项离线测试通过（含跨批次失败保留），金融 75 项、前端 102 项、会话/ACL 48 项及必要构建/类型/文档/格式检查通过。后续预算恢复与最终回答路径校验修复后，离线测试增至 39 项，六项原始成绩只读重算一致，记录见 [验证记录](VERIFICATION.md)。测试数不计成绩。实测执行提交 [CI](https://github.com/yetuge/fintrace/actions/runs/37015093938) 已通过；最新交付提交 CI 状态以 GitHub 为准。
 
 全仓本轮实际测试仍有历史失败：313 文件通过、31 失败，2926 项通过、46 失败、23 跳过；新增显现的一项 cancellation 失败在原 HEAD `ebbb602` 隔离检出也复现。这是当时全仓记录，后续离线测试增补另行通过，未将旧总数伪称最新全仓通过。详见 [验证记录](VERIFICATION.md)。
 

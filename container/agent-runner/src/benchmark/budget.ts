@@ -1,3 +1,70 @@
+import type { Trace } from './types.js';
+
+interface RecoveryMetadata {
+  carryFrom?: string;
+  priorReservation?: { requests: number; output: number };
+  budget: { perTaskRequests: number; perRequestTokens: number };
+}
+
+export function recoverBudgetLedger(
+  metadata: RecoveryMetadata,
+  traces: Trace[],
+  checkpoints: { chargedRequests: number; chargedOutputTokens: number }[] = [],
+) {
+  const amount = (value: number) => {
+    if (!Number.isSafeInteger(value) || value < 0)
+      throw new Error('BENCHMARK_INVALID_RECOVERY_BUDGET');
+    return value;
+  };
+  if (metadata.carryFrom && !metadata.priorReservation)
+    throw new Error('BENCHMARK_MISSING_PRIOR_RESERVATION');
+  const priorReservation = metadata.priorReservation ?? {
+    requests: 0,
+    output: 0,
+  };
+  let chargedRequests = amount(priorReservation.requests);
+  let chargedOutputTokens = amount(priorReservation.output);
+  const perTaskRequests = amount(metadata.budget.perTaskRequests);
+  const perRequestTokens = amount(metadata.budget.perRequestTokens);
+  for (const trace of traces) {
+    if (trace.status !== 'executed') continue;
+    const count = amount(
+      typeof trace.modelRequests === 'number'
+        ? trace.modelRequests
+        : perTaskRequests,
+    );
+    chargedRequests = amount(chargedRequests + count);
+    chargedOutputTokens = amount(
+      chargedOutputTokens +
+        (typeof trace.usage.output === 'number'
+          ? amount(trace.usage.output)
+          : amount(count * perRequestTokens)),
+    );
+  }
+  // Checkpoints are cumulative, including the inherited reservation and any
+  // request reserved before a response/trace was saved. Never add them twice.
+  for (const checkpoint of checkpoints) {
+    chargedRequests = Math.max(
+      chargedRequests,
+      amount(checkpoint.chargedRequests),
+    );
+    chargedOutputTokens = Math.max(
+      chargedOutputTokens,
+      amount(checkpoint.chargedOutputTokens),
+    );
+  }
+  return {
+    requests: 'unavailable' as const,
+    chargedRequests,
+    chargedOutputTokens,
+    priorReservation,
+    usageUnavailable: true,
+    reason:
+      'Conservative upper-bound reservation including inherited budget and checkpoints, not estimated actual usage; original traces untouched.',
+    cost: 'unavailable' as const,
+  };
+}
+
 export function assertPayloadLimit(payload: unknown, cap: number) {
   const body = payload as { max_tokens?: number; thinking?: { type?: string } };
   if (

@@ -4,7 +4,10 @@ import { execFileSync } from 'node:child_process';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
-import { RequestBudget } from '../container/agent-runner/src/benchmark/budget.js';
+import {
+  RequestBudget,
+  recoverBudgetLedger,
+} from '../container/agent-runner/src/benchmark/budget.js';
 import { hash } from '../container/agent-runner/src/benchmark/input.js';
 import {
   scoreTrace,
@@ -397,23 +400,29 @@ async function main() {
   if (hash(frozenBytes) !== metadata.taskSetSha256)
     throw new Error('Task set hash mismatch');
   if (command === 'recover') {
-    let chargedRequests = 0,
-      chargedOutputTokens = 0;
+    // Validate inherited accounting before writing any recovered traces.
+    recoverBudgetLedger(metadata, []);
+    const recoveredTraces: Trace[] = [];
+    const checkpointBudgets: {
+      chargedRequests: number;
+      chargedOutputTokens: number;
+    }[] = [];
     for (const task of frozen.tasks as Task[]) {
       const dir = path.join(batchDir, task.id),
         file = path.join(dir, 'trace.json');
       await fs.mkdir(dir, { recursive: true });
+      let checkpoint: any;
+      try {
+        checkpoint = JSON.parse(
+          await fs.readFile(path.join(dir, 'checkpoint.json'), 'utf8'),
+        );
+      } catch {}
+      if (checkpoint?.budget) checkpointBudgets.push(checkpoint.budget);
       let trace: Trace | undefined;
       try {
         trace = JSON.parse(await fs.readFile(file, 'utf8'));
       } catch {}
       if (!trace) {
-        let checkpoint: any;
-        try {
-          checkpoint = JSON.parse(
-            await fs.readFile(path.join(dir, 'checkpoint.json'), 'utf8'),
-          );
-        } catch {}
         const research = path.join(dir, 'workspace', 'financial-research');
         const ids = await fs.readdir(research).catch(() => []);
         trace = checkpoint?.trace ?? {
@@ -453,27 +462,13 @@ async function main() {
           flag: 'wx',
         });
       }
-      if (trace!.status === 'executed') {
-        const count =
-          typeof trace!.modelRequests === 'number'
-            ? trace!.modelRequests
-            : metadata.budget.perTaskRequests;
-        chargedRequests += count;
-        chargedOutputTokens +=
-          typeof trace!.usage.output === 'number'
-            ? trace!.usage.output
-            : count * metadata.budget.perRequestTokens;
-      }
+      recoveredTraces.push(trace!);
     }
-    const recovery = {
-      requests: 'unavailable',
-      chargedRequests,
-      chargedOutputTokens,
-      usageUnavailable: true,
-      reason:
-        'Conservative upper-bound reservation, not estimated actual usage; original traces untouched.',
-      cost: 'unavailable',
-    };
+    const recovery = recoverBudgetLedger(
+      metadata,
+      recoveredTraces,
+      checkpointBudgets,
+    );
     // Recovery is explicit and cannot overwrite an existing budget ledger.
     await fs.writeFile(
       path.join(batchDir, 'budget.json'),
