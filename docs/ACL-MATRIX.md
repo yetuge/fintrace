@@ -99,6 +99,8 @@ Host Workspace 在 Access 之外还要求 admin。
 
 - 重命名、切换 Agent、修改执行方式
 - stop、interrupt、reset-session、clear-history
+- 删除旧默认会话（`DELETE /sessions/main`）要求工作区所有者；Host 模式还需执行权限。
+  删除前阻止有渠道关联的默认上下文，停稳所选 Runner；不删除工作区或其他会话。
 - 创建、修改、删除 Runtime Session
 - 写入工作区 Skills/MCP
 - 修改群聊绑定、激活方式、响应对象和 owner

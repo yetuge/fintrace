@@ -14,7 +14,7 @@ describe('session sidebar copy', () => {
     expect(sidebar).not.toContain('使用独立上下文');
     expect(sidebar).toContain("messagePreview(session) || '暂无消息'");
     expect(sidebar).not.toContain("messagePreview(session) || '独立上下文'");
-    expect(chatView).toContain("mainMeta={group.lastMessage || '暂无消息'}");
+    expect(chatView).toContain('workspaceSessions(group, agents)');
   });
 
   test('keeps Web session creation available alongside channel-native topics', () => {
@@ -29,8 +29,8 @@ describe('session sidebar copy', () => {
     expect(sidebar).toContain("'新建 Web 会话'");
     expect(sidebar).toContain("const sessionNoun = '会话'");
     expect(sidebar).toContain("{title || '会话'}");
-    expect(sidebar).toContain(
-      'onBindSession ? () => onBindSession(null) : undefined',
+    expect(sidebar).toMatch(
+      /onBindSession\(\s*session.id === 'main' \? null : session.id/,
     );
     expect(sidebar).toContain('onBindSession && !nativeManaged');
     expect(chatView).toContain('isCreatingSession={creatingSession}');

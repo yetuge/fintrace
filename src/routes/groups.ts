@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import { getMainSessionSummary } from '../main-session.js';
 import type { Variables } from '../web-context.js';
 import { authMiddleware } from '../middleware/auth.js';
 import {
@@ -291,6 +292,7 @@ interface GroupPayloadItem {
   deletable: boolean;
   lastMessage?: string;
   lastMessageTime?: string;
+  main_session?: ReturnType<typeof getMainSessionSummary>;
   execution_mode: 'container' | 'host';
   interaction_mode?: InteractionMode;
   custom_cwd?: string;
@@ -379,6 +381,7 @@ function buildGroupsPayload(user: AuthUser): Record<string, GroupPayloadItem> {
       editable: isWeb,
       deletable: isWeb && !isHome,
       lastMessage: latest?.content,
+      main_session: getMainSessionSummary(jid, group),
       lastMessageTime:
         latest?.timestamp ||
         chats.get(jid)?.last_message_time ||

@@ -251,7 +251,9 @@ describe('settings information architecture', () => {
     );
     const bindingRoute = read('src/routes/config.ts');
 
-    expect(sessions).toContain('? () => onBindSession(null)');
+    expect(sessions).toMatch(
+      /onBindSession\(\s*session.id === 'main' \? null : session.id/,
+    );
     expect(chatView).toContain('setBindingAgentId(id ?? MAIN_BINDING)');
     expect(chatView).toContain('setBindingAgentId(WORKSPACE_BINDING)');
     expect(chatView).toContain('title="管理工作区群聊绑定"');

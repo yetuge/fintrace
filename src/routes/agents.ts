@@ -1,4 +1,10 @@
 import { Hono } from 'hono';
+import {
+  assertSessionDeletionPathsSafe,
+  deleteMainSession,
+  getMainSessionBindings,
+  getMainSessionSummary,
+} from '../main-session.js';
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
@@ -29,6 +35,7 @@ import {
   listImContextBindingsByAgent,
   listChannelMountsBySession,
   getChannelAccount,
+  setRouterState,
 } from '../db.js';
 import { DATA_DIR } from '../config.js';
 import type {
@@ -38,6 +45,10 @@ import type {
   SubAgent,
 } from '../types.js';
 import { logger } from '../logger.js';
+import {
+  hasHostExecutionPermission,
+  isHostExecutionGroup,
+} from '../web-context.js';
 import { getChannelType, extractChatId } from '../im-channel.js';
 import { ensureAgentDirectories } from '../utils.js';
 import {
@@ -355,24 +366,29 @@ router.get('/:jid/sessions', authMiddleware, async (c) => {
   const virtualChatJids = agents.map((a) => `${jid}#agent:${a.id}`);
   const latestByChatJid = getLatestMessagePreviewPerChat(virtualChatJids);
 
+  const mainSession = getMainSessionSummary(jid, group);
   return c.json({
     sessions: [
-      {
-        id: 'main',
-        name: '主会话',
-        prompt: '',
-        status: 'idle',
-        kind: 'main',
-        chat_jid: jid,
-        is_main: true,
-        created_at: group.added_at,
-        source_kind: null,
-        thread_id: null,
-        root_message_id: null,
-        title_source: null,
-        last_active_at: null,
-        latest_message: null,
-      },
+      ...(mainSession
+        ? [
+            {
+              id: 'main',
+              name: mainSession.name,
+              prompt: '',
+              status: 'idle',
+              kind: 'main',
+              chat_jid: jid,
+              is_main: true,
+              created_at: group.added_at,
+              source_kind: null,
+              thread_id: null,
+              root_message_id: null,
+              title_source: null,
+              last_active_at: mainSession.last_active_at,
+              latest_message: mainSession.latest_message,
+            },
+          ]
+        : []),
       ...agents.map((a) => {
         const latest = latestByChatJid.get(`${jid}#agent:${a.id}`);
         return {
@@ -648,10 +664,6 @@ router.patch('/:jid/sessions/:sessionId', authMiddleware, async (c) => {
   const sessionId = c.req.param('sessionId');
   const user = c.get('user');
 
-  if (sessionId === 'main') {
-    return c.json({ error: 'Main session is renamed with the workspace' }, 400);
-  }
-
   const group = getRegisteredGroup(jid);
   if (!group) {
     return c.json({ error: 'Group not found' }, 404);
@@ -666,6 +678,16 @@ router.patch('/:jid/sessions/:sessionId', authMiddleware, async (c) => {
     );
   }
 
+  if (sessionId === 'main') {
+    if (!getMainSessionSummary(jid, group))
+      return c.json({ error: 'Session not found' }, 404);
+    const body = await c.req.json().catch(() => ({}));
+    const name = typeof body.name === 'string' ? body.name.trim() : '';
+    if (!name || name.length > 40)
+      return c.json({ error: 'Name is required (max 40 chars)' }, 400);
+    setRouterState(`main-session-name:${group.folder}`, name);
+    return c.json({ success: true });
+  }
   const session = getAgent(sessionId);
   if (!session || session.chat_jid !== jid || session.kind !== 'conversation') {
     return c.json({ error: 'Session not found' }, 404);
@@ -849,10 +871,6 @@ router.delete('/:jid/sessions/:sessionId', authMiddleware, async (c) => {
   const sessionId = c.req.param('sessionId');
   const user = c.get('user');
 
-  if (sessionId === 'main') {
-    return c.json({ error: 'Main session cannot be deleted' }, 400);
-  }
-
   const group = getRegisteredGroup(jid);
   if (!group) {
     return c.json({ error: 'Group not found' }, 404);
@@ -867,6 +885,34 @@ router.delete('/:jid/sessions/:sessionId', authMiddleware, async (c) => {
     );
   }
 
+  if (sessionId === 'main') {
+    if (!jid.startsWith('web:'))
+      return c.json(
+        { error: 'Delete default sessions from their workspace' },
+        400,
+      );
+    if (isHostExecutionGroup(group) && !hasHostExecutionPermission(user))
+      return c.json(
+        { error: 'Insufficient permissions for host execution mode' },
+        403,
+      );
+    const bindings = getMainSessionBindings(jid, group);
+    if (bindings.length)
+      return c.json(
+        {
+          error: 'Session has active channel bindings. Unbind before deleting.',
+          linked_im_groups: bindings,
+        },
+        409,
+      );
+    const deps = getWebDeps();
+    if (!deps) return c.json({ error: 'Server not initialized' }, 503);
+    try {
+      return c.json(await deleteMainSession(jid, group, deps));
+    } catch {
+      return c.json({ error: 'Failed to delete session' }, 500);
+    }
+  }
   const session = getAgent(sessionId);
   if (!session || session.chat_jid !== jid || session.kind !== 'conversation') {
     return c.json({ error: 'Session not found' }, 404);
@@ -926,33 +972,50 @@ router.delete('/:jid/sessions/:sessionId', authMiddleware, async (c) => {
     );
   }
 
-  if (session.status === 'running' || session.status === 'idle') {
-    updateAgentStatus(sessionId, 'error', '用户手动停止');
-    const deps = getWebDeps();
-    if (deps) deps.queue.stopGroup(`${jid}#agent:${sessionId}`);
+  const deps = getWebDeps();
+  if (!deps) return c.json({ error: 'Server not initialized' }, 503);
+  if (
+    [group.folder, sessionId].some(
+      (segment) =>
+        !segment ||
+        segment === '.' ||
+        segment === '..' ||
+        /[/\\]/.test(segment),
+    )
+  )
+    return c.json({ error: 'Unsafe session path' }, 400);
+  const removalDirs = [
+    path.resolve(DATA_DIR, 'ipc', group.folder, 'agents', sessionId),
+    path.resolve(DATA_DIR, 'sessions', group.folder, 'agents', sessionId),
+  ];
+  try {
+    assertSessionDeletionPathsSafe(removalDirs);
+  } catch {
+    return c.json({ error: 'Unsafe session path' }, 400);
   }
-
-  for (const dir of [
-    path.join(DATA_DIR, 'ipc', group.folder, 'agents', sessionId),
-    path.join(DATA_DIR, 'sessions', group.folder, 'agents', sessionId),
-  ]) {
-    try {
+  const virtualJid = `${jid}#agent:${sessionId}`;
+  const pause = deps.queue.pauseGroupsForMutation([virtualJid]);
+  try {
+    await deps.queue.stopGroup(virtualJid, { force: true });
+    for (const dir of removalDirs) {
       fs.rmSync(dir, { recursive: true, force: true });
-    } catch {
-      /* ignore */
     }
+
+    deleteMessagesForChatJid(`${jid}#agent:${sessionId}`);
+    deleteSession(group.folder, sessionId);
+    clearSessionChannelOwner(group.folder, sessionId);
+    deleteAgent(sessionId);
+
+    const { broadcastAgentRemoved } = await import('../web.js');
+    broadcastAgentRemoved(jid, sessionId, session.name);
+
+    logger.info({ sessionId, jid, userId: user.id }, 'Session deleted by user');
+    return c.json({ success: true });
+  } catch {
+    return c.json({ error: 'Failed to delete session' }, 500);
+  } finally {
+    deps.queue.resumeGroupsAfterMutation(pause);
   }
-
-  deleteMessagesForChatJid(`${jid}#agent:${sessionId}`);
-  deleteSession(group.folder, sessionId);
-  clearSessionChannelOwner(group.folder, sessionId);
-  deleteAgent(sessionId);
-
-  const { broadcastAgentRemoved } = await import('../web.js');
-  broadcastAgentRemoved(jid, sessionId, session.name);
-
-  logger.info({ sessionId, jid, userId: user.id }, 'Session deleted by user');
-  return c.json({ success: true });
 });
 
 // POST /api/groups/:jid/im-groups/sync — actively discover chats from every

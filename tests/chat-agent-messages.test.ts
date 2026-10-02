@@ -691,3 +691,132 @@ describe('held Workflow acknowledgements', () => {
     expect(state.messages[jid][0].workflow_runs).toBeUndefined();
   });
 });
+
+describe('single-session lifecycle', () => {
+  const jid = 'web:single-session';
+  const conversation = (id: string, created_at: string) => ({
+    id,
+    name: id,
+    prompt: '',
+    status: 'completed' as const,
+    kind: 'conversation' as const,
+    created_at,
+  });
+  beforeEach(() => {
+    vi.clearAllMocks();
+    apiGetMock.mockReset();
+    apiDeleteMock.mockReset();
+    resetChatStore();
+  });
+  function seed() {
+    const retained = conversation('retained', '2026-10-02');
+    useChatStore.setState({
+      groups: {
+        [jid]: {
+          name: '研究',
+          folder: 'research',
+          added_at: '2026-10-01',
+          interaction_mode: 'assistant',
+          main_session: {
+            name: '旧会话',
+            created_at: '2026-10-01',
+            last_active_at: '2026-10-01',
+            latest_message: null,
+          },
+        },
+      },
+      messages: {
+        [jid]: [{ ...message('old-main', '2026-10-01'), chat_jid: jid }],
+      },
+      agents: { [jid]: [retained] },
+      agentMessages: { retained: [message('other-message', '2026-10-02')] },
+      agentWaiting: { retained: true },
+      activeAgentTab: { [jid]: 'retained' },
+    });
+    return useChatStore.getState();
+  }
+  it('main deletion clears only default records and keeps independently selected conversation', async () => {
+    seed();
+    apiDeleteMock.mockResolvedValueOnce({ success: true });
+    expect(await useChatStore.getState().deleteAgentAction(jid, 'main')).toBe(
+      true,
+    );
+    const state = useChatStore.getState();
+    expect(apiDeleteMock).toHaveBeenCalledExactlyOnceWith(
+      '/api/groups/web%3Asingle-session/sessions/main',
+    );
+    expect(state.messages[jid]).toEqual([]);
+    expect(state.groups[jid].main_session).toBeUndefined();
+    expect(state.agentMessages.retained[0].id).toBe('other-message');
+    expect(state.agentWaiting.retained).toBe(true);
+    expect(state.activeAgentTab[jid]).toBe('retained');
+    expect(deleteGroupMessageSnapshotsMock).not.toHaveBeenCalled();
+  });
+  it('in-flight old main history cannot reappear after successful deletion', async () => {
+    seed();
+    let complete!: (value: unknown) => void;
+    apiGetMock.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          complete = resolve;
+        }),
+    );
+    const oldRequest = useChatStore.getState().refreshMessages(jid);
+    apiDeleteMock.mockResolvedValueOnce({ success: true });
+    await useChatStore.getState().deleteAgentAction(jid, 'main');
+    complete({
+      messages: [
+        { ...message('late-old-message', '2026-10-02'), chat_jid: jid },
+      ],
+    });
+    await oldRequest;
+    expect(useChatStore.getState().messages[jid]).toEqual([]);
+  });
+  it('deletion failure retains main history and releases its request guard for retry', async () => {
+    seed();
+    apiDeleteMock
+      .mockRejectedValueOnce(new Error('blocked'))
+      .mockResolvedValueOnce({ success: true });
+    expect(await useChatStore.getState().deleteAgentAction(jid, 'main')).toBe(
+      false,
+    );
+    expect(useChatStore.getState().messages[jid][0].id).toBe('old-main');
+    expect(useChatStore.getState().groups[jid].main_session).toBeDefined();
+    expect(await useChatStore.getState().deleteAgentAction(jid, 'main')).toBe(
+      true,
+    );
+  });
+  it('deleting active independent conversation selects the most recently active survivor', async () => {
+    seed();
+    useChatStore.setState({
+      agents: {
+        [jid]: [
+          conversation('removed', '2026-10-04'),
+          conversation('older', '2026-10-02'),
+          conversation('recent', '2026-10-03'),
+        ],
+      },
+      activeAgentTab: { [jid]: 'removed' },
+    });
+    apiDeleteMock.mockResolvedValueOnce({ success: true });
+    await useChatStore.getState().deleteAgentAction(jid, 'removed');
+    expect(useChatStore.getState().activeAgentTab[jid]).toBe('recent');
+    expect(useChatStore.getState().agents[jid].map((item) => item.id)).toEqual([
+      'older',
+      'recent',
+    ]);
+  });
+  it('first message preparation creates a regular conversation without creating main records', async () => {
+    apiPostMock.mockResolvedValueOnce({
+      session: conversation('new-research', '2026-10-02'),
+    });
+    const session = await useChatStore.getState().createConversation(jid, '');
+    expect(session?.id).toBe('new-research');
+    expect(useChatStore.getState().agents[jid][0].id).toBe('new-research');
+    expect(useChatStore.getState().messages[jid]).toBeUndefined();
+    expect(apiPostMock).toHaveBeenCalledExactlyOnceWith(
+      '/api/groups/web%3Asingle-session/sessions',
+      { name: '', description: undefined },
+    );
+  });
+});

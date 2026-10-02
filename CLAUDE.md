@@ -40,6 +40,8 @@ Agent Profile（身份、四段 Prompt、能力策略）
   不是产品级 Agent Profile。
 - 同一个 Workspace 内的会话共享工作区文件目录，但拥有独立 Pi Session；
   工作区文件隔离与对话上下文隔离是两件事。
+- Web 新对话统一创建 Runtime Session；旧 Main Session 仅作为有历史数据的兼容会话
+  展示，可独立重命名、删除，不是固定且不可删除的界面入口。渠道默认上下文仍保留。
 
 ## 3. 主要模块
 

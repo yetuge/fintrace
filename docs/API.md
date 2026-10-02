@@ -149,6 +149,17 @@ HTTP 状态为 409；请求不会停止现有 Runner，也不会修改绑定。
 - `PUT /api/groups/:jid/sessions/:sessionId/im-binding`
 - `DELETE /api/groups/:jid/sessions/:sessionId/im-binding/:imJid`
 
+Web 不再自动展示永久的默认会话。旧默认上下文有实际消息或 SDK 状态时，列表以
+`id: main` 保留它；新对话通过 `POST /sessions` 使用独立上下文。`GET /groups` 的
+可选 `main_session` 字段提供旧对话名称、期间活动与消息摘要，用于兼容已有历史。
+`PATCH /sessions/main` 只重命名该对话，不修改工作区名称；`DELETE /sessions/main`
+按工作区所有者及 Host 执行权限校验，先暂停队列、确认默认 Runner 已停止，再清除
+默认聊天记录、SDK 绑定与默认运行上下文。仅默认 `.claude/` 的运行文件和 IPC input
+被清理，保留 settings、独立会话目录、工作区文件、报告和记忆。数据库提交前失败时
+恢复暂存文件并释放暂停；暂存备份清理失败会记录运维警告。使用该默认上下文的渠道
+须先解绑，返回 409；其他渠道原生会话沿用原有管理约束。这里的删除不调用
+`clear-history`，后者会重建整个工作区。
+
 `/agents` 是同一模型的历史兼容别名：
 
 - `GET|POST /api/groups/:jid/agents`

@@ -1,7 +1,8 @@
 // Per-workspace last-active sub-conversation memory.
 // When the user re-enters a workspace via sidebar/URL without `?agent=`,
 // ChatView consults this map to auto-restore the previous tab.
-// Entries are cleared by `selectTab(null)` (explicit return to main).
+// The compatibility id "main" can be remembered like any other conversation.
+// Empty workspaces clear their entry; deletion selects a surviving conversation.
 
 const STORAGE_KEY = 'miniclaw-workspace-last-agent';
 
@@ -20,7 +21,9 @@ function readMap(): Record<string, string> {
     const raw = ls.getItem(STORAGE_KEY);
     if (!raw) return {};
     const parsed = JSON.parse(raw);
-    return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+      ? parsed
+      : {};
   } catch {
     return {};
   }
@@ -44,7 +47,10 @@ export function getWorkspaceLastAgent(jid: string): string | null {
   return readMap()[jid] || null;
 }
 
-export function setWorkspaceLastAgent(jid: string, agentId: string | null): void {
+export function setWorkspaceLastAgent(
+  jid: string,
+  agentId: string | null,
+): void {
   const map = readMap();
   if (agentId) {
     map[jid] = agentId;

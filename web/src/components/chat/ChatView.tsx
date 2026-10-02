@@ -64,6 +64,10 @@ import {
 } from '../../utils/workspaceLastAgent';
 import { CHANNEL_LABEL } from '../settings/channel-meta';
 import { getAgentProfileDisplayName } from '../../utils/agent-product';
+import {
+  workspaceSessions,
+  restoredSessionId,
+} from '../../utils/workspaceSessions';
 import { normalizeInteractionMode } from '../../lib/interaction-mode';
 import { WorkspaceInteractionModeDialog } from './WorkspaceInteractionModeDialog';
 
@@ -132,6 +136,7 @@ export function ChatView({ groupJid, onBack, headerLeft }: ChatViewProps) {
     useState(false);
   const [resetLoading, setResetLoading] = useState(false);
   const [creatingSession, setCreatingSession] = useState(false);
+  const creatingSessionRef = useRef(false);
   const [resetAgentId, setResetAgentId] = useState<string | null>(null);
   // Desktop: visible controls panel height, mounted controls terminal lifecycle.
   const [terminalVisible, setTerminalVisible] = useState(false);
@@ -197,7 +202,8 @@ export function ChatView({ groupJid, onBack, headerLeft }: ChatViewProps) {
   // converge here. `selectTab` updates the URL only; an effect below mirrors
   // the URL value into the store for consumers that read it directly.
   const [searchParams, setSearchParams] = useSearchParams();
-  const urlAgentId = searchParams.get('agent') || null;
+  const urlSessionId = searchParams.get('agent') || null;
+  const urlAgentId = urlSessionId === 'main' ? null : urlSessionId;
   const mobileSessionsVisible = searchParams.get('sessions') === '1';
   const selectTab = useCallback(
     (id: string | null) => {
@@ -374,26 +380,32 @@ export function ChatView({ groupJid, onBack, headerLeft }: ChatViewProps) {
     );
   const conversationAgents = useMemo(
     () =>
-      agents
-        .filter((a) => a.kind === 'conversation')
-        .map((agent) => {
-          const queryActive =
-            !!agentWaiting[agent.id] || !!agentStreaming[agent.id];
-          return agent.status === 'running' && !queryActive
-            ? { ...agent, status: 'idle' as const }
-            : agent;
-        })
-        .slice()
-        .sort((a, b) => {
-          const aTs =
-            a.last_active_at || a.latest_message?.timestamp || a.created_at;
-          const bTs =
-            b.last_active_at || b.latest_message?.timestamp || b.created_at;
-          return new Date(bTs).getTime() - new Date(aTs).getTime();
-        }),
-    [agents, agentStreaming, agentWaiting],
+      workspaceSessions(group, agents).map((agent) => {
+        if (agent.id === 'main') {
+          const latest = groupMessages?.at(-1);
+          return {
+            ...agent,
+            status: isWaiting ? ('running' as const) : ('idle' as const),
+            ...(latest
+              ? {
+                  last_active_at: latest.timestamp,
+                  latest_message: {
+                    content: latest.content,
+                    timestamp: latest.timestamp,
+                  },
+                }
+              : {}),
+          };
+        }
+        const queryActive =
+          !!agentWaiting[agent.id] || !!agentStreaming[agent.id];
+        return agent.status === 'running' && !queryActive
+          ? { ...agent, status: 'idle' as const }
+          : agent;
+      }),
+    [group, groupMessages, isWaiting, agents, agentStreaming, agentWaiting],
   );
-  const mainConversationLabel = group?.is_my_home ? '直接对话' : '当前对话';
+  const mainConversationLabel = group?.main_session?.name || '新对话';
   const currentContextName =
     activeAgentTab && isConversationTab && activeAgent
       ? activeAgent.name
@@ -427,46 +439,53 @@ export function ChatView({ groupJid, onBack, headerLeft }: ChatViewProps) {
   // (e.g., deleted while we were on it, or stale deep link), strip the param
   // and clear the workspace memory so we don't try to restore it again.
   useEffect(() => {
-    if (!urlAgentId) return;
-    if (agents.length === 0) return;
-    if (agents.some((a) => a.id === urlAgentId)) return;
-    setWorkspaceLastAgent(groupJid, null);
+    if (!urlSessionId || !useChatStore.getState().agents[groupJid]) return;
+    if (conversationAgents.some((a) => a.id === urlSessionId)) return;
+    const nextId = restoredSessionId(conversationAgents, null);
+    setWorkspaceLastAgent(groupJid, nextId);
     setSearchParams(
       (prev) => {
         const next = new URLSearchParams(prev);
-        next.delete('agent');
+        if (nextId) next.set('agent', nextId);
+        else next.delete('agent');
         return next;
       },
       { replace: true },
     );
-  }, [urlAgentId, agents, groupJid, setSearchParams]);
+  }, [urlSessionId, conversationAgents, groupJid, setSearchParams]);
 
   // On entering a workspace without ?agent=, restore the last sub-tab the
   // user was on in this workspace (per-workspace memory, persisted across
   // PWA restarts via localStorage). Stale entries (agent deleted) get cleaned.
-  // Guarded by `params.groupFolder` so this doesn't fire when the URL is on
-  // the workspace picker (mobile back) but ChatView is still mounted with
-  // a stale `currentGroup`.
+  // Desktop also shows the home workspace at /chat. Mobile's workspace picker
+  // must not restore a conversation until a workspace route is selected.
   const params = useParams<{ groupFolder?: string }>();
   useEffect(() => {
-    if (!params.groupFolder) return;
-    if (urlAgentId) return;
-    if (agents.length === 0) return;
-    const remembered = getWorkspaceLastAgent(groupJid);
-    if (!remembered) return;
-    if (!agents.some((a) => a.id === remembered)) {
-      setWorkspaceLastAgent(groupJid, null);
+    if (
+      !params.groupFolder &&
+      !window.matchMedia('(min-width: 1024px)').matches
+    )
       return;
-    }
+    if (urlSessionId || !useChatStore.getState().agents[groupJid]) return;
+    const remembered = getWorkspaceLastAgent(groupJid);
+    const restored = restoredSessionId(conversationAgents, remembered);
+    if (!restored) return;
+    setWorkspaceLastAgent(groupJid, restored);
     setSearchParams(
       (prev) => {
         const next = new URLSearchParams(prev);
-        next.set('agent', remembered);
+        next.set('agent', restored);
         return next;
       },
       { replace: true },
     );
-  }, [groupJid, urlAgentId, agents, setSearchParams, params.groupFolder]);
+  }, [
+    groupJid,
+    urlSessionId,
+    conversationAgents,
+    setSearchParams,
+    params.groupFolder,
+  ]);
 
   // Load messages for conversation agent tabs.
   // hydrate-then-calibrate: 先把 IndexedDB 快照灌回 store（避免首屏回退），
@@ -571,6 +590,32 @@ export function ChatView({ groupJid, onBack, headerLeft }: ChatViewProps) {
     attachments?: Array<{ data: string; mimeType: string }>,
     followUpBehavior?: FollowUpMode,
   ) => {
+    if (!group?.main_session) {
+      if (creatingSessionRef.current) return false;
+      creatingSessionRef.current = true;
+      setCreatingSession(true);
+      try {
+        const session = await createConversation(groupJid, '');
+        if (!session) {
+          toast.error(useChatStore.getState().error || '创建 Web 会话失败');
+          return false;
+        }
+        if (useChatStore.getState().currentGroup === groupJid)
+          selectTab(session.id);
+        const ok = await sendAgentMessage(
+          groupJid,
+          session.id,
+          content,
+          attachments,
+          followUpBehavior,
+        );
+        if (ok) setScrollTrigger((value) => value + 1);
+        return ok;
+      } finally {
+        creatingSessionRef.current = false;
+        setCreatingSession(false);
+      }
+    }
     const ok = await sendMessage(
       groupJid,
       content,
@@ -617,7 +662,8 @@ export function ChatView({ groupJid, onBack, headerLeft }: ChatViewProps) {
   };
 
   const handleCreateSession = useCallback(async () => {
-    if (creatingSession) return;
+    if (creatingSessionRef.current) return;
+    creatingSessionRef.current = true;
     setCreatingSession(true);
     try {
       const agent = await createConversation(groupJid, '');
@@ -625,32 +671,57 @@ export function ChatView({ groupJid, onBack, headerLeft }: ChatViewProps) {
         toast.error(useChatStore.getState().error || '创建 Web 会话失败');
         return;
       }
-      selectTab(agent.id);
+      if (useChatStore.getState().currentGroup === groupJid)
+        selectTab(agent.id);
     } finally {
+      creatingSessionRef.current = false;
       setCreatingSession(false);
     }
   }, [createConversation, creatingSession, groupJid, selectTab]);
 
   const handleDeleteSession = useCallback(
-    (id: string) => {
-      const agent = agents.find((item) => item.id === id);
+    async (id: string) => {
+      const agent = conversationAgents.find((item) => item.id === id);
       if (agent?.linked_im_groups && agent.linked_im_groups.length > 0) {
         const names = agent.linked_im_groups
           .map((item) => item.name)
           .join('、');
-        setBindingAgentId(id);
+        setBindingAgentId(id === 'main' ? MAIN_BINDING : id);
         toast.error('请先解绑消息渠道', {
           description: `当前绑定：${names}`,
         });
-        return;
+        return false;
       }
-      void deleteAgentAction(groupJid, id).then((ok) => {
-        if (!ok) {
-          toast.error(useChatStore.getState().error || '删除会话失败');
-        }
-      });
+      const ok = await deleteAgentAction(groupJid, id);
+      if (!ok) {
+        toast.error(useChatStore.getState().error || '删除会话失败');
+      } else {
+        const state = useChatStore.getState();
+        const nextId = restoredSessionId(
+          workspaceSessions(
+            state.groups[groupJid],
+            state.agents[groupJid] || [],
+          ),
+          null,
+        );
+        if (getWorkspaceLastAgent(groupJid) === id)
+          setWorkspaceLastAgent(groupJid, nextId);
+        if (state.currentGroup !== groupJid) return ok;
+        setSearchParams(
+          (prev) => {
+            if ((prev.get('agent') || (id === 'main' ? 'main' : null)) !== id)
+              return prev;
+            const next = new URLSearchParams(prev);
+            if (nextId) next.set('agent', nextId);
+            else next.delete('agent');
+            return next;
+          },
+          { replace: true },
+        );
+      }
+      return ok;
     },
-    [agents, deleteAgentAction, groupJid],
+    [conversationAgents, deleteAgentAction, groupJid, setSearchParams],
   );
 
   // --- Drag resize handlers (mouse + touch) ---
@@ -768,14 +839,10 @@ export function ChatView({ groupJid, onBack, headerLeft }: ChatViewProps) {
     <SessionSidebar
       key={groupJid}
       sessions={conversationAgents}
-      activeSessionId={activeAgentTab}
+      activeSessionId={urlSessionId}
       canModify={canModifyWorkspaceConfig}
       isTopicWorkspace={isTopicWorkspace}
       title={group.is_my_home ? '直接对话' : group.name}
-      mainLabel={
-        group.is_my_home ? `${agentProfileLabel} 对话` : `${group.name} 对话`
-      }
-      mainMeta={group.lastMessage || '暂无消息'}
       onClose={mobile ? onBack : undefined}
       onSelectSession={(id) => {
         selectTab(id);

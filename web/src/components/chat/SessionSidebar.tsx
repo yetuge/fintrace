@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import type { AgentInfo } from '../../types';
 import { getPresentedMessageContent } from '../../lib/message-presentation';
+import { ConfirmDialog } from '@/components/common/ConfirmDialog';
 
 const RECENT_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -29,14 +30,12 @@ interface SessionSidebarProps {
   canModify?: boolean;
   isTopicWorkspace?: boolean;
   title?: string;
-  mainLabel?: string;
-  mainMeta?: string;
   onClose?: () => void;
   onSelectSession: (id: string | null) => void;
   onCreateSession?: () => void;
   isCreatingSession?: boolean;
   onRenameSession?: (id: string, name: string) => void;
-  onDeleteSession: (id: string) => void;
+  onDeleteSession: (id: string) => Promise<boolean>;
   onBindSession?: (id: string | null) => void;
 }
 
@@ -106,8 +105,6 @@ export function SessionSidebar({
   canModify = false,
   isTopicWorkspace = false,
   title,
-  mainLabel = '当前对话',
-  mainMeta = '当前工作上下文',
   onClose,
   onSelectSession,
   onCreateSession,
@@ -118,7 +115,28 @@ export function SessionSidebar({
 }: SessionSidebarProps) {
   const [query, setQuery] = useState('');
   const [scope, setScope] = useState<'all' | 'recent'>('all');
+  const [deleteTarget, setDeleteTarget] = useState<AgentInfo | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const deletePendingRef = useRef(false);
   const scrollParentRef = useRef<HTMLDivElement>(null);
+
+  const confirmDelete = async () => {
+    if (
+      !deleteTarget ||
+      !canModify ||
+      deletePendingRef.current ||
+      !sessions.some((session) => session.id === deleteTarget.id)
+    )
+      return;
+    deletePendingRef.current = true;
+    setDeleting(true);
+    try {
+      if (await onDeleteSession(deleteTarget.id)) setDeleteTarget(null);
+    } finally {
+      deletePendingRef.current = false;
+      setDeleting(false);
+    }
+  };
 
   const recentCount = useMemo(
     () => sessions.filter(isRecentSession).length,
@@ -140,7 +158,7 @@ export function SessionSidebar({
   // source of sessions, and may coexist with manually-created Web sessions.
   const sessionNoun = '会话';
   const createSessionLabel = isTopicWorkspace ? '新建 Web 会话' : '新建会话';
-  const totalCount = sessions.length + 1;
+  const totalCount = sessions.length;
   const sessionVirtualizer = useVirtualizer({
     count: visibleSessions.length,
     getScrollElement: () => scrollParentRef.current,
@@ -237,20 +255,10 @@ export function SessionSidebar({
       </div>
 
       <div ref={scrollParentRef} className="flex-1 overflow-y-auto px-2 py-2">
-        <SessionRow
-          name={mainLabel}
-          meta={mainMeta}
-          active={activeSessionId === null}
-          isMain
-          canModify={canModify}
-          onSelect={() => onSelectSession(null)}
-          onBind={onBindSession ? () => onBindSession(null) : undefined}
-        />
-
         {visibleSessions.length === 0 ? (
           <div className="px-3 py-8 text-center text-[11px] leading-5 text-muted-foreground">
             {sessions.length === 0
-              ? `暂无其他${sessionNoun}`
+              ? `暂无${sessionNoun}，发送消息即可开始新对话`
               : `没有匹配的${sessionNoun}`}
             {(query || scope !== 'all') && (
               <button
@@ -290,7 +298,10 @@ export function SessionSidebar({
                     onSelect={() => onSelectSession(session.id)}
                     onBind={
                       onBindSession && !nativeManaged
-                        ? () => onBindSession(session.id)
+                        ? () =>
+                            onBindSession(
+                              session.id === 'main' ? null : session.id,
+                            )
                         : undefined
                     }
                     onRename={
@@ -299,9 +310,7 @@ export function SessionSidebar({
                         : undefined
                     }
                     onDelete={
-                      nativeManaged
-                        ? undefined
-                        : () => onDeleteSession(session.id)
+                      nativeManaged ? undefined : () => setDeleteTarget(session)
                     }
                   />
                 </div>
@@ -310,6 +319,22 @@ export function SessionSidebar({
           </div>
         )}
       </div>
+      <ConfirmDialog
+        open={deleteTarget !== null}
+        onClose={() => {
+          if (!deletePendingRef.current) setDeleteTarget(null);
+        }}
+        onConfirm={() => void confirmDelete()}
+        title="删除会话"
+        message={`确定删除“${deleteTarget?.name ?? ''}”吗？\n该会话的聊天记录和运行上下文将永久删除；运行中的回复将停止。工作区文件（包括研究报告）和其他会话会保留。此操作无法撤销。`}
+        confirmText="删除会话"
+        confirmVariant="danger"
+        loading={deleting}
+        confirmDisabled={
+          !canModify ||
+          !sessions.some((session) => session.id === deleteTarget?.id)
+        }
+      />
     </div>
   );
 }
@@ -357,7 +382,6 @@ function SessionRow({
   name,
   meta,
   active,
-  isMain = false,
   running = false,
   titleGenerating = false,
   linkedCount = 0,
@@ -371,7 +395,6 @@ function SessionRow({
   name: string;
   meta: string;
   active: boolean;
-  isMain?: boolean;
   running?: boolean;
   titleGenerating?: boolean;
   linkedCount?: number;
@@ -383,10 +406,7 @@ function SessionRow({
   onDelete?: () => void;
 }) {
   const showMenu =
-    canModify &&
-    (onBind ||
-      (!isMain && !readonlyTitle && onRename) ||
-      (!isMain && onDelete));
+    canModify && (onBind || (!readonlyTitle && onRename) || onDelete);
 
   return (
     <div
@@ -453,7 +473,7 @@ function SessionRow({
                 会话绑定
               </DropdownMenuItem>
             )}
-            {!isMain && !readonlyTitle && onRename && (
+            {!readonlyTitle && onRename && (
               <DropdownMenuItem
                 onClick={onRename}
                 className="transition-[background-color,box-shadow] duration-150 ease-out hover:bg-accent hover:text-accent-foreground hover:shadow-md focus:shadow-md data-[highlighted]:bg-accent data-[highlighted]:shadow-md active:shadow-none"
@@ -462,11 +482,14 @@ function SessionRow({
                 重命名
               </DropdownMenuItem>
             )}
-            {!isMain && onDelete && (
+            {onDelete && (
               <DropdownMenuItem
                 variant="destructive"
                 onClick={onDelete}
-                className="transition-[background-color,box-shadow] duration-150 ease-out hover:bg-destructive/10 hover:text-destructive hover:shadow-md focus:shadow-md data-[highlighted]:bg-destructive/10 data-[highlighted]:shadow-md active:shadow-none"
+                disabled={linkedCount > 0}
+                title={
+                  linkedCount > 0 ? '请先通过会话绑定解绑消息渠道' : undefined
+                }
               >
                 <Trash2 className="h-4 w-4" />
                 删除

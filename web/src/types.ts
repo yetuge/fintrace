@@ -13,6 +13,13 @@ export interface GroupInfo {
   deletable?: boolean;
   lastMessage?: string;
   lastMessageTime?: string;
+  main_session?: {
+    name: string;
+    created_at: string;
+    last_active_at: string;
+    latest_message: { content: string; timestamp: string } | null;
+    linked_im_groups?: Array<{ jid: string; name: string }>;
+  };
   execution_mode?: 'container' | 'host';
   custom_cwd?: string;
   created_by?: string;

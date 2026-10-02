@@ -13012,6 +13012,19 @@ export function deleteMessagesForChatJid(chatJid: string): void {
   db.prepare('DELETE FROM chats WHERE jid = ?').run(chatJid);
 }
 
+/** Remove only the default conversation, leaving workspace resources intact. */
+export function deleteMainConversation(
+  groupFolder: string,
+  chatJid: string,
+): void {
+  db.transaction(() => {
+    deleteMessagesForChatJid(chatJid);
+    deleteSession(groupFolder);
+    clearSessionChannelOwner(groupFolder);
+    deleteRouterState(`main-session-name:${groupFolder}`);
+  })();
+}
+
 export function getMessage(
   chatJid: string,
   messageId: string,

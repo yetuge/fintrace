@@ -1,4 +1,8 @@
 import { create } from 'zustand';
+import {
+  workspaceSessions,
+  restoredSessionId,
+} from '../utils/workspaceSessions';
 import { api } from '../api/client';
 import { useFileStore } from './files';
 import { useAuthStore } from './auth';
@@ -271,6 +275,8 @@ function mergeMessagesChronologically(
 
 const MAX_THINKING_CACHE_SIZE = 500;
 const loadMessagesInFlight = new Map<string, Promise<void>>();
+const mainDeletionInFlight = new Set<string>();
+const mainMessageEpoch = new Map<string, number>();
 let loadGroupsInFlight: Promise<void> | null = null;
 
 /** Evict oldest entries when cache exceeds capacity (relies on insertion order) */
@@ -1712,6 +1718,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
   },
 
   loadMessages: async (jid: string, loadMore = false) => {
+    if (mainDeletionInFlight.has(jid)) return;
+    const epoch = mainMessageEpoch.get(jid);
     const state = get();
     const existing = state.messages[jid] || [];
     const before =
@@ -1729,6 +1737,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
             before ? { before: String(before), limit: '50' } : { limit: '50' },
           )}`,
         );
+        if (
+          mainDeletionInFlight.has(jid) ||
+          mainMessageEpoch.get(jid) !== epoch
+        )
+          return;
         // Messages come in DESC order from API, reverse to chronological for display
         const sorted = [...data.messages].reverse();
         set((s) => {
@@ -1764,6 +1777,8 @@ export const useChatStore = create<ChatState>((set, get) => ({
   },
 
   refreshMessages: async (jid: string) => {
+    if (mainDeletionInFlight.has(jid)) return;
+    const epoch = mainMessageEpoch.get(jid);
     // Skip polling while clearHistory is in-flight to prevent race re-injection
     if (get().clearing[jid]) return;
 
@@ -1782,7 +1797,12 @@ export const useChatStore = create<ChatState>((set, get) => ({
       );
 
       // Re-check clearing lock after async fetch — clearHistory may have started mid-request
-      if (get().clearing[jid]) return;
+      if (
+        get().clearing[jid] ||
+        mainDeletionInFlight.has(jid) ||
+        mainMessageEpoch.get(jid) !== epoch
+      )
+        return;
 
       if (data.messages.length > 0) {
         // Messages from getMessagesAfter are already in ASC order
@@ -2501,6 +2521,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   // 处理流式事件
   handleStreamEvent: (chatJid, event, agentId, runId) => {
+    if (!agentId && mainDeletionInFlight.has(chatJid)) return;
     // Skip while clearHistory is in-flight
     if (get().clearing[chatJid]) return;
 
@@ -3032,6 +3053,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   // 通过 WebSocket new_message 事件立即添加消息（避免轮询延迟导致消息"丢失"）
   handleWsNewMessage: (chatJid, wsMsg, agentId?, source?) => {
+    if (!agentId && mainDeletionInFlight.has(chatJid)) return;
     if (!wsMsg || !wsMsg.id) return;
     // Skip while clearHistory is in-flight to prevent race re-injection
     if (get().clearing[chatJid]) return;
@@ -3173,6 +3195,31 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }
 
     // 闭包外标志：set() 内部计算后传出，用于驱动通知逻辑（避免重复判断条件）
+    const mainGroup = get().groups[chatJid];
+    if (
+      mainGroup &&
+      (!mainGroup.main_session ||
+        msg.timestamp >= mainGroup.main_session.last_active_at)
+    ) {
+      set((s) => ({
+        groups: {
+          ...s.groups,
+          [chatJid]: {
+            ...mainGroup,
+            main_session: {
+              name: mainGroup.main_session?.name || `${mainGroup.name} 对话`,
+              created_at:
+                mainGroup.main_session?.created_at || mainGroup.added_at,
+              last_active_at: msg.timestamp,
+              latest_message: {
+                content: msg.content,
+                timestamp: msg.timestamp,
+              },
+            },
+          },
+        },
+      }));
+    }
     let didFinalizeAssistant = false;
     let didReceiveProactiveUtterance = false;
 
@@ -3591,6 +3638,62 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
   // 删除子 Agent
   deleteAgentAction: async (jid, agentId) => {
+    if (agentId === 'main') {
+      if (mainDeletionInFlight.has(jid)) return false;
+      mainDeletionInFlight.add(jid);
+      mainMessageEpoch.set(jid, (mainMessageEpoch.get(jid) || 0) + 1);
+      try {
+        await api.delete(
+          `/api/groups/${encodeURIComponent(jid)}/sessions/main`,
+        );
+        const pending = pendingDeltas.get(`main:${jid}`);
+        if (pending) {
+          cancelAnimationFrame(pending.raf);
+          pendingDeltas.delete(`main:${jid}`);
+        }
+        clearStreamingFromSession(jid);
+        set((s) => {
+          const group = s.groups[jid];
+          const nextGroup = group
+            ? { ...group, main_session: undefined, lastMessage: undefined }
+            : undefined;
+          const streaming = { ...s.streaming },
+            activeRuns = { ...s.activeRuns };
+          const pendingThinking = { ...s.pendingThinking },
+            pendingThinkingDuration = { ...s.pendingThinkingDuration };
+          delete streaming[jid];
+          delete activeRuns[jid];
+          delete pendingThinking[jid];
+          delete pendingThinkingDuration[jid];
+          const nextMessages = { ...s.messages, [jid]: [] };
+          return {
+            ...(nextGroup ? { groups: { ...s.groups, [jid]: nextGroup } } : {}),
+            messages: nextMessages,
+            streaming,
+            activeRuns,
+            pendingThinking,
+            pendingThinkingDuration,
+            thinkingCache: retainThinkingCacheForMessages(
+              nextMessages,
+              s.thinkingCache,
+            ),
+            thinkingDurationCache: retainThinkingCacheForMessages(
+              nextMessages,
+              s.thinkingDurationCache,
+            ),
+            waiting: { ...s.waiting, [jid]: false },
+            hasMore: { ...s.hasMore, [jid]: false },
+            error: null,
+          };
+        });
+        return true;
+      } catch (error) {
+        set({ error: error instanceof Error ? error.message : '删除会话失败' });
+        return false;
+      } finally {
+        mainDeletionInFlight.delete(jid);
+      }
+    }
     try {
       await api.delete(
         `/api/groups/${encodeURIComponent(jid)}/sessions/${agentId}`,
@@ -3609,7 +3712,13 @@ export const useChatStore = create<ChatState>((set, get) => ({
         const nextAgentHasMore = { ...s.agentHasMore };
         delete nextAgentHasMore[agentId];
         const nextActiveTab = { ...s.activeAgentTab };
-        if (nextActiveTab[jid] === agentId) nextActiveTab[jid] = null;
+        if (nextActiveTab[jid] === agentId) {
+          const replacement = restoredSessionId(
+            workspaceSessions(s.groups[jid], updated),
+            null,
+          );
+          nextActiveTab[jid] = replacement === 'main' ? null : replacement;
+        }
         const nextSdkTasks = { ...s.sdkTasks };
         delete nextSdkTasks[agentId];
         const nextSdkTaskAliases = removeSdkTaskAliases(
@@ -3704,6 +3813,18 @@ export const useChatStore = create<ChatState>((set, get) => ({
         const agents = (s.agents[jid] || []).map((a) =>
           a.id === agentId ? { ...a, name } : a,
         );
+        if (agentId === 'main' && s.groups[jid]?.main_session) {
+          const group = s.groups[jid];
+          return {
+            groups: {
+              ...s.groups,
+              [jid]: {
+                ...group,
+                main_session: { ...group.main_session!, name },
+              },
+            },
+          };
+        }
         return { agents: { ...s.agents, [jid]: agents } };
       });
       return true;
