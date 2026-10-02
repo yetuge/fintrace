@@ -1,0 +1,2 @@
+# Byte hashes in the synthetic legacy fixture must survive Windows checkout.
+tests/fixtures/sec-legacy-v1/*.json text eol=lf

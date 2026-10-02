@@ -302,7 +302,7 @@ export const MarkdownRenderer = memo(function MarkdownRenderer({
   );
 
   return (
-    <div className={textSizeClass}>
+    <div className={textSizeClass} data-markdown-root>
       <ReactMarkdown
         remarkPlugins={remarkPluginsList as any}
         rehypePlugins={rehypePluginsList as any}
@@ -315,11 +315,37 @@ export const MarkdownRenderer = memo(function MarkdownRenderer({
               loading={eagerImages ? 'eager' : 'lazy'}
             />
           ),
-          a: ({ href, children }) => (
+          a: ({ href, id, children }) => (
             <a
+              id={id}
               href={href}
-              target="_blank"
+              target={href?.startsWith('#') ? undefined : '_blank'}
               rel="noopener noreferrer"
+              onClick={
+                href?.startsWith('#')
+                  ? (event) => {
+                      event.preventDefault();
+                      let fragment: string;
+                      try {
+                        fragment = decodeURIComponent(href.slice(1));
+                      } catch {
+                        return;
+                      }
+                      // Keep sanitizer's clobber protection and scope duplicate IDs to this report.
+                      const root = event.currentTarget.closest(
+                        '[data-markdown-root]',
+                      );
+                      const anchor = Array.from(
+                        root?.querySelectorAll<HTMLElement>('[id]') ?? [],
+                      ).find(
+                        (element) =>
+                          element.id === `user-content-${fragment}` ||
+                          element.id === fragment,
+                      );
+                      anchor?.scrollIntoView({ block: 'start' });
+                    }
+                  : undefined
+              }
               className="text-primary hover:text-primary underline break-all"
             >
               {children}
