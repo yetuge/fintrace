@@ -84,7 +84,14 @@ export async function scoreTrace(
   workspace: string,
 ): Promise<Score> {
   const scores = Object.fromEntries(
-    dimensions.map((d) => [d, check('not_applicable', ['Task not executed.'])]),
+    dimensions.map((d) => [
+      d,
+      check('not_applicable', [
+        trace.status === 'executed'
+          ? 'Not applicable to this scenario.'
+          : 'Task not executed.',
+      ]),
+    ]),
   ) as Score['dimensions'];
   const review = trace.task.manual.map((r) => `${trace.task.id}: ${r}`);
   const attribution: string[] = [];

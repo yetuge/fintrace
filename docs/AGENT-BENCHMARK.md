@@ -43,6 +43,8 @@ npm run benchmark -- summarize --batch=first-round
 npm run benchmark -- recover --batch=interrupted-run
 # 修复影响执行/记录的代码后定向续跑，共享前一批的预算预留
 npm run benchmark -- run --live --batch=repair-run --tasks=annual-aapl,trend-msft --carry-from=interrupted-run
+# 可配置更小预算（不能通过参数扩大默认上限）
+npm run benchmark -- run --live --batch=bounded-run --tasks=sec-unavailable,judgment-evidence --request-limit=6 --output-limit=4800
 ```
 
 真实执行只读取既有本地模型配置和 SEC 联系配置，不修改配置或认证。密钥仅用于请求认证，不传入提示词。新批次目录必须不存在，不追加或覆盖历史执行；定向重跑使用新批次，仅在影响结果的代码变更后运行。离线命令不导入模型配置读取或执行器；原始产物只读。每次重评分写新 revision，保留初次评分；`report.md` 是最新汇总副本。
@@ -80,3 +82,5 @@ npm run benchmark -- run --live --batch=repair-run --tasks=annual-aapl,trend-msf
 每批次在 Git 忽略的 `data/agent-benchmark/<batch>/` 保存 `metadata.json`、冻结任务集、`budget.json`、逐任务 `trace.json` 与 `workspace/`、初始结构化结果/报告和版本化复核。报告包括 Git 提交/dirty 状态、环境、输入版本、逐项依据、请求与用量、在线/快照/注入分别统计及各维度分母。可分享的脱敏首轮摘要在完成实测后记录到本目录的结果文档。
 
 本阶段必须阅读最终回答、发现和引用证据后，才可人工判断解释是否合理；自动状态不代表人工签署。没有普遍成功率、成本收益或与聊天/其他框架/模型的比较结论。CLI 入口不覆盖工作台登录、消息投递、实时 UI 或文件面板；已有工作台验证不能替代本批次的入口验证。全仓历史失败仍按 [验证记录](VERIFICATION.md) 披露。
+
+本次真实运行的失败、预算停止和未执行结果见 [实测结果](AGENT-BENCHMARK-RESULTS.md)。

@@ -127,7 +127,23 @@ async function main() {
         output: previous.chargedOutputTokens,
       };
     }
-    const budget = new RequestBudget(24, 18000, 1600, reservation);
+    const requestLimit = Number(value('request-limit') ?? 24);
+    const outputLimit = Number(value('output-limit') ?? 18000);
+    if (
+      !Number.isInteger(requestLimit) ||
+      requestLimit < 1 ||
+      requestLimit > 24 ||
+      !Number.isInteger(outputLimit) ||
+      outputLimit < 1 ||
+      outputLimit > 18000
+    )
+      throw new Error('Safe tighter budget limits required');
+    const budget = new RequestBudget(
+      requestLimit,
+      outputLimit,
+      1600,
+      reservation,
+    );
     const metadata = {
       schemaVersion: 1,
       batch,
@@ -150,8 +166,8 @@ async function main() {
       },
       modelAlias: 'configured-model-1',
       budget: {
-        requests: 24,
-        outputTokens: 18000,
+        requests: requestLimit,
+        outputTokens: outputLimit,
         perRequestTokens: 1600,
         perTaskRequests: 4,
       },

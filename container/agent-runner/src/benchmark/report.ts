@@ -1,5 +1,35 @@
 import type { Score, Trace } from './types.js';
 import { dimensions } from './score.js';
+export function usageTotals(traces: Trace[]) {
+  const sum = (field: 'modelRequests' | 'elapsedMs') => ({
+    known: traces.reduce(
+      (total, t) =>
+        total + (typeof t[field] === 'number' ? (t[field] as number) : 0),
+      0,
+    ),
+    unavailableTasks: traces.filter(
+      (t) => t.status === 'executed' && t[field] === 'unavailable',
+    ).length,
+  });
+  return {
+    requests: sum('modelRequests'),
+    elapsedMs: sum('elapsedMs'),
+    outputTokens: {
+      known: traces.reduce(
+        (total, t) =>
+          total +
+          (typeof t.usage.output === 'number'
+            ? t.usage.output
+            : (t.knownUsage?.output ?? 0)),
+        0,
+      ),
+      unavailableTasks: traces.filter(
+        (t) => t.status === 'executed' && t.usage.output === 'unavailable',
+      ).length,
+    },
+    cost: 'unavailable',
+  };
+}
 export function summarize(scores: Score[]) {
   return Object.fromEntries(
     ['all', 'live_sec', 'snapshot', 'injected_failure'].map((mode) => {
@@ -45,6 +75,7 @@ export function markdownReport(
     '# FinTrace 最小 Agent Benchmark',
     '',
     `元数据：\`${JSON.stringify(metadata)}\``,
+    `本批可得用量汇总：\`${JSON.stringify(usageTotals(traces))}\`。未知部分不估算；跨批预算预留见元数据及 budget.json。`,
     '',
     '评价 Agent 行为与任务结果；单元测试数量不是成绩。仅代表本次六项小样本，不推出普遍成功率或模型/框架优越性。',
     '',
