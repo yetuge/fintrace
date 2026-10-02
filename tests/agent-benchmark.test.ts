@@ -16,13 +16,43 @@ import {
   RequestBudget,
   assertPayloadLimit,
 } from '../container/agent-runner/src/benchmark/budget.js';
-import { summarize } from '../container/agent-runner/src/benchmark/report.js';
+import {
+  selectBatchRecords,
+  summarize,
+} from '../container/agent-runner/src/benchmark/report.js';
 import type {
   Task,
   Trace,
 } from '../container/agent-runner/src/benchmark/types.js';
 
 const temps: string[] = [];
+test('cross-batch selection retains later budget failures and excludes only unselected tasks', async () => {
+  const task = (await tasks())[0];
+  const success = { trace: trace(task), batch: 'first' };
+  const stopped = {
+    trace: {
+      ...trace(task),
+      status: 'not_executed' as const,
+      reason: 'batch_budget_exhausted',
+    },
+    batch: 'later',
+  };
+  const unselected = {
+    trace: {
+      ...trace(task),
+      status: 'not_executed' as const,
+      reason: 'not_selected',
+    },
+    batch: 'unrelated',
+  };
+  expect(selectBatchRecords([success, stopped, unselected]).get(task.id)).toBe(
+    stopped,
+  );
+  expect(selectBatchRecords([stopped, success, unselected]).get(task.id)).toBe(
+    success,
+  );
+  expect(selectBatchRecords([unselected]).size).toBe(0);
+});
 afterEach(async () => {
   vi.unstubAllGlobals();
   for (const dir of temps.splice(0))

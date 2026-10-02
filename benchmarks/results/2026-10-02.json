@@ -1,14 +1,905 @@
 {
   "schemaVersion": 1,
   "date": "2026-10-02",
-  "status": "incomplete_budget_stopped",
+  "status": "all_six_executed_with_failures_and_manual_review",
   "scope": "This finite task set only; no general success rate or semantic verification.",
-  "knownModelRequests": 14,
+  "knownModelRequests": 20,
+  "actualTotalModelRequests": "unavailable",
   "unknownPriorTaskRequests": "unavailable; conservatively reserved at most 4",
-  "knownOutputTokens": 8400,
+  "knownOutputTokens": 12160,
   "unknownPriorOutputTokens": "unavailable; conservatively reserved at most 9600 for both initial tasks",
   "actualTotalOutputTokens": "unavailable",
   "cost": "unavailable",
+  "authorization": {
+    "initial": {
+      "requestLimit": 24,
+      "outputLimit": 18000
+    },
+    "additional": {
+      "onlyTasks": ["sec-unavailable", "judgment-evidence"],
+      "requestLimit": 6,
+      "outputLimit": 4800,
+      "actualRequests": 6,
+      "actualOutputTokens": 3760
+    }
+  },
+  "conservativeAccounting": {
+    "chargedRequestSlots": 24,
+    "chargedOutputTokens": 21760,
+    "unknownOutputReservation": 9600,
+    "isActualUsage": false
+  },
+  "manualReviewFindings": [
+    {
+      "taskId": "missing-cash",
+      "status": "needs_review",
+      "issue": "Final answer both identifies injected removal and states uncertainty whether injection or original data caused absence."
+    },
+    {
+      "taskId": "judgment-evidence",
+      "status": "needs_review",
+      "issue": "Unverified finding incorrectly says cash and total liabilities move in the same direction. Cash falls while liabilities rise; structured checks do not evaluate this prose.",
+      "datasetId": "0000789019-9748f2c1-86df-4c00-bdf3-3c40ffec430c",
+      "evidence": {
+        "cashPrevious": 30242000000,
+        "cashCurrent": 20935000000,
+        "liabilitiesPrevious": 275524000000,
+        "liabilitiesCurrent": 315989000000,
+        "unit": "USD"
+      }
+    }
+  ],
+  "merged": {
+    "metadata": {
+      "kind": "multi_batch_summary",
+      "createdAt": "2026-10-02T13:54:11.503Z",
+      "batches": [
+        "first-round-2026-10-02",
+        "first-round-repair-2026-10-02",
+        "completion-2026-10-02"
+      ],
+      "taskSetSha256": "05f3b0043bbd96b8f45516be9bdc5b18d2ddbd107d5cd169909df6bcb8392395",
+      "inputs": [
+        {
+          "schemaVersion": 1,
+          "batch": "first-round-2026-10-02",
+          "gitCommit": "1e53cf7c8d2557b3e1395d1a95aeec248641146c",
+          "dirty": false,
+          "startedAt": "2026-10-02T13:28:24.275Z",
+          "taskSetVersion": "fintrace-agent-v1",
+          "taskSetSha256": "05f3b0043bbd96b8f45516be9bdc5b18d2ddbd107d5cd169909df6bcb8392395",
+          "environment": {
+            "node": "v24.12.0",
+            "platform": "win32",
+            "arch": "x64",
+            "timezone": "Asia/Shanghai"
+          },
+          "modelAlias": "configured-model-1",
+          "budget": {
+            "requests": 24,
+            "outputTokens": 18000,
+            "perRequestTokens": 1600,
+            "perTaskRequests": 4
+          },
+          "entry": "pi_runtime_adapter",
+          "workbenchValidated": false,
+          "budgetLedger": {
+            "requests": "unavailable",
+            "chargedRequests": 6,
+            "chargedOutputTokens": 9600,
+            "usageUnavailable": true,
+            "reason": "Conservative upper-bound reservation, not estimated actual usage; original traces untouched.",
+            "cost": "unavailable"
+          },
+          "usageTotals": {
+            "requests": {
+              "known": 2,
+              "unavailableTasks": 1
+            },
+            "elapsedMs": {
+              "known": 18778,
+              "unavailableTasks": 1
+            },
+            "outputTokens": {
+              "known": 0,
+              "unavailableTasks": 2
+            },
+            "cost": "unavailable"
+          }
+        },
+        {
+          "schemaVersion": 1,
+          "batch": "first-round-repair-2026-10-02",
+          "gitCommit": "97f14554110b554baa0fe093eaa47791f279056a",
+          "dirty": false,
+          "startedAt": "2026-10-02T13:36:36.600Z",
+          "taskSetVersion": "fintrace-agent-v1",
+          "taskSetSha256": "05f3b0043bbd96b8f45516be9bdc5b18d2ddbd107d5cd169909df6bcb8392395",
+          "environment": {
+            "node": "v24.12.0",
+            "platform": "win32",
+            "arch": "x64",
+            "timezone": "Asia/Shanghai"
+          },
+          "modelAlias": "configured-model-1",
+          "budget": {
+            "requests": 24,
+            "outputTokens": 18000,
+            "perRequestTokens": 1600,
+            "perTaskRequests": 4
+          },
+          "entry": "pi_runtime_adapter",
+          "workbenchValidated": false,
+          "carryFrom": "first-round-2026-10-02",
+          "priorReservation": {
+            "requests": 6,
+            "output": 9600
+          },
+          "budgetLedger": {
+            "requests": 12,
+            "chargedRequests": 18,
+            "priorReservation": {
+              "requests": 6,
+              "output": 9600
+            },
+            "knownOutputTokens": 8400,
+            "chargedOutputTokens": 18000,
+            "usageUnavailable": false,
+            "exhausted": true,
+            "cost": "unavailable"
+          },
+          "usageTotals": {
+            "requests": {
+              "known": 12,
+              "unavailableTasks": 0
+            },
+            "elapsedMs": {
+              "known": 187489,
+              "unavailableTasks": 0
+            },
+            "outputTokens": {
+              "known": 8400,
+              "unavailableTasks": 0
+            },
+            "cost": "unavailable"
+          }
+        },
+        {
+          "schemaVersion": 1,
+          "batch": "completion-2026-10-02",
+          "gitCommit": "62bab1c7bf624270d5580199926d14be313ee2f4",
+          "dirty": false,
+          "startedAt": "2026-10-02T13:45:00.213Z",
+          "taskSetVersion": "fintrace-agent-v1",
+          "taskSetSha256": "05f3b0043bbd96b8f45516be9bdc5b18d2ddbd107d5cd169909df6bcb8392395",
+          "environment": {
+            "node": "v24.12.0",
+            "platform": "win32",
+            "arch": "x64",
+            "timezone": "Asia/Shanghai"
+          },
+          "modelAlias": "configured-model-1",
+          "budget": {
+            "requests": 6,
+            "outputTokens": 4800,
+            "perRequestTokens": 1600,
+            "perTaskRequests": 4
+          },
+          "entry": "pi_runtime_adapter",
+          "workbenchValidated": false,
+          "budgetLedger": {
+            "requests": 6,
+            "chargedRequests": 6,
+            "priorReservation": {
+              "requests": 0,
+              "output": 0
+            },
+            "knownOutputTokens": 3760,
+            "chargedOutputTokens": 3760,
+            "usageUnavailable": false,
+            "exhausted": true,
+            "cost": "unavailable"
+          },
+          "usageTotals": {
+            "requests": {
+              "known": 6,
+              "unavailableTasks": 0
+            },
+            "elapsedMs": {
+              "known": 78245,
+              "unavailableTasks": 0
+            },
+            "outputTokens": {
+              "known": 3760,
+              "unavailableTasks": 0
+            },
+            "cost": "unavailable"
+          }
+        }
+      ],
+      "selectionRule": "Last listed batch excluding not_selected, never best score; original failures and budget stops retained in source batches. Supply batches chronologically.",
+      "sourceBatches": {
+        "annual-aapl": "first-round-repair-2026-10-02",
+        "trend-msft": "first-round-repair-2026-10-02",
+        "missing-cash": "first-round-repair-2026-10-02",
+        "incomparable-revenue": "first-round-repair-2026-10-02",
+        "sec-unavailable": "completion-2026-10-02",
+        "judgment-evidence": "completion-2026-10-02"
+      },
+      "scoringGitCommit": "62bab1c7bf624270d5580199926d14be313ee2f4",
+      "scoringDirty": true,
+      "allRunUsage": {
+        "requests": {
+          "known": 20,
+          "unavailableTasks": 1
+        },
+        "elapsedMs": {
+          "known": 284512,
+          "unavailableTasks": 1
+        },
+        "outputTokens": {
+          "known": 12160,
+          "unavailableTasks": 2
+        },
+        "cost": "unavailable"
+      }
+    },
+    "summary": {
+      "all": {
+        "executed": 6,
+        "notExecuted": 0,
+        "dimensions": {
+          "task_completion": {
+            "denominator": 6,
+            "passed": 5,
+            "failed": 1,
+            "needsReview": 0
+          },
+          "tool_behavior": {
+            "denominator": 6,
+            "passed": 5,
+            "failed": 1,
+            "needsReview": 0
+          },
+          "numerical_correctness": {
+            "denominator": 5,
+            "passed": 5,
+            "failed": 0,
+            "needsReview": 0
+          },
+          "evidence_integrity": {
+            "denominator": 5,
+            "passed": 4,
+            "failed": 1,
+            "needsReview": 0
+          },
+          "artifact_delivery": {
+            "denominator": 6,
+            "passed": 5,
+            "failed": 1,
+            "needsReview": 0
+          },
+          "failure_handling": {
+            "denominator": 3,
+            "passed": 2,
+            "failed": 0,
+            "needsReview": 1
+          },
+          "judgment_boundary": {
+            "denominator": 6,
+            "passed": 0,
+            "failed": 0,
+            "needsReview": 6
+          }
+        }
+      },
+      "live_sec": {
+        "executed": 2,
+        "notExecuted": 0,
+        "dimensions": {
+          "task_completion": {
+            "denominator": 2,
+            "passed": 2,
+            "failed": 0,
+            "needsReview": 0
+          },
+          "tool_behavior": {
+            "denominator": 2,
+            "passed": 2,
+            "failed": 0,
+            "needsReview": 0
+          },
+          "numerical_correctness": {
+            "denominator": 2,
+            "passed": 2,
+            "failed": 0,
+            "needsReview": 0
+          },
+          "evidence_integrity": {
+            "denominator": 2,
+            "passed": 2,
+            "failed": 0,
+            "needsReview": 0
+          },
+          "artifact_delivery": {
+            "denominator": 2,
+            "passed": 2,
+            "failed": 0,
+            "needsReview": 0
+          },
+          "failure_handling": {
+            "denominator": 0,
+            "passed": 0,
+            "failed": 0,
+            "needsReview": 0
+          },
+          "judgment_boundary": {
+            "denominator": 2,
+            "passed": 0,
+            "failed": 0,
+            "needsReview": 2
+          }
+        }
+      },
+      "snapshot": {
+        "executed": 1,
+        "notExecuted": 0,
+        "dimensions": {
+          "task_completion": {
+            "denominator": 1,
+            "passed": 1,
+            "failed": 0,
+            "needsReview": 0
+          },
+          "tool_behavior": {
+            "denominator": 1,
+            "passed": 1,
+            "failed": 0,
+            "needsReview": 0
+          },
+          "numerical_correctness": {
+            "denominator": 1,
+            "passed": 1,
+            "failed": 0,
+            "needsReview": 0
+          },
+          "evidence_integrity": {
+            "denominator": 1,
+            "passed": 1,
+            "failed": 0,
+            "needsReview": 0
+          },
+          "artifact_delivery": {
+            "denominator": 1,
+            "passed": 1,
+            "failed": 0,
+            "needsReview": 0
+          },
+          "failure_handling": {
+            "denominator": 0,
+            "passed": 0,
+            "failed": 0,
+            "needsReview": 0
+          },
+          "judgment_boundary": {
+            "denominator": 1,
+            "passed": 0,
+            "failed": 0,
+            "needsReview": 1
+          }
+        }
+      },
+      "injected_failure": {
+        "executed": 3,
+        "notExecuted": 0,
+        "dimensions": {
+          "task_completion": {
+            "denominator": 3,
+            "passed": 2,
+            "failed": 1,
+            "needsReview": 0
+          },
+          "tool_behavior": {
+            "denominator": 3,
+            "passed": 2,
+            "failed": 1,
+            "needsReview": 0
+          },
+          "numerical_correctness": {
+            "denominator": 2,
+            "passed": 2,
+            "failed": 0,
+            "needsReview": 0
+          },
+          "evidence_integrity": {
+            "denominator": 2,
+            "passed": 1,
+            "failed": 1,
+            "needsReview": 0
+          },
+          "artifact_delivery": {
+            "denominator": 3,
+            "passed": 2,
+            "failed": 1,
+            "needsReview": 0
+          },
+          "failure_handling": {
+            "denominator": 3,
+            "passed": 2,
+            "failed": 0,
+            "needsReview": 1
+          },
+          "judgment_boundary": {
+            "denominator": 3,
+            "passed": 0,
+            "failed": 0,
+            "needsReview": 3
+          }
+        }
+      }
+    },
+    "scores": [
+      {
+        "taskId": "annual-aapl",
+        "mode": "live_sec",
+        "execution": "executed",
+        "overall": "needs_review",
+        "dimensions": {
+          "task_completion": {
+            "status": "passed",
+            "evidence": [
+              "Scenario-specific expected data behavior verified.",
+              "Final response envelope available."
+            ],
+            "boundary": "Deterministic structure only; natural language semantics require review."
+          },
+          "tool_behavior": {
+            "status": "passed",
+            "evidence": [
+              "Required calls, company/years, sequence and dataset binding verified.",
+              "1 mcp__miniclaw__fetch_sec_financials: succeeded",
+              "2 mcp__miniclaw__save_sec_report: succeeded"
+            ],
+            "boundary": "Deterministic structure only; natural language semantics require review."
+          },
+          "numerical_correctness": {
+            "status": "passed",
+            "evidence": [
+              "All metric values, periods, provenance and comparable YoY recomputed from raw."
+            ],
+            "boundary": "Recomputes stored SEC input, not the truth or completeness of public filings; final prose is not numerically parsed."
+          },
+          "evidence_integrity": {
+            "status": "passed",
+            "evidence": [
+              "Current dataset evidence and code facts reconstructed; finding references/classification validated."
+            ],
+            "boundary": "Valid association does not prove a qualitative conclusion is supported."
+          },
+          "artifact_delivery": {
+            "status": "passed",
+            "evidence": [
+              "Required files exist, trace SHA-256 matches, existing SEC audit passes including canonical report/chart."
+            ],
+            "boundary": "Deterministic structure only; natural language semantics require review."
+          },
+          "failure_handling": {
+            "status": "not_applicable",
+            "evidence": ["Not applicable to this scenario."],
+            "boundary": "Deterministic structure only; natural language semantics require review."
+          },
+          "judgment_boundary": {
+            "status": "needs_review",
+            "evidence": [
+              "Filing body was not read; normalized labels and response declarations do not establish natural language truth."
+            ],
+            "boundary": "Manual reviewer must read final answer, findings and cited evidence. No keyword-based semantic score."
+          }
+        },
+        "attribution": [],
+        "review": [
+          "annual-aapl: final answer agrees with evidence",
+          "annual-aapl: links support stated conclusion"
+        ]
+      },
+      {
+        "taskId": "trend-msft",
+        "mode": "live_sec",
+        "execution": "executed",
+        "overall": "needs_review",
+        "dimensions": {
+          "task_completion": {
+            "status": "passed",
+            "evidence": [
+              "Scenario-specific expected data behavior verified.",
+              "Final response envelope available."
+            ],
+            "boundary": "Deterministic structure only; natural language semantics require review."
+          },
+          "tool_behavior": {
+            "status": "passed",
+            "evidence": [
+              "Required calls, company/years, sequence and dataset binding verified.",
+              "1 mcp__miniclaw__fetch_sec_financials: succeeded",
+              "2 mcp__miniclaw__save_sec_report: succeeded"
+            ],
+            "boundary": "Deterministic structure only; natural language semantics require review."
+          },
+          "numerical_correctness": {
+            "status": "passed",
+            "evidence": [
+              "All metric values, periods, provenance and comparable YoY recomputed from raw."
+            ],
+            "boundary": "Recomputes stored SEC input, not the truth or completeness of public filings; final prose is not numerically parsed."
+          },
+          "evidence_integrity": {
+            "status": "passed",
+            "evidence": [
+              "Current dataset evidence and code facts reconstructed; finding references/classification validated."
+            ],
+            "boundary": "Valid association does not prove a qualitative conclusion is supported."
+          },
+          "artifact_delivery": {
+            "status": "passed",
+            "evidence": [
+              "Required files exist, trace SHA-256 matches, existing SEC audit passes including canonical report/chart."
+            ],
+            "boundary": "Deterministic structure only; natural language semantics require review."
+          },
+          "failure_handling": {
+            "status": "not_applicable",
+            "evidence": ["Not applicable to this scenario."],
+            "boundary": "Deterministic structure only; natural language semantics require review."
+          },
+          "judgment_boundary": {
+            "status": "needs_review",
+            "evidence": [
+              "Filing body was not read; normalized labels and response declarations do not establish natural language truth."
+            ],
+            "boundary": "Manual reviewer must read final answer, findings and cited evidence. No keyword-based semantic score."
+          }
+        },
+        "attribution": [],
+        "review": [
+          "trend-msft: natural language trends",
+          "trend-msft: citations support conclusions"
+        ]
+      },
+      {
+        "taskId": "missing-cash",
+        "mode": "injected_failure",
+        "execution": "executed",
+        "overall": "needs_review",
+        "dimensions": {
+          "task_completion": {
+            "status": "passed",
+            "evidence": [
+              "Scenario-specific expected data behavior verified.",
+              "Final response envelope available."
+            ],
+            "boundary": "Deterministic structure only; natural language semantics require review."
+          },
+          "tool_behavior": {
+            "status": "passed",
+            "evidence": [
+              "Required calls, company/years, sequence and dataset binding verified.",
+              "1 mcp__miniclaw__fetch_sec_financials: succeeded",
+              "2 mcp__miniclaw__save_sec_report: failed SEC_FINDING",
+              "3 mcp__miniclaw__save_sec_report: succeeded"
+            ],
+            "boundary": "Deterministic structure only; natural language semantics require review."
+          },
+          "numerical_correctness": {
+            "status": "passed",
+            "evidence": [
+              "All metric values, periods, provenance and comparable YoY recomputed from raw."
+            ],
+            "boundary": "Recomputes stored SEC input, not the truth or completeness of public filings; final prose is not numerically parsed."
+          },
+          "evidence_integrity": {
+            "status": "passed",
+            "evidence": [
+              "Current dataset evidence and code facts reconstructed; finding references/classification validated."
+            ],
+            "boundary": "Valid association does not prove a qualitative conclusion is supported."
+          },
+          "artifact_delivery": {
+            "status": "passed",
+            "evidence": [
+              "Required files exist, trace SHA-256 matches, existing SEC audit passes including canonical report/chart."
+            ],
+            "boundary": "Deterministic structure only; natural language semantics require review."
+          },
+          "failure_handling": {
+            "status": "passed",
+            "evidence": [
+              "Missing/incomparable raw-to-report constraints checked; limitations in response envelope. Prose still requires review."
+            ],
+            "boundary": "Deterministic structure only; natural language semantics require review."
+          },
+          "judgment_boundary": {
+            "status": "needs_review",
+            "evidence": [
+              "Filing body was not read; normalized labels and response declarations do not establish natural language truth."
+            ],
+            "boundary": "Manual reviewer must read final answer, findings and cited evidence. No keyword-based semantic score."
+          }
+        },
+        "attribution": [],
+        "review": [
+          "missing-cash: answer explicitly explains missing information without invented numbers"
+        ]
+      },
+      {
+        "taskId": "incomparable-revenue",
+        "mode": "injected_failure",
+        "execution": "executed",
+        "overall": "failed",
+        "dimensions": {
+          "task_completion": {
+            "status": "failed",
+            "evidence": ["Agent did not finish normally: length."],
+            "boundary": "Deterministic structure only; natural language semantics require review."
+          },
+          "tool_behavior": {
+            "status": "failed",
+            "evidence": [
+              "Missing/incorrect calls, parameters, ordering or dataset binding.",
+              "1 mcp__miniclaw__fetch_sec_financials: succeeded"
+            ],
+            "boundary": "Deterministic structure only; natural language semantics require review."
+          },
+          "numerical_correctness": {
+            "status": "passed",
+            "evidence": [
+              "All metric values, periods, provenance and comparable YoY recomputed from raw."
+            ],
+            "boundary": "Recomputes stored SEC input, not the truth or completeness of public filings; final prose is not numerically parsed."
+          },
+          "evidence_integrity": {
+            "status": "failed",
+            "evidence": [
+              "Missing findings, wrong dataset, fabricated evidence or invalid fact/classification."
+            ],
+            "boundary": "Deterministic structure only; natural language semantics require review."
+          },
+          "artifact_delivery": {
+            "status": "failed",
+            "evidence": [
+              "Missing file, changed trace hash or SEC artifact audit failed."
+            ],
+            "boundary": "Deterministic structure only; natural language semantics require review."
+          },
+          "failure_handling": {
+            "status": "needs_review",
+            "evidence": [
+              "Missing/incomparable raw-to-report constraints checked; limitations in response envelope. Prose still requires review."
+            ],
+            "boundary": "Deterministic structure only; natural language semantics require review."
+          },
+          "judgment_boundary": {
+            "status": "needs_review",
+            "evidence": [
+              "Filing body was not read; normalized labels and response declarations do not establish natural language truth."
+            ],
+            "boundary": "Manual reviewer must read final answer, findings and cited evidence. No keyword-based semantic score."
+          }
+        },
+        "attribution": [
+          "Product/agent execution or delivery failure; inspect trace and artifacts. Scorer errors require review before attribution.",
+          "Runtime/model stop; distinguish provider error, budget stop and agent failure using trace."
+        ],
+        "review": ["incomparable-revenue: answer rejects unreliable comparison"]
+      },
+      {
+        "taskId": "sec-unavailable",
+        "mode": "injected_failure",
+        "execution": "executed",
+        "overall": "needs_review",
+        "dimensions": {
+          "task_completion": {
+            "status": "passed",
+            "evidence": [
+              "Expected behavior is a failed fetch and truthful refusal, not a financial report."
+            ],
+            "boundary": "Deterministic structure only; natural language semantics require review."
+          },
+          "tool_behavior": {
+            "status": "passed",
+            "evidence": [
+              "Required calls, company/years, sequence and dataset binding verified.",
+              "1 mcp__miniclaw__fetch_sec_financials: failed SEC_HTTP_429"
+            ],
+            "boundary": "Deterministic structure only; natural language semantics require review."
+          },
+          "numerical_correctness": {
+            "status": "not_applicable",
+            "evidence": ["Not applicable to this scenario."],
+            "boundary": "Deterministic structure only; natural language semantics require review."
+          },
+          "evidence_integrity": {
+            "status": "not_applicable",
+            "evidence": ["Not applicable to this scenario."],
+            "boundary": "Deterministic structure only; natural language semantics require review."
+          },
+          "artifact_delivery": {
+            "status": "passed",
+            "evidence": ["No success dataset/report after injected failure."],
+            "boundary": "Deterministic structure only; natural language semantics require review."
+          },
+          "failure_handling": {
+            "status": "passed",
+            "evidence": [
+              "Recorded SEC_HTTP_429; structured failure status and limitations checked. Explanation semantics remain manual."
+            ],
+            "boundary": "Deterministic structure only; natural language semantics require review."
+          },
+          "judgment_boundary": {
+            "status": "needs_review",
+            "evidence": [
+              "Filing body was not read; normalized labels and response declarations do not establish natural language truth."
+            ],
+            "boundary": "Manual reviewer must read final answer, findings and cited evidence. No keyword-based semantic score."
+          }
+        },
+        "attribution": [
+          "External-service behavior is intentionally injected; this is not a real SEC outage."
+        ],
+        "review": ["sec-unavailable: failure explanation truthful and useful"]
+      },
+      {
+        "taskId": "judgment-evidence",
+        "mode": "snapshot",
+        "execution": "executed",
+        "overall": "needs_review",
+        "dimensions": {
+          "task_completion": {
+            "status": "passed",
+            "evidence": [
+              "Scenario-specific expected data behavior verified.",
+              "Final response envelope available."
+            ],
+            "boundary": "Deterministic structure only; natural language semantics require review."
+          },
+          "tool_behavior": {
+            "status": "passed",
+            "evidence": [
+              "Required calls, company/years, sequence and dataset binding verified.",
+              "1 mcp__miniclaw__fetch_sec_financials: succeeded",
+              "2 mcp__miniclaw__save_sec_report: failed TOOL_ERROR",
+              "3 mcp__miniclaw__save_sec_report: succeeded"
+            ],
+            "boundary": "Deterministic structure only; natural language semantics require review."
+          },
+          "numerical_correctness": {
+            "status": "passed",
+            "evidence": [
+              "All metric values, periods, provenance and comparable YoY recomputed from raw."
+            ],
+            "boundary": "Recomputes stored SEC input, not the truth or completeness of public filings; final prose is not numerically parsed."
+          },
+          "evidence_integrity": {
+            "status": "passed",
+            "evidence": [
+              "Current dataset evidence and code facts reconstructed; finding references/classification validated."
+            ],
+            "boundary": "Valid association does not prove a qualitative conclusion is supported."
+          },
+          "artifact_delivery": {
+            "status": "passed",
+            "evidence": [
+              "Required files exist, trace SHA-256 matches, existing SEC audit passes including canonical report/chart."
+            ],
+            "boundary": "Deterministic structure only; natural language semantics require review."
+          },
+          "failure_handling": {
+            "status": "not_applicable",
+            "evidence": ["Not applicable to this scenario."],
+            "boundary": "Deterministic structure only; natural language semantics require review."
+          },
+          "judgment_boundary": {
+            "status": "needs_review",
+            "evidence": [
+              "Filing body was not read; normalized labels and response declarations do not establish natural language truth."
+            ],
+            "boundary": "Manual reviewer must read final answer, findings and cited evidence. No keyword-based semantic score."
+          }
+        },
+        "attribution": [],
+        "review": [
+          "judgment-evidence: causal and solvency semantics",
+          "judgment-evidence: answer does not claim filing body read",
+          "judgment-evidence: limitations sufficient"
+        ]
+      }
+    ],
+    "traces": [
+      {
+        "taskId": "annual-aapl",
+        "sourceBatch": "first-round-repair-2026-10-02",
+        "traceSha256": "6272bd699b35d89224b051e3820c5c86c8515a8567c22a28bac5dd9cd5774619",
+        "modelRequests": 3,
+        "usage": {
+          "input": 16758,
+          "output": 2094,
+          "cacheRead": 1024,
+          "cacheWrite": 0,
+          "cost": "unavailable"
+        },
+        "elapsedMs": 41579
+      },
+      {
+        "taskId": "trend-msft",
+        "sourceBatch": "first-round-repair-2026-10-02",
+        "traceSha256": "9afd322d929dd719a99a1e9ba4e7cfe1039627d5615f9e849ade6f4dda3bdfe0",
+        "modelRequests": 3,
+        "usage": {
+          "input": 13631,
+          "output": 2614,
+          "cacheRead": 12544,
+          "cacheWrite": 0,
+          "cost": "unavailable"
+        },
+        "elapsedMs": 76926
+      },
+      {
+        "taskId": "missing-cash",
+        "sourceBatch": "first-round-repair-2026-10-02",
+        "traceSha256": "33dd374217dff1314b28c18672d286c4723eb34729fa2c0093cea967cc932a8e",
+        "modelRequests": 4,
+        "usage": {
+          "input": 9802,
+          "output": 2702,
+          "cacheRead": 16128,
+          "cacheWrite": 0,
+          "cost": "unavailable"
+        },
+        "elapsedMs": 47962
+      },
+      {
+        "taskId": "incomparable-revenue",
+        "sourceBatch": "first-round-repair-2026-10-02",
+        "traceSha256": "6215fb333e986fb1c3df0a1e69e6ac40e4aa48d3d99e2f8379834b1eac79c4dc",
+        "modelRequests": 2,
+        "usage": {
+          "input": 6852,
+          "output": 990,
+          "cacheRead": 768,
+          "cacheWrite": 0,
+          "cost": "unavailable"
+        },
+        "elapsedMs": 21022
+      },
+      {
+        "taskId": "sec-unavailable",
+        "sourceBatch": "completion-2026-10-02",
+        "traceSha256": "55ab9a058000c8a55e589301af4e2622354c266cfe795c7e0e037f0841c2cf2d",
+        "modelRequests": 2,
+        "usage": {
+          "input": 1854,
+          "output": 692,
+          "cacheRead": 768,
+          "cacheWrite": 0,
+          "cost": "unavailable"
+        },
+        "elapsedMs": 15889
+      },
+      {
+        "taskId": "judgment-evidence",
+        "sourceBatch": "completion-2026-10-02",
+        "traceSha256": "3eb0baa833c2dc78956cc0fc2e0b2af4c02256292ff4593c9bfa54697f7053bc",
+        "modelRequests": 4,
+        "usage": {
+          "input": 11021,
+          "output": 3068,
+          "cacheRead": 17920,
+          "cacheWrite": 0,
+          "cost": "unavailable"
+        },
+        "elapsedMs": 62356
+      }
+    ]
+  },
   "runs": [
     {
       "metadata": {
@@ -34,14 +925,6 @@
         },
         "entry": "pi_runtime_adapter",
         "workbenchValidated": false
-      },
-      "budget": {
-        "requests": "unavailable",
-        "chargedRequests": 6,
-        "chargedOutputTokens": 9600,
-        "usageUnavailable": true,
-        "reason": "Conservative upper-bound reservation, not estimated actual usage; original traces untouched.",
-        "cost": "unavailable"
       },
       "summary": {
         "all": {
@@ -237,6 +1120,92 @@
           }
         }
       },
+      "traces": [
+        {
+          "taskId": "annual-aapl",
+          "tracePath": "annual-aapl/trace.json",
+          "traceSha256": "192b3657eb52eaae9f34baef06c00e24d7611513292e408b2c05f6740c7ac3c0",
+          "modelRequests": 2,
+          "usage": {
+            "input": "unavailable",
+            "output": "unavailable",
+            "cacheRead": "unavailable",
+            "cacheWrite": "unavailable",
+            "cost": "unavailable"
+          },
+          "elapsedMs": 18778
+        },
+        {
+          "taskId": "trend-msft",
+          "tracePath": "trend-msft/trace.json",
+          "traceSha256": "daeb21b201320915273c07aaf1e174ba3ba4860c6cd002db6819d7bc41f4f601",
+          "modelRequests": "unavailable",
+          "usage": {
+            "input": "unavailable",
+            "output": "unavailable",
+            "cacheRead": "unavailable",
+            "cacheWrite": "unavailable",
+            "cost": "unavailable"
+          },
+          "elapsedMs": "unavailable"
+        },
+        {
+          "taskId": "missing-cash",
+          "tracePath": "missing-cash/trace.json",
+          "traceSha256": "4f7fa891e23c24f6e79d1f96cc7113805f37830a4f032713d6ebedcda39c25fc",
+          "modelRequests": 0,
+          "usage": {
+            "input": "unavailable",
+            "output": "unavailable",
+            "cacheRead": "unavailable",
+            "cacheWrite": "unavailable",
+            "cost": "unavailable"
+          },
+          "elapsedMs": "unavailable"
+        },
+        {
+          "taskId": "incomparable-revenue",
+          "tracePath": "incomparable-revenue/trace.json",
+          "traceSha256": "79e49528a3dbf8b46cc11280924d5603bdc7a713bf32b630e19a15772837bb4d",
+          "modelRequests": 0,
+          "usage": {
+            "input": "unavailable",
+            "output": "unavailable",
+            "cacheRead": "unavailable",
+            "cacheWrite": "unavailable",
+            "cost": "unavailable"
+          },
+          "elapsedMs": "unavailable"
+        },
+        {
+          "taskId": "sec-unavailable",
+          "tracePath": "sec-unavailable/trace.json",
+          "traceSha256": "f0b1b92567db9da9cd5d5b787b8013d934758c97d406481659bbd9ece5eb268e",
+          "modelRequests": 0,
+          "usage": {
+            "input": "unavailable",
+            "output": "unavailable",
+            "cacheRead": "unavailable",
+            "cacheWrite": "unavailable",
+            "cost": "unavailable"
+          },
+          "elapsedMs": "unavailable"
+        },
+        {
+          "taskId": "judgment-evidence",
+          "tracePath": "judgment-evidence/trace.json",
+          "traceSha256": "1eb1f14a95dd0b8a606826b5e59e4650727cc5b99c193e6cfeeb9eb347e5bcdc",
+          "modelRequests": 0,
+          "usage": {
+            "input": "unavailable",
+            "output": "unavailable",
+            "cacheRead": "unavailable",
+            "cacheWrite": "unavailable",
+            "cost": "unavailable"
+          },
+          "elapsedMs": "unavailable"
+        }
+      ],
       "scores": [
         {
           "taskId": "annual-aapl",
@@ -550,102 +1519,17 @@
           ]
         }
       ],
-      "traces": [
-        {
-          "taskId": "annual-aapl",
-          "tracePath": "annual-aapl/trace.json",
-          "traceSha256": "8b59289cecae4e85a9fda9df34bbc6759bc0cc3e096dbf0aa7320f0f4072d306",
-          "modelRequests": 2,
-          "usage": {
-            "input": "unavailable",
-            "output": "unavailable",
-            "cacheRead": "unavailable",
-            "cacheWrite": "unavailable",
-            "cost": "unavailable"
-          },
-          "elapsedMs": 18778
-        },
-        {
-          "taskId": "trend-msft",
-          "tracePath": "trend-msft/trace.json",
-          "traceSha256": "327bc4bf99543b8eb6adb2c8ea8c971082b1dfb9dc44d5124702ce29ab007241",
-          "modelRequests": "unavailable",
-          "usage": {
-            "input": "unavailable",
-            "output": "unavailable",
-            "cacheRead": "unavailable",
-            "cacheWrite": "unavailable",
-            "cost": "unavailable"
-          },
-          "elapsedMs": "unavailable"
-        },
-        {
-          "taskId": "missing-cash",
-          "tracePath": "missing-cash/trace.json",
-          "traceSha256": "f7a996326ab5fa316d92e931248fa529a667dc5b3d8db548d82eb97691f028d4",
-          "modelRequests": 0,
-          "usage": {
-            "input": "unavailable",
-            "output": "unavailable",
-            "cacheRead": "unavailable",
-            "cacheWrite": "unavailable",
-            "cost": "unavailable"
-          },
-          "elapsedMs": "unavailable"
-        },
-        {
-          "taskId": "incomparable-revenue",
-          "tracePath": "incomparable-revenue/trace.json",
-          "traceSha256": "67c7c8b5d442fac173448a6d2f6a4657cdb3f91a0b13f2ab27acb1399142dd6c",
-          "modelRequests": 0,
-          "usage": {
-            "input": "unavailable",
-            "output": "unavailable",
-            "cacheRead": "unavailable",
-            "cacheWrite": "unavailable",
-            "cost": "unavailable"
-          },
-          "elapsedMs": "unavailable"
-        },
-        {
-          "taskId": "sec-unavailable",
-          "tracePath": "sec-unavailable/trace.json",
-          "traceSha256": "47ac1302b02ce4f034c3a8aecc7e36d7a85384236fcf70a59e717e9d0808a95c",
-          "modelRequests": 0,
-          "usage": {
-            "input": "unavailable",
-            "output": "unavailable",
-            "cacheRead": "unavailable",
-            "cacheWrite": "unavailable",
-            "cost": "unavailable"
-          },
-          "elapsedMs": "unavailable"
-        },
-        {
-          "taskId": "judgment-evidence",
-          "tracePath": "judgment-evidence/trace.json",
-          "traceSha256": "7e741f81880bb169171d0809d8943f6aeff3c721f511fcfa548f796393128d60",
-          "modelRequests": 0,
-          "usage": {
-            "input": "unavailable",
-            "output": "unavailable",
-            "cacheRead": "unavailable",
-            "cacheWrite": "unavailable",
-            "cost": "unavailable"
-          },
-          "elapsedMs": "unavailable"
-        }
-      ],
+      "budget": {
+        "requests": "unavailable",
+        "chargedRequests": 6,
+        "chargedOutputTokens": 9600,
+        "usageUnavailable": true,
+        "reason": "Conservative upper-bound reservation, not estimated actual usage; original traces untouched.",
+        "cost": "unavailable"
+      },
       "tasks": [
         {
-          "taskId": "annual-aapl",
           "status": "executed",
-          "reason": "provider_or_runtime_error",
-          "stopReason": "error",
-          "mode": "live_sec",
-          "inputSha256": "f60db2c5ddafbf60125501d37145ae927a423983ca0fedeeedb1fc400c4e5741",
-          "sessionId": "01a0fccd-3dfe-70b8-be7e-0528e7715ec6",
-          "traceSha256": "192b3657eb52eaae9f34baef06c00e24d7611513292e408b2c05f6740c7ac3c0",
           "tools": [
             {
               "order": 1,
@@ -683,17 +1567,17 @@
             "cacheWrite": "unavailable",
             "cost": "unavailable"
           },
-          "elapsedMs": 18778
+          "elapsedMs": 18778,
+          "reason": "provider_or_runtime_error",
+          "stopReason": "error",
+          "sessionId": "01a0fccd-3dfe-70b8-be7e-0528e7715ec6",
+          "inputSha256": "f60db2c5ddafbf60125501d37145ae927a423983ca0fedeeedb1fc400c4e5741",
+          "taskId": "annual-aapl",
+          "mode": "live_sec",
+          "traceSha256": "192b3657eb52eaae9f34baef06c00e24d7611513292e408b2c05f6740c7ac3c0"
         },
         {
-          "taskId": "trend-msft",
           "status": "executed",
-          "reason": "execution_trace_unavailable",
-          "stopReason": "error",
-          "mode": "live_sec",
-          "inputSha256": "unavailable",
-          "sessionId": "unavailable",
-          "traceSha256": "daeb21b201320915273c07aaf1e174ba3ba4860c6cd002db6819d7bc41f4f601",
           "tools": [],
           "finalAnswer": "",
           "artifacts": [],
@@ -706,17 +1590,40 @@
             "cacheWrite": "unavailable",
             "cost": "unavailable"
           },
-          "elapsedMs": "unavailable"
+          "elapsedMs": "unavailable",
+          "reason": "execution_trace_unavailable",
+          "stopReason": "error",
+          "sessionId": "unavailable",
+          "inputSha256": "unavailable",
+          "taskId": "trend-msft",
+          "mode": "live_sec",
+          "traceSha256": "daeb21b201320915273c07aaf1e174ba3ba4860c6cd002db6819d7bc41f4f601"
         },
         {
+          "status": "not_executed",
+          "tools": [],
+          "finalAnswer": "",
+          "artifacts": [],
+          "datasetIds": [],
+          "modelRequests": 0,
+          "usage": {
+            "input": "unavailable",
+            "output": "unavailable",
+            "cacheRead": "unavailable",
+            "cacheWrite": "unavailable",
+            "cost": "unavailable"
+          },
+          "elapsedMs": "unavailable",
+          "reason": "no_execution_record",
+          "stopReason": "error",
+          "sessionId": "unavailable",
+          "inputSha256": "unavailable",
           "taskId": "missing-cash",
-          "status": "not_executed",
-          "reason": "no_execution_record",
-          "stopReason": "error",
           "mode": "injected_failure",
-          "inputSha256": "unavailable",
-          "sessionId": "unavailable",
-          "traceSha256": "4f7fa891e23c24f6e79d1f96cc7113805f37830a4f032713d6ebedcda39c25fc",
+          "traceSha256": "4f7fa891e23c24f6e79d1f96cc7113805f37830a4f032713d6ebedcda39c25fc"
+        },
+        {
+          "status": "not_executed",
           "tools": [],
           "finalAnswer": "",
           "artifacts": [],
@@ -729,17 +1636,17 @@
             "cacheWrite": "unavailable",
             "cost": "unavailable"
           },
-          "elapsedMs": "unavailable"
-        },
-        {
+          "elapsedMs": "unavailable",
+          "reason": "no_execution_record",
+          "stopReason": "error",
+          "sessionId": "unavailable",
+          "inputSha256": "unavailable",
           "taskId": "incomparable-revenue",
-          "status": "not_executed",
-          "reason": "no_execution_record",
-          "stopReason": "error",
           "mode": "injected_failure",
-          "inputSha256": "unavailable",
-          "sessionId": "unavailable",
-          "traceSha256": "79e49528a3dbf8b46cc11280924d5603bdc7a713bf32b630e19a15772837bb4d",
+          "traceSha256": "79e49528a3dbf8b46cc11280924d5603bdc7a713bf32b630e19a15772837bb4d"
+        },
+        {
+          "status": "not_executed",
           "tools": [],
           "finalAnswer": "",
           "artifacts": [],
@@ -752,40 +1659,17 @@
             "cacheWrite": "unavailable",
             "cost": "unavailable"
           },
-          "elapsedMs": "unavailable"
-        },
-        {
+          "elapsedMs": "unavailable",
+          "reason": "no_execution_record",
+          "stopReason": "error",
+          "sessionId": "unavailable",
+          "inputSha256": "unavailable",
           "taskId": "sec-unavailable",
-          "status": "not_executed",
-          "reason": "no_execution_record",
-          "stopReason": "error",
           "mode": "injected_failure",
-          "inputSha256": "unavailable",
-          "sessionId": "unavailable",
-          "traceSha256": "f0b1b92567db9da9cd5d5b787b8013d934758c97d406481659bbd9ece5eb268e",
-          "tools": [],
-          "finalAnswer": "",
-          "artifacts": [],
-          "datasetIds": [],
-          "modelRequests": 0,
-          "usage": {
-            "input": "unavailable",
-            "output": "unavailable",
-            "cacheRead": "unavailable",
-            "cacheWrite": "unavailable",
-            "cost": "unavailable"
-          },
-          "elapsedMs": "unavailable"
+          "traceSha256": "f0b1b92567db9da9cd5d5b787b8013d934758c97d406481659bbd9ece5eb268e"
         },
         {
-          "taskId": "judgment-evidence",
           "status": "not_executed",
-          "reason": "no_execution_record",
-          "stopReason": "error",
-          "mode": "snapshot",
-          "inputSha256": "unavailable",
-          "sessionId": "unavailable",
-          "traceSha256": "1eb1f14a95dd0b8a606826b5e59e4650727cc5b99c193e6cfeeb9eb347e5bcdc",
           "tools": [],
           "finalAnswer": "",
           "artifacts": [],
@@ -798,7 +1682,14 @@
             "cacheWrite": "unavailable",
             "cost": "unavailable"
           },
-          "elapsedMs": "unavailable"
+          "elapsedMs": "unavailable",
+          "reason": "no_execution_record",
+          "stopReason": "error",
+          "sessionId": "unavailable",
+          "inputSha256": "unavailable",
+          "taskId": "judgment-evidence",
+          "mode": "snapshot",
+          "traceSha256": "1eb1f14a95dd0b8a606826b5e59e4650727cc5b99c193e6cfeeb9eb347e5bcdc"
         }
       ]
     },
@@ -831,19 +1722,6 @@
           "requests": 6,
           "output": 9600
         }
-      },
-      "budget": {
-        "requests": 12,
-        "chargedRequests": 18,
-        "priorReservation": {
-          "requests": 6,
-          "output": 9600
-        },
-        "knownOutputTokens": 8400,
-        "chargedOutputTokens": 18000,
-        "usageUnavailable": false,
-        "exhausted": true,
-        "cost": "unavailable"
       },
       "summary": {
         "all": {
@@ -1039,6 +1917,92 @@
           }
         }
       },
+      "traces": [
+        {
+          "taskId": "annual-aapl",
+          "tracePath": "annual-aapl/trace.json",
+          "traceSha256": "6272bd699b35d89224b051e3820c5c86c8515a8567c22a28bac5dd9cd5774619",
+          "modelRequests": 3,
+          "usage": {
+            "input": 16758,
+            "output": 2094,
+            "cacheRead": 1024,
+            "cacheWrite": 0,
+            "cost": "unavailable"
+          },
+          "elapsedMs": 41579
+        },
+        {
+          "taskId": "trend-msft",
+          "tracePath": "trend-msft/trace.json",
+          "traceSha256": "9afd322d929dd719a99a1e9ba4e7cfe1039627d5615f9e849ade6f4dda3bdfe0",
+          "modelRequests": 3,
+          "usage": {
+            "input": 13631,
+            "output": 2614,
+            "cacheRead": 12544,
+            "cacheWrite": 0,
+            "cost": "unavailable"
+          },
+          "elapsedMs": 76926
+        },
+        {
+          "taskId": "missing-cash",
+          "tracePath": "missing-cash/trace.json",
+          "traceSha256": "33dd374217dff1314b28c18672d286c4723eb34729fa2c0093cea967cc932a8e",
+          "modelRequests": 4,
+          "usage": {
+            "input": 9802,
+            "output": 2702,
+            "cacheRead": 16128,
+            "cacheWrite": 0,
+            "cost": "unavailable"
+          },
+          "elapsedMs": 47962
+        },
+        {
+          "taskId": "incomparable-revenue",
+          "tracePath": "incomparable-revenue/trace.json",
+          "traceSha256": "6215fb333e986fb1c3df0a1e69e6ac40e4aa48d3d99e2f8379834b1eac79c4dc",
+          "modelRequests": 2,
+          "usage": {
+            "input": 6852,
+            "output": 990,
+            "cacheRead": 768,
+            "cacheWrite": 0,
+            "cost": "unavailable"
+          },
+          "elapsedMs": 21022
+        },
+        {
+          "taskId": "sec-unavailable",
+          "tracePath": "sec-unavailable/trace.json",
+          "traceSha256": "629e147ceb48adec065f7732ec971cc479814993e2a5b06600f4ad40d67b26cf",
+          "modelRequests": 0,
+          "usage": {
+            "input": "unavailable",
+            "output": "unavailable",
+            "cacheRead": "unavailable",
+            "cacheWrite": "unavailable",
+            "cost": "unavailable"
+          },
+          "elapsedMs": 0
+        },
+        {
+          "taskId": "judgment-evidence",
+          "tracePath": "judgment-evidence/trace.json",
+          "traceSha256": "1f2708e877b2335134fd9e313f09cf08b3502dfba5cd532b0c92234a097ec42f",
+          "modelRequests": 0,
+          "usage": {
+            "input": "unavailable",
+            "output": "unavailable",
+            "cacheRead": "unavailable",
+            "cacheWrite": "unavailable",
+            "cost": "unavailable"
+          },
+          "elapsedMs": 0
+        }
+      ],
       "scores": [
         {
           "taskId": "annual-aapl",
@@ -1389,101 +2353,22 @@
           ]
         }
       ],
-      "traces": [
-        {
-          "taskId": "annual-aapl",
-          "tracePath": "annual-aapl/trace.json",
-          "traceSha256": "79912b8d657178d516b7bf47fda97edcb32380c5f66f98ecd6456f1cae4e1e13",
-          "modelRequests": 3,
-          "usage": {
-            "input": 16758,
-            "output": 2094,
-            "cacheRead": 1024,
-            "cacheWrite": 0,
-            "cost": "unavailable"
-          },
-          "elapsedMs": 41579
+      "budget": {
+        "requests": 12,
+        "chargedRequests": 18,
+        "priorReservation": {
+          "requests": 6,
+          "output": 9600
         },
-        {
-          "taskId": "trend-msft",
-          "tracePath": "trend-msft/trace.json",
-          "traceSha256": "10dc4e039d63826bc7b62f340d1ca0adc8928e1aa1e2d9a4ebc3417aa71dd1d5",
-          "modelRequests": 3,
-          "usage": {
-            "input": 13631,
-            "output": 2614,
-            "cacheRead": 12544,
-            "cacheWrite": 0,
-            "cost": "unavailable"
-          },
-          "elapsedMs": 76926
-        },
-        {
-          "taskId": "missing-cash",
-          "tracePath": "missing-cash/trace.json",
-          "traceSha256": "99008d076e51de38de965203af675b0f1022d187cba48e889cffb11b60616541",
-          "modelRequests": 4,
-          "usage": {
-            "input": 9802,
-            "output": 2702,
-            "cacheRead": 16128,
-            "cacheWrite": 0,
-            "cost": "unavailable"
-          },
-          "elapsedMs": 47962
-        },
-        {
-          "taskId": "incomparable-revenue",
-          "tracePath": "incomparable-revenue/trace.json",
-          "traceSha256": "88e17d0d8627fa181530ee5719f4c530e0ca0b67f4753ed3fd79624609bb9715",
-          "modelRequests": 2,
-          "usage": {
-            "input": 6852,
-            "output": 990,
-            "cacheRead": 768,
-            "cacheWrite": 0,
-            "cost": "unavailable"
-          },
-          "elapsedMs": 21022
-        },
-        {
-          "taskId": "sec-unavailable",
-          "tracePath": "sec-unavailable/trace.json",
-          "traceSha256": "c0667c8ce58da16f9e1daccffc7d4302a2fbdd8454394e37158fe1eacf253fab",
-          "modelRequests": 0,
-          "usage": {
-            "input": "unavailable",
-            "output": "unavailable",
-            "cacheRead": "unavailable",
-            "cacheWrite": "unavailable",
-            "cost": "unavailable"
-          },
-          "elapsedMs": 0
-        },
-        {
-          "taskId": "judgment-evidence",
-          "tracePath": "judgment-evidence/trace.json",
-          "traceSha256": "9bd5b54974bac3ac507bae30064a2916c1b772a60098223b654d907f6c0b0c87",
-          "modelRequests": 0,
-          "usage": {
-            "input": "unavailable",
-            "output": "unavailable",
-            "cacheRead": "unavailable",
-            "cacheWrite": "unavailable",
-            "cost": "unavailable"
-          },
-          "elapsedMs": 0
-        }
-      ],
+        "knownOutputTokens": 8400,
+        "chargedOutputTokens": 18000,
+        "usageUnavailable": false,
+        "exhausted": true,
+        "cost": "unavailable"
+      },
       "tasks": [
         {
-          "taskId": "annual-aapl",
           "status": "executed",
-          "stopReason": "stop",
-          "mode": "live_sec",
-          "inputSha256": "f60db2c5ddafbf60125501d37145ae927a423983ca0fedeeedb1fc400c4e5741",
-          "sessionId": "01a0fcd4-c114-700b-96fe-51b3e334b97f",
-          "traceSha256": "6272bd699b35d89224b051e3820c5c86c8515a8567c22a28bac5dd9cd5774619",
           "tools": [
             {
               "order": 1,
@@ -1557,22 +2442,22 @@
             "cacheWrite": 0,
             "cost": "unavailable"
           },
+          "elapsedMs": 41579,
+          "stopReason": "stop",
           "knownUsage": {
             "input": 16758,
             "output": 2094,
             "cacheRead": 1024,
             "cacheWrite": 0
           },
-          "elapsedMs": 41579
+          "sessionId": "01a0fcd4-c114-700b-96fe-51b3e334b97f",
+          "inputSha256": "f60db2c5ddafbf60125501d37145ae927a423983ca0fedeeedb1fc400c4e5741",
+          "taskId": "annual-aapl",
+          "mode": "live_sec",
+          "traceSha256": "6272bd699b35d89224b051e3820c5c86c8515a8567c22a28bac5dd9cd5774619"
         },
         {
-          "taskId": "trend-msft",
           "status": "executed",
-          "stopReason": "stop",
-          "mode": "live_sec",
-          "inputSha256": "c229eba44b5459de971a08ee00906b2f8c7f0a892ebbc2f6c45a3b85f6c4fc7a",
-          "sessionId": "01a0fcd5-6388-75d0-915e-5c04dcc0ad13",
-          "traceSha256": "9afd322d929dd719a99a1e9ba4e7cfe1039627d5615f9e849ade6f4dda3bdfe0",
           "tools": [
             {
               "order": 1,
@@ -1653,22 +2538,22 @@
             "cacheWrite": 0,
             "cost": "unavailable"
           },
+          "elapsedMs": 76926,
+          "stopReason": "stop",
           "knownUsage": {
             "input": 13631,
             "output": 2614,
             "cacheRead": 12544,
             "cacheWrite": 0
           },
-          "elapsedMs": 76926
+          "sessionId": "01a0fcd5-6388-75d0-915e-5c04dcc0ad13",
+          "inputSha256": "c229eba44b5459de971a08ee00906b2f8c7f0a892ebbc2f6c45a3b85f6c4fc7a",
+          "taskId": "trend-msft",
+          "mode": "live_sec",
+          "traceSha256": "9afd322d929dd719a99a1e9ba4e7cfe1039627d5615f9e849ade6f4dda3bdfe0"
         },
         {
-          "taskId": "missing-cash",
           "status": "executed",
-          "stopReason": "stop",
-          "mode": "injected_failure",
-          "inputSha256": "75cb977ba95f0ea033178ed352071b991b8d079f3a491c14e3bb5a8541e98871",
-          "sessionId": "01a0fcd6-8fff-7b3c-9fb2-15b2905516d7",
-          "traceSha256": "33dd374217dff1314b28c18672d286c4723eb34729fa2c0093cea967cc932a8e",
           "tools": [
             {
               "order": 1,
@@ -1764,22 +2649,22 @@
             "cacheWrite": 0,
             "cost": "unavailable"
           },
+          "elapsedMs": 47962,
+          "stopReason": "stop",
           "knownUsage": {
             "input": 9802,
             "output": 2702,
             "cacheRead": 16128,
             "cacheWrite": 0
           },
-          "elapsedMs": 47962
+          "sessionId": "01a0fcd6-8fff-7b3c-9fb2-15b2905516d7",
+          "inputSha256": "75cb977ba95f0ea033178ed352071b991b8d079f3a491c14e3bb5a8541e98871",
+          "taskId": "missing-cash",
+          "mode": "injected_failure",
+          "traceSha256": "33dd374217dff1314b28c18672d286c4723eb34729fa2c0093cea967cc932a8e"
         },
         {
-          "taskId": "incomparable-revenue",
           "status": "executed",
-          "stopReason": "length",
-          "mode": "injected_failure",
-          "inputSha256": "28e4b31914d5433fb76dbf484ae14c89f3393b4192e4a1591a58a73bbd7c9188",
-          "sessionId": "01a0fcd7-4b56-7cb1-a2e0-64774096aa22",
-          "traceSha256": "6215fb333e986fb1c3df0a1e69e6ac40e4aa48d3d99e2f8379834b1eac79c4dc",
           "tools": [
             {
               "order": 1,
@@ -1817,44 +2702,700 @@
             "cacheWrite": 0,
             "cost": "unavailable"
           },
+          "elapsedMs": 21022,
+          "stopReason": "length",
           "knownUsage": {
             "input": 6852,
             "output": 990,
             "cacheRead": 768,
             "cacheWrite": 0
           },
-          "elapsedMs": 21022
+          "sessionId": "01a0fcd7-4b56-7cb1-a2e0-64774096aa22",
+          "inputSha256": "28e4b31914d5433fb76dbf484ae14c89f3393b4192e4a1591a58a73bbd7c9188",
+          "taskId": "incomparable-revenue",
+          "mode": "injected_failure",
+          "traceSha256": "6215fb333e986fb1c3df0a1e69e6ac40e4aa48d3d99e2f8379834b1eac79c4dc"
+        },
+        {
+          "status": "not_executed",
+          "tools": [],
+          "finalAnswer": "",
+          "artifacts": [],
+          "datasetIds": [],
+          "modelRequests": 0,
+          "usage": {
+            "input": "unavailable",
+            "output": "unavailable",
+            "cacheRead": "unavailable",
+            "cacheWrite": "unavailable",
+            "cost": "unavailable"
+          },
+          "elapsedMs": 0,
+          "reason": "batch_budget_exhausted",
+          "sessionId": "unavailable",
+          "inputSha256": "3b8d95ef89ce8e86873ace81da5f674fcdda2811f51b125b15da1c30bf4ed1ba",
+          "taskId": "sec-unavailable",
+          "mode": "injected_failure",
+          "traceSha256": "629e147ceb48adec065f7732ec971cc479814993e2a5b06600f4ad40d67b26cf"
+        },
+        {
+          "status": "not_executed",
+          "tools": [],
+          "finalAnswer": "",
+          "artifacts": [],
+          "datasetIds": [],
+          "modelRequests": 0,
+          "usage": {
+            "input": "unavailable",
+            "output": "unavailable",
+            "cacheRead": "unavailable",
+            "cacheWrite": "unavailable",
+            "cost": "unavailable"
+          },
+          "elapsedMs": 0,
+          "reason": "batch_budget_exhausted",
+          "sessionId": "unavailable",
+          "inputSha256": "daf934090b0feae53350d63f9fac27cc968e7e68eb10ff8b1fec5e3b47eb1910",
+          "taskId": "judgment-evidence",
+          "mode": "snapshot",
+          "traceSha256": "1f2708e877b2335134fd9e313f09cf08b3502dfba5cd532b0c92234a097ec42f"
+        }
+      ]
+    },
+    {
+      "metadata": {
+        "schemaVersion": 1,
+        "batch": "completion-2026-10-02",
+        "gitCommit": "62bab1c7bf624270d5580199926d14be313ee2f4",
+        "dirty": false,
+        "startedAt": "2026-10-02T13:45:00.213Z",
+        "taskSetVersion": "fintrace-agent-v1",
+        "taskSetSha256": "05f3b0043bbd96b8f45516be9bdc5b18d2ddbd107d5cd169909df6bcb8392395",
+        "environment": {
+          "node": "v24.12.0",
+          "platform": "win32",
+          "arch": "x64",
+          "timezone": "Asia/Shanghai"
+        },
+        "modelAlias": "configured-model-1",
+        "budget": {
+          "requests": 6,
+          "outputTokens": 4800,
+          "perRequestTokens": 1600,
+          "perTaskRequests": 4
+        },
+        "entry": "pi_runtime_adapter",
+        "workbenchValidated": false
+      },
+      "summary": {
+        "all": {
+          "executed": 2,
+          "notExecuted": 4,
+          "dimensions": {
+            "task_completion": {
+              "denominator": 2,
+              "passed": 2,
+              "failed": 0,
+              "needsReview": 0
+            },
+            "tool_behavior": {
+              "denominator": 2,
+              "passed": 2,
+              "failed": 0,
+              "needsReview": 0
+            },
+            "numerical_correctness": {
+              "denominator": 1,
+              "passed": 1,
+              "failed": 0,
+              "needsReview": 0
+            },
+            "evidence_integrity": {
+              "denominator": 1,
+              "passed": 1,
+              "failed": 0,
+              "needsReview": 0
+            },
+            "artifact_delivery": {
+              "denominator": 2,
+              "passed": 2,
+              "failed": 0,
+              "needsReview": 0
+            },
+            "failure_handling": {
+              "denominator": 1,
+              "passed": 1,
+              "failed": 0,
+              "needsReview": 0
+            },
+            "judgment_boundary": {
+              "denominator": 2,
+              "passed": 0,
+              "failed": 0,
+              "needsReview": 2
+            }
+          }
+        },
+        "live_sec": {
+          "executed": 0,
+          "notExecuted": 2,
+          "dimensions": {
+            "task_completion": {
+              "denominator": 0,
+              "passed": 0,
+              "failed": 0,
+              "needsReview": 0
+            },
+            "tool_behavior": {
+              "denominator": 0,
+              "passed": 0,
+              "failed": 0,
+              "needsReview": 0
+            },
+            "numerical_correctness": {
+              "denominator": 0,
+              "passed": 0,
+              "failed": 0,
+              "needsReview": 0
+            },
+            "evidence_integrity": {
+              "denominator": 0,
+              "passed": 0,
+              "failed": 0,
+              "needsReview": 0
+            },
+            "artifact_delivery": {
+              "denominator": 0,
+              "passed": 0,
+              "failed": 0,
+              "needsReview": 0
+            },
+            "failure_handling": {
+              "denominator": 0,
+              "passed": 0,
+              "failed": 0,
+              "needsReview": 0
+            },
+            "judgment_boundary": {
+              "denominator": 0,
+              "passed": 0,
+              "failed": 0,
+              "needsReview": 0
+            }
+          }
+        },
+        "snapshot": {
+          "executed": 1,
+          "notExecuted": 0,
+          "dimensions": {
+            "task_completion": {
+              "denominator": 1,
+              "passed": 1,
+              "failed": 0,
+              "needsReview": 0
+            },
+            "tool_behavior": {
+              "denominator": 1,
+              "passed": 1,
+              "failed": 0,
+              "needsReview": 0
+            },
+            "numerical_correctness": {
+              "denominator": 1,
+              "passed": 1,
+              "failed": 0,
+              "needsReview": 0
+            },
+            "evidence_integrity": {
+              "denominator": 1,
+              "passed": 1,
+              "failed": 0,
+              "needsReview": 0
+            },
+            "artifact_delivery": {
+              "denominator": 1,
+              "passed": 1,
+              "failed": 0,
+              "needsReview": 0
+            },
+            "failure_handling": {
+              "denominator": 0,
+              "passed": 0,
+              "failed": 0,
+              "needsReview": 0
+            },
+            "judgment_boundary": {
+              "denominator": 1,
+              "passed": 0,
+              "failed": 0,
+              "needsReview": 1
+            }
+          }
+        },
+        "injected_failure": {
+          "executed": 1,
+          "notExecuted": 2,
+          "dimensions": {
+            "task_completion": {
+              "denominator": 1,
+              "passed": 1,
+              "failed": 0,
+              "needsReview": 0
+            },
+            "tool_behavior": {
+              "denominator": 1,
+              "passed": 1,
+              "failed": 0,
+              "needsReview": 0
+            },
+            "numerical_correctness": {
+              "denominator": 0,
+              "passed": 0,
+              "failed": 0,
+              "needsReview": 0
+            },
+            "evidence_integrity": {
+              "denominator": 0,
+              "passed": 0,
+              "failed": 0,
+              "needsReview": 0
+            },
+            "artifact_delivery": {
+              "denominator": 1,
+              "passed": 1,
+              "failed": 0,
+              "needsReview": 0
+            },
+            "failure_handling": {
+              "denominator": 1,
+              "passed": 1,
+              "failed": 0,
+              "needsReview": 0
+            },
+            "judgment_boundary": {
+              "denominator": 1,
+              "passed": 0,
+              "failed": 0,
+              "needsReview": 1
+            }
+          }
+        }
+      },
+      "traces": [
+        {
+          "taskId": "annual-aapl",
+          "tracePath": "annual-aapl/trace.json",
+          "traceSha256": "a1a034af500ae91a9b7d30de0f0b1fdfff5fdfa45c07c8232235d64304495462",
+          "modelRequests": 0,
+          "usage": {
+            "input": "unavailable",
+            "output": "unavailable",
+            "cacheRead": "unavailable",
+            "cacheWrite": "unavailable",
+            "cost": "unavailable"
+          },
+          "elapsedMs": 0
+        },
+        {
+          "taskId": "trend-msft",
+          "tracePath": "trend-msft/trace.json",
+          "traceSha256": "fc8f7c7747bbdbef6ea3bd2d06749c30b300b661a2802e6948f9199f46d98df2",
+          "modelRequests": 0,
+          "usage": {
+            "input": "unavailable",
+            "output": "unavailable",
+            "cacheRead": "unavailable",
+            "cacheWrite": "unavailable",
+            "cost": "unavailable"
+          },
+          "elapsedMs": 0
+        },
+        {
+          "taskId": "missing-cash",
+          "tracePath": "missing-cash/trace.json",
+          "traceSha256": "881092dc31bcfbe6497961254c2998f1c06addf992281a9122efc5e23500d953",
+          "modelRequests": 0,
+          "usage": {
+            "input": "unavailable",
+            "output": "unavailable",
+            "cacheRead": "unavailable",
+            "cacheWrite": "unavailable",
+            "cost": "unavailable"
+          },
+          "elapsedMs": 0
+        },
+        {
+          "taskId": "incomparable-revenue",
+          "tracePath": "incomparable-revenue/trace.json",
+          "traceSha256": "3c92bf35eba85a1fd5f5d9c388e929b11df202a868d99bc85394d6108e215549",
+          "modelRequests": 0,
+          "usage": {
+            "input": "unavailable",
+            "output": "unavailable",
+            "cacheRead": "unavailable",
+            "cacheWrite": "unavailable",
+            "cost": "unavailable"
+          },
+          "elapsedMs": 0
         },
         {
           "taskId": "sec-unavailable",
-          "status": "not_executed",
-          "reason": "batch_budget_exhausted",
-          "mode": "injected_failure",
-          "inputSha256": "3b8d95ef89ce8e86873ace81da5f674fcdda2811f51b125b15da1c30bf4ed1ba",
-          "sessionId": "unavailable",
-          "traceSha256": "629e147ceb48adec065f7732ec971cc479814993e2a5b06600f4ad40d67b26cf",
-          "tools": [],
-          "finalAnswer": "",
-          "artifacts": [],
-          "datasetIds": [],
-          "modelRequests": 0,
+          "tracePath": "sec-unavailable/trace.json",
+          "traceSha256": "55ab9a058000c8a55e589301af4e2622354c266cfe795c7e0e037f0841c2cf2d",
+          "modelRequests": 2,
           "usage": {
-            "input": "unavailable",
-            "output": "unavailable",
-            "cacheRead": "unavailable",
-            "cacheWrite": "unavailable",
+            "input": 1854,
+            "output": 692,
+            "cacheRead": 768,
+            "cacheWrite": 0,
             "cost": "unavailable"
           },
-          "elapsedMs": 0
+          "elapsedMs": 15889
         },
         {
           "taskId": "judgment-evidence",
-          "status": "not_executed",
-          "reason": "batch_budget_exhausted",
+          "tracePath": "judgment-evidence/trace.json",
+          "traceSha256": "3eb0baa833c2dc78956cc0fc2e0b2af4c02256292ff4593c9bfa54697f7053bc",
+          "modelRequests": 4,
+          "usage": {
+            "input": 11021,
+            "output": 3068,
+            "cacheRead": 17920,
+            "cacheWrite": 0,
+            "cost": "unavailable"
+          },
+          "elapsedMs": 62356
+        }
+      ],
+      "scores": [
+        {
+          "taskId": "annual-aapl",
+          "mode": "live_sec",
+          "execution": "not_executed",
+          "overall": "not_applicable",
+          "dimensions": {
+            "task_completion": {
+              "status": "not_applicable",
+              "evidence": ["Task not executed."],
+              "boundary": "Deterministic structure only; natural language semantics require review."
+            },
+            "tool_behavior": {
+              "status": "not_applicable",
+              "evidence": ["Task not executed."],
+              "boundary": "Deterministic structure only; natural language semantics require review."
+            },
+            "numerical_correctness": {
+              "status": "not_applicable",
+              "evidence": ["Task not executed."],
+              "boundary": "Deterministic structure only; natural language semantics require review."
+            },
+            "evidence_integrity": {
+              "status": "not_applicable",
+              "evidence": ["Task not executed."],
+              "boundary": "Deterministic structure only; natural language semantics require review."
+            },
+            "artifact_delivery": {
+              "status": "not_applicable",
+              "evidence": ["Task not executed."],
+              "boundary": "Deterministic structure only; natural language semantics require review."
+            },
+            "failure_handling": {
+              "status": "not_applicable",
+              "evidence": ["Task not executed."],
+              "boundary": "Deterministic structure only; natural language semantics require review."
+            },
+            "judgment_boundary": {
+              "status": "not_applicable",
+              "evidence": ["Task not executed."],
+              "boundary": "Deterministic structure only; natural language semantics require review."
+            }
+          },
+          "attribution": [],
+          "review": [
+            "annual-aapl: final answer agrees with evidence",
+            "annual-aapl: links support stated conclusion"
+          ]
+        },
+        {
+          "taskId": "trend-msft",
+          "mode": "live_sec",
+          "execution": "not_executed",
+          "overall": "not_applicable",
+          "dimensions": {
+            "task_completion": {
+              "status": "not_applicable",
+              "evidence": ["Task not executed."],
+              "boundary": "Deterministic structure only; natural language semantics require review."
+            },
+            "tool_behavior": {
+              "status": "not_applicable",
+              "evidence": ["Task not executed."],
+              "boundary": "Deterministic structure only; natural language semantics require review."
+            },
+            "numerical_correctness": {
+              "status": "not_applicable",
+              "evidence": ["Task not executed."],
+              "boundary": "Deterministic structure only; natural language semantics require review."
+            },
+            "evidence_integrity": {
+              "status": "not_applicable",
+              "evidence": ["Task not executed."],
+              "boundary": "Deterministic structure only; natural language semantics require review."
+            },
+            "artifact_delivery": {
+              "status": "not_applicable",
+              "evidence": ["Task not executed."],
+              "boundary": "Deterministic structure only; natural language semantics require review."
+            },
+            "failure_handling": {
+              "status": "not_applicable",
+              "evidence": ["Task not executed."],
+              "boundary": "Deterministic structure only; natural language semantics require review."
+            },
+            "judgment_boundary": {
+              "status": "not_applicable",
+              "evidence": ["Task not executed."],
+              "boundary": "Deterministic structure only; natural language semantics require review."
+            }
+          },
+          "attribution": [],
+          "review": [
+            "trend-msft: natural language trends",
+            "trend-msft: citations support conclusions"
+          ]
+        },
+        {
+          "taskId": "missing-cash",
+          "mode": "injected_failure",
+          "execution": "not_executed",
+          "overall": "not_applicable",
+          "dimensions": {
+            "task_completion": {
+              "status": "not_applicable",
+              "evidence": ["Task not executed."],
+              "boundary": "Deterministic structure only; natural language semantics require review."
+            },
+            "tool_behavior": {
+              "status": "not_applicable",
+              "evidence": ["Task not executed."],
+              "boundary": "Deterministic structure only; natural language semantics require review."
+            },
+            "numerical_correctness": {
+              "status": "not_applicable",
+              "evidence": ["Task not executed."],
+              "boundary": "Deterministic structure only; natural language semantics require review."
+            },
+            "evidence_integrity": {
+              "status": "not_applicable",
+              "evidence": ["Task not executed."],
+              "boundary": "Deterministic structure only; natural language semantics require review."
+            },
+            "artifact_delivery": {
+              "status": "not_applicable",
+              "evidence": ["Task not executed."],
+              "boundary": "Deterministic structure only; natural language semantics require review."
+            },
+            "failure_handling": {
+              "status": "not_applicable",
+              "evidence": ["Task not executed."],
+              "boundary": "Deterministic structure only; natural language semantics require review."
+            },
+            "judgment_boundary": {
+              "status": "not_applicable",
+              "evidence": ["Task not executed."],
+              "boundary": "Deterministic structure only; natural language semantics require review."
+            }
+          },
+          "attribution": [],
+          "review": [
+            "missing-cash: answer explicitly explains missing information without invented numbers"
+          ]
+        },
+        {
+          "taskId": "incomparable-revenue",
+          "mode": "injected_failure",
+          "execution": "not_executed",
+          "overall": "not_applicable",
+          "dimensions": {
+            "task_completion": {
+              "status": "not_applicable",
+              "evidence": ["Task not executed."],
+              "boundary": "Deterministic structure only; natural language semantics require review."
+            },
+            "tool_behavior": {
+              "status": "not_applicable",
+              "evidence": ["Task not executed."],
+              "boundary": "Deterministic structure only; natural language semantics require review."
+            },
+            "numerical_correctness": {
+              "status": "not_applicable",
+              "evidence": ["Task not executed."],
+              "boundary": "Deterministic structure only; natural language semantics require review."
+            },
+            "evidence_integrity": {
+              "status": "not_applicable",
+              "evidence": ["Task not executed."],
+              "boundary": "Deterministic structure only; natural language semantics require review."
+            },
+            "artifact_delivery": {
+              "status": "not_applicable",
+              "evidence": ["Task not executed."],
+              "boundary": "Deterministic structure only; natural language semantics require review."
+            },
+            "failure_handling": {
+              "status": "not_applicable",
+              "evidence": ["Task not executed."],
+              "boundary": "Deterministic structure only; natural language semantics require review."
+            },
+            "judgment_boundary": {
+              "status": "not_applicable",
+              "evidence": ["Task not executed."],
+              "boundary": "Deterministic structure only; natural language semantics require review."
+            }
+          },
+          "attribution": [],
+          "review": [
+            "incomparable-revenue: answer rejects unreliable comparison"
+          ]
+        },
+        {
+          "taskId": "sec-unavailable",
+          "mode": "injected_failure",
+          "execution": "executed",
+          "overall": "needs_review",
+          "dimensions": {
+            "task_completion": {
+              "status": "passed",
+              "evidence": [
+                "Expected behavior is a failed fetch and truthful refusal, not a financial report."
+              ],
+              "boundary": "Deterministic structure only; natural language semantics require review."
+            },
+            "tool_behavior": {
+              "status": "passed",
+              "evidence": [
+                "Required calls, company/years, sequence and dataset binding verified.",
+                "1 mcp__miniclaw__fetch_sec_financials: failed SEC_HTTP_429"
+              ],
+              "boundary": "Deterministic structure only; natural language semantics require review."
+            },
+            "numerical_correctness": {
+              "status": "not_applicable",
+              "evidence": ["Not applicable to this scenario."],
+              "boundary": "Deterministic structure only; natural language semantics require review."
+            },
+            "evidence_integrity": {
+              "status": "not_applicable",
+              "evidence": ["Not applicable to this scenario."],
+              "boundary": "Deterministic structure only; natural language semantics require review."
+            },
+            "artifact_delivery": {
+              "status": "passed",
+              "evidence": ["No success dataset/report after injected failure."],
+              "boundary": "Deterministic structure only; natural language semantics require review."
+            },
+            "failure_handling": {
+              "status": "passed",
+              "evidence": [
+                "Recorded SEC_HTTP_429; structured failure status and limitations checked. Explanation semantics remain manual."
+              ],
+              "boundary": "Deterministic structure only; natural language semantics require review."
+            },
+            "judgment_boundary": {
+              "status": "needs_review",
+              "evidence": [
+                "Filing body was not read; normalized labels and response declarations do not establish natural language truth."
+              ],
+              "boundary": "Manual reviewer must read final answer, findings and cited evidence. No keyword-based semantic score."
+            }
+          },
+          "attribution": [
+            "External-service behavior is intentionally injected; this is not a real SEC outage."
+          ],
+          "review": ["sec-unavailable: failure explanation truthful and useful"]
+        },
+        {
+          "taskId": "judgment-evidence",
           "mode": "snapshot",
-          "inputSha256": "daf934090b0feae53350d63f9fac27cc968e7e68eb10ff8b1fec5e3b47eb1910",
-          "sessionId": "unavailable",
-          "traceSha256": "1f2708e877b2335134fd9e313f09cf08b3502dfba5cd532b0c92234a097ec42f",
+          "execution": "executed",
+          "overall": "needs_review",
+          "dimensions": {
+            "task_completion": {
+              "status": "passed",
+              "evidence": [
+                "Scenario-specific expected data behavior verified.",
+                "Final response envelope available."
+              ],
+              "boundary": "Deterministic structure only; natural language semantics require review."
+            },
+            "tool_behavior": {
+              "status": "passed",
+              "evidence": [
+                "Required calls, company/years, sequence and dataset binding verified.",
+                "1 mcp__miniclaw__fetch_sec_financials: succeeded",
+                "2 mcp__miniclaw__save_sec_report: failed TOOL_ERROR",
+                "3 mcp__miniclaw__save_sec_report: succeeded"
+              ],
+              "boundary": "Deterministic structure only; natural language semantics require review."
+            },
+            "numerical_correctness": {
+              "status": "passed",
+              "evidence": [
+                "All metric values, periods, provenance and comparable YoY recomputed from raw."
+              ],
+              "boundary": "Recomputes stored SEC input, not the truth or completeness of public filings; final prose is not numerically parsed."
+            },
+            "evidence_integrity": {
+              "status": "passed",
+              "evidence": [
+                "Current dataset evidence and code facts reconstructed; finding references/classification validated."
+              ],
+              "boundary": "Valid association does not prove a qualitative conclusion is supported."
+            },
+            "artifact_delivery": {
+              "status": "passed",
+              "evidence": [
+                "Required files exist, trace SHA-256 matches, existing SEC audit passes including canonical report/chart."
+              ],
+              "boundary": "Deterministic structure only; natural language semantics require review."
+            },
+            "failure_handling": {
+              "status": "not_applicable",
+              "evidence": ["Not applicable to this scenario."],
+              "boundary": "Deterministic structure only; natural language semantics require review."
+            },
+            "judgment_boundary": {
+              "status": "needs_review",
+              "evidence": [
+                "Filing body was not read; normalized labels and response declarations do not establish natural language truth."
+              ],
+              "boundary": "Manual reviewer must read final answer, findings and cited evidence. No keyword-based semantic score."
+            }
+          },
+          "attribution": [],
+          "review": [
+            "judgment-evidence: causal and solvency semantics",
+            "judgment-evidence: answer does not claim filing body read",
+            "judgment-evidence: limitations sufficient"
+          ]
+        }
+      ],
+      "budget": {
+        "requests": 6,
+        "chargedRequests": 6,
+        "priorReservation": {
+          "requests": 0,
+          "output": 0
+        },
+        "knownOutputTokens": 3760,
+        "chargedOutputTokens": 3760,
+        "usageUnavailable": false,
+        "exhausted": true,
+        "cost": "unavailable"
+      },
+      "tasks": [
+        {
+          "status": "not_executed",
           "tools": [],
           "finalAnswer": "",
           "artifacts": [],
@@ -1867,7 +3408,237 @@
             "cacheWrite": "unavailable",
             "cost": "unavailable"
           },
-          "elapsedMs": 0
+          "elapsedMs": 0,
+          "reason": "not_selected",
+          "sessionId": "unavailable",
+          "inputSha256": "unavailable",
+          "taskId": "annual-aapl",
+          "mode": "live_sec",
+          "traceSha256": "a1a034af500ae91a9b7d30de0f0b1fdfff5fdfa45c07c8232235d64304495462"
+        },
+        {
+          "status": "not_executed",
+          "tools": [],
+          "finalAnswer": "",
+          "artifacts": [],
+          "datasetIds": [],
+          "modelRequests": 0,
+          "usage": {
+            "input": "unavailable",
+            "output": "unavailable",
+            "cacheRead": "unavailable",
+            "cacheWrite": "unavailable",
+            "cost": "unavailable"
+          },
+          "elapsedMs": 0,
+          "reason": "not_selected",
+          "sessionId": "unavailable",
+          "inputSha256": "unavailable",
+          "taskId": "trend-msft",
+          "mode": "live_sec",
+          "traceSha256": "fc8f7c7747bbdbef6ea3bd2d06749c30b300b661a2802e6948f9199f46d98df2"
+        },
+        {
+          "status": "not_executed",
+          "tools": [],
+          "finalAnswer": "",
+          "artifacts": [],
+          "datasetIds": [],
+          "modelRequests": 0,
+          "usage": {
+            "input": "unavailable",
+            "output": "unavailable",
+            "cacheRead": "unavailable",
+            "cacheWrite": "unavailable",
+            "cost": "unavailable"
+          },
+          "elapsedMs": 0,
+          "reason": "not_selected",
+          "sessionId": "unavailable",
+          "inputSha256": "unavailable",
+          "taskId": "missing-cash",
+          "mode": "injected_failure",
+          "traceSha256": "881092dc31bcfbe6497961254c2998f1c06addf992281a9122efc5e23500d953"
+        },
+        {
+          "status": "not_executed",
+          "tools": [],
+          "finalAnswer": "",
+          "artifacts": [],
+          "datasetIds": [],
+          "modelRequests": 0,
+          "usage": {
+            "input": "unavailable",
+            "output": "unavailable",
+            "cacheRead": "unavailable",
+            "cacheWrite": "unavailable",
+            "cost": "unavailable"
+          },
+          "elapsedMs": 0,
+          "reason": "not_selected",
+          "sessionId": "unavailable",
+          "inputSha256": "unavailable",
+          "taskId": "incomparable-revenue",
+          "mode": "injected_failure",
+          "traceSha256": "3c92bf35eba85a1fd5f5d9c388e929b11df202a868d99bc85394d6108e215549"
+        },
+        {
+          "status": "executed",
+          "tools": [
+            {
+              "order": 1,
+              "id": "chatcmpl-tool-b0f599f7bfe163b1",
+              "name": "mcp__miniclaw__fetch_sec_financials",
+              "args": {
+                "company": "0000789019",
+                "years": 1
+              },
+              "status": "failed",
+              "errorCode": "SEC_HTTP_429"
+            }
+          ],
+          "finalAnswer": "{\n  \"status\": \"failed\",\n  \"dataMode\": \"injected_failure\",\n  \"filingBodyRead\": false,\n  \"summary\": \"调用 fetch_sec_financials（company=0000789019, years=1）在 SecFetch 边界返回明确注入的 SEC HTTP 429 限流错误；未联网、未产生任何成功数据，也未生成或保存任何报告或指标文件，因此 Microsoft 单年度财务资料未能交付。\",\n  \"limitations\": [\n    \"SEC 官方数据源在本次会话被注入 HTTP 429 限流，无法获取 0000789019（Microsoft）的年度财务数据、原始 JSON、指标或图表，工作区内无对应交付物\",\n    \"未读取任何 filing 正文，未核验任何财务事实、因果或定性解释\",\n    \"按注入说明不重试该数据源故障、不切换模拟数据、不伪造成功或保存成功报告\",\n    \"下一步：脱离 injected_failure 模式且网络可用后重新调用 fetch_sec_financials，再按需调用 save_sec_report 生成带证据报告\"\n  ],\n  \"artifacts\": []\n}",
+          "artifacts": [],
+          "datasetIds": [],
+          "modelRequests": 2,
+          "usage": {
+            "input": 1854,
+            "output": 692,
+            "cacheRead": 768,
+            "cacheWrite": 0,
+            "cost": "unavailable"
+          },
+          "elapsedMs": 15889,
+          "stopReason": "stop",
+          "knownUsage": {
+            "input": 1854,
+            "output": 692,
+            "cacheRead": 768,
+            "cacheWrite": 0
+          },
+          "sessionId": "01a0fcdc-7056-7ba3-8635-7d0fb73eadee",
+          "inputSha256": "3b8d95ef89ce8e86873ace81da5f674fcdda2811f51b125b15da1c30bf4ed1ba",
+          "taskId": "sec-unavailable",
+          "mode": "injected_failure",
+          "traceSha256": "55ab9a058000c8a55e589301af4e2622354c266cfe795c7e0e037f0841c2cf2d"
+        },
+        {
+          "status": "executed",
+          "tools": [
+            {
+              "order": 1,
+              "id": "chatcmpl-tool-9c9aa5cc4994d4a1",
+              "name": "mcp__miniclaw__fetch_sec_financials",
+              "args": {
+                "company": "0000789019",
+                "years": 1
+              },
+              "status": "succeeded",
+              "datasetId": "0000789019-9748f2c1-86df-4c00-bdf3-3c40ffec430c"
+            },
+            {
+              "order": 2,
+              "id": "chatcmpl-tool-ba9f4a39babbc110",
+              "name": "mcp__miniclaw__save_sec_report",
+              "args": {
+                "dataset_id": "0000789019-9748f2c1-86df-4c00-bdf3-3c40ffec430c",
+                "findings": [
+                  {
+                    "type": "unverified",
+                    "content": "微软本期营收、净利润与经营现金流同比均增长，现金及总负债亦同向变动；但营收增长的具体业务驱动与偿债能力强弱判断尚未经申报正文核验，暂列为待验证判断。",
+                    "evidence_ids": [
+                      "0000789019-9748f2c1-86df-4c00-bdf3-3c40ffec430c:revenue:current",
+                      "0000789019-9748f2c1-86df-4c00-bdf3-3c40ffec430c:revenue:previous",
+                      "0000789019-9748f2c1-86df-4c00-bdf3-3c40ffec430c:netIncome:current",
+                      "0000789019-9748f2c1-86df-4c00-bdf3-3c40ffec430c:netIncome:"
+                    ]
+                  }
+                ]
+              },
+              "status": "failed",
+              "errorCode": "TOOL_ERROR"
+            },
+            {
+              "order": 3,
+              "id": "chatcmpl-tool-a4e924e7ad63f0fe",
+              "name": "mcp__miniclaw__save_sec_report",
+              "args": {
+                "findings": [
+                  {
+                    "type": "unverified",
+                    "content": "微软本期营收、净利润与经营现金流同比均增长，现金及总负债亦同向变动；但营收增长的具体业务驱动与偿债能力强弱判断尚未经申报正文核验，暂列为待验证判断。",
+                    "evidence_ids": [
+                      "0000789019-9748f2c1-86df-4c00-bdf3-3c40ffec430c:revenue:current",
+                      "0000789019-9748f2c1-86df-4c00-bdf3-3c40ffec430c:revenue:previous",
+                      "0000789019-9748f2c1-86df-4c00-bdf3-3c40ffec430c:netIncome:current",
+                      "0000789019-9748f2c1-86df-4c00-bdf3-3c40ffec430c:netIncome:previous",
+                      "0000789019-9748f2c1-86df-4c00-bdf3-3c40ffec430c:operatingCashFlow:current",
+                      "0000789019-9748f2c1-86df-4c00-bdf3-3c40ffec430c:operatingCashFlow:previous",
+                      "0000789019-9748f2c1-86df-4c00-bdf3-3c40ffec430c:cash:current",
+                      "0000789019-9748f2c1-86df-4c00-bdf3-3c40ffec430c:cash:previous",
+                      "0000789019-9748f2c1-86df-4c00-bdf3-3c40ffec430c:liabilities:current",
+                      "0000789019-9748f2c1-86df-4c00-bdf3-3c40ffec430c:liabilities:previous"
+                    ],
+                    "limitations": [
+                      "未读取10-K申报正文，无法核验营收增长的业务或板块驱动因素",
+                      "快照未提供分部收入、产品线收入或客户集中度等拆分数据",
+                      "偿债能力判断缺少有息债务构成、到期结构、利率约定及利息保障倍数信息",
+                      "现金指标不含短期投资与受限现金，流动负债明细与流动比率无法直接计算",
+                      "因果解释超出公司整体汇总指标的证明范围，需正文MD&A与管理层讨论佐证"
+                    ]
+                  }
+                ],
+                "dataset_id": "0000789019-9748f2c1-86df-4c00-bdf3-3c40ffec430c"
+              },
+              "status": "succeeded",
+              "saved": true
+            }
+          ],
+          "finalAnswer": "{\"status\":\"completed\",\"dataMode\":\"snapshot\",\"filingBodyRead\":false,\"summary\":\"已基于固定 SEC 快照（Microsoft CIK 0000789019，FY2025-07-01 至 2026-06-30）提取公司整体汇总指标并保存证据报告；营收同比、净利润、经营现金流、现金及总负债同比数值均取自工具代码事实，但营收增长原因与偿债能力判断未读取申报正文、未做因果核验，报告中作为单条待验证判断（unverified）登记。\",\"limitations\":[\"未读取10-K申报正文，无法核验营收增长的业务或板块驱动因素\",\"快照未提供分部收入、产品线收入或客户集中度等拆分数据\",\"偿债能力判断缺少有息债务构成、到期结构、利率约定及利息保障倍数信息\",\"现金指标不含短期投资与受限现金，流动负债明细与流动比率无法直接计算\",\"因果解释超出公司整体汇总指标的证明范围，需正文MD&A与管理层讨论佐证\"],\"artifacts\":[\"financial-research/0000789019-9748f2c1-86df-4c00-bdf3-3c40ffec430c/report.md\",\"financial-research/0000789019-9748f2c1-86df-4c00-bdf3-3c40ffec430c/findings.json\",\"financial-research/0000789019-9748f2c1-86df-4c00-bdf3-3c40ffec430c/metrics.json\",\"financial-research/0000789019-9748f2c1-86df-4c00-bdf3-3c40ffec430c/raw.json\"]}",
+          "artifacts": [
+            {
+              "path": "financial-research/0000789019-9748f2c1-86df-4c00-bdf3-3c40ffec430c/findings.json",
+              "sha256": "0b86041059f0b3c8d36419573bf2023571a417b84c42a0eb2336715310d2ef32"
+            },
+            {
+              "path": "financial-research/0000789019-9748f2c1-86df-4c00-bdf3-3c40ffec430c/manifest.json",
+              "sha256": "27bff1495a6c0f54abd1d31598821a31a9d1288af2e08439a94deed234b80d34"
+            },
+            {
+              "path": "financial-research/0000789019-9748f2c1-86df-4c00-bdf3-3c40ffec430c/metrics.json",
+              "sha256": "2e985732dfd1a9ed255730c1f80545a0f4309606e801b56f8d646e433b80f8a4"
+            },
+            {
+              "path": "financial-research/0000789019-9748f2c1-86df-4c00-bdf3-3c40ffec430c/raw.json",
+              "sha256": "c920ce67b8d279aa782b19b2719427e8c5d07fd56a4763c1b7d04b38a04d76a2"
+            },
+            {
+              "path": "financial-research/0000789019-9748f2c1-86df-4c00-bdf3-3c40ffec430c/report.md",
+              "sha256": "e6d4ba0e07bd1b0378e266bb4ef37c16e6f177cf50426e5512bc1b4c806848fd"
+            }
+          ],
+          "datasetIds": ["0000789019-9748f2c1-86df-4c00-bdf3-3c40ffec430c"],
+          "modelRequests": 4,
+          "usage": {
+            "input": 11021,
+            "output": 3068,
+            "cacheRead": 17920,
+            "cacheWrite": 0,
+            "cost": "unavailable"
+          },
+          "elapsedMs": 62356,
+          "stopReason": "stop",
+          "knownUsage": {
+            "input": 11021,
+            "output": 3068,
+            "cacheRead": 17920,
+            "cacheWrite": 0
+          },
+          "sessionId": "01a0fcdc-ae5d-79e9-9fbf-63298d24323c",
+          "inputSha256": "daf934090b0feae53350d63f9fac27cc968e7e68eb10ff8b1fec5e3b47eb1910",
+          "taskId": "judgment-evidence",
+          "mode": "snapshot",
+          "traceSha256": "3eb0baa833c2dc78956cc0fc2e0b2af4c02256292ff4593c9bfa54697f7053bc"
         }
       ]
     }

@@ -140,7 +140,7 @@ FinTrace 通过现有 Pi 工具机制提供 SEC 年度财务采集、指标计�
 
 最小 Agent Benchmark 包含六项任务，评价真实 Agent 工具行为、证据与文件交付，异常任务按合理失败处理评分；不把单元测试数量当作成绩。离线复核 `npm run benchmark -- score --batch=<batch>`；显式真实执行 `npm run benchmark -- run --live --batch=<new-batch>`，默认整轮最多 24 次请求、18,000 输出 token。支持 `--task=<id>` 定向执行/复核与 `summarize` 汇总；任务、评分边界与复现说明见 [Agent Benchmark](docs/AGENT-BENCHMARK.md)。CI 仅运行 `npm run test:benchmark` 离线测试。
 
-本次实测：在线单年度与三年任务已交付，缺失数据任务完成但待语义复核，不可比任务在预算内输出截断；限流与解释证据不足两项因预算停止未执行。未执行不记通过，完整记录见 [本次 Benchmark 结果](docs/AGENT-BENCHMARK-RESULTS.md)。
+本次六项均已真实运行：在线单年度与三年交付完成，五项确定性结构验收通过但待人工语义复核，一项不可比任务因预算内截断而交付失败。限流/证据不足两项经明确追加预算授权完成；原失败与预算停止记录保留。证据不足报告的方向表述已发现错误，不能把结构通过当成语义通过。完整记录及消耗见 [本次 Benchmark 结果](docs/AGENT-BENCHMARK-RESULTS.md)。
 
 ```bash
 # 前端契约与路由测试

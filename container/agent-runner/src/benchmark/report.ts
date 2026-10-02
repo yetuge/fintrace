@@ -1,5 +1,14 @@
 import type { Score, Trace } from './types.js';
 import { dimensions } from './score.js';
+/** Argument order determines precedence; never select the best score or hide a later budget stop. */
+export function selectBatchRecords<T extends { trace: Trace }>(records: T[]) {
+  const selected = new Map<string, T>();
+  for (const record of records) {
+    if (record.trace.reason !== 'not_selected')
+      selected.set(record.trace.task.id, record);
+  }
+  return selected;
+}
 export function usageTotals(traces: Trace[]) {
   const sum = (field: 'modelRequests' | 'elapsedMs') => ({
     known: traces.reduce(
@@ -75,7 +84,7 @@ export function markdownReport(
     '# FinTrace 最小 Agent Benchmark',
     '',
     `元数据：\`${JSON.stringify(metadata)}\``,
-    `本批可得用量汇总：\`${JSON.stringify(usageTotals(traces))}\`。未知部分不估算；跨批预算预留见元数据及 budget.json。`,
+    `所列任务记录的可得用量汇总：\`${JSON.stringify(usageTotals(traces))}\`。跨批汇总时这是所选记录用量，全部尝试的消耗另见元数据 allRunUsage / inputs；未知部分不估算，预算预留不是实际用量。`,
     '',
     '评价 Agent 行为与任务结果；单元测试数量不是成绩。仅代表本次六项小样本，不推出普遍成功率或模型/框架优越性。',
     '',

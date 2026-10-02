@@ -1,4 +1,3 @@
-import '../src/load-env.js';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
@@ -13,7 +12,9 @@ import {
 } from '../container/agent-runner/src/benchmark/score.js';
 import {
   markdownReport,
+  selectBatchRecords,
   summarize,
+  usageTotals,
 } from '../container/agent-runner/src/benchmark/report.js';
 import type {
   Task,
@@ -49,6 +50,135 @@ const taskSetSchema = z.object({
   tasks: z.array(taskSchema).length(6),
 });
 async function main() {
+  if (command === 'summarize' && value('batches')) {
+    const batches = value('batches')!.split(',');
+    if (
+      batches.length > 8 ||
+      new Set(batches).size !== batches.length ||
+      batches.some((id) => !/^[a-zA-Z0-9-]+$/.test(id))
+    )
+      throw new Error('Safe batch IDs required');
+    const candidates: { trace: Trace; batch: string; traceSha256: string }[] =
+      [];
+    const inputs: Record<string, unknown>[] = [];
+    let contractHash: string | undefined;
+    let taskOrder: string[] = [];
+    for (const batch of batches) {
+      const dir = path.join(root, 'data/agent-benchmark', batch);
+      const bytes = await fs.readFile(path.join(dir, 'task-set.json'));
+      const contract = taskSetSchema.parse(JSON.parse(bytes.toString()));
+      const metadata = JSON.parse(
+        await fs.readFile(path.join(dir, 'metadata.json'), 'utf8'),
+      );
+      assert.equal(hash(bytes), metadata.taskSetSha256);
+      assert.equal(metadata.batch, batch);
+      if (contractHash)
+        assert.equal(hash(bytes), contractHash, 'Task set versions differ');
+      contractHash = hash(bytes);
+      taskOrder = contract.tasks.map((t) => t.id);
+      const batchTraces: Trace[] = [];
+      for (const task of contract.tasks) {
+        const traceBytes = await fs.readFile(
+          await within(dir, `${task.id}/trace.json`),
+        );
+        const trace = JSON.parse(traceBytes.toString()) as Trace;
+        assert.deepEqual(trace.task, task);
+        assert.equal(trace.taskSetSha256, contractHash);
+        assert.equal(trace.taskSetVersion, contract.version);
+        batchTraces.push(trace);
+        candidates.push({
+          trace,
+          batch,
+          traceSha256: hash(traceBytes),
+        });
+      }
+      inputs.push({
+        ...metadata,
+        budgetLedger: JSON.parse(
+          await fs.readFile(path.join(dir, 'budget.json'), 'utf8'),
+        ),
+        usageTotals: usageTotals(batchTraces),
+      });
+    }
+    const selection = selectBatchRecords(candidates);
+    const records = taskOrder.map((id) => {
+      const r = selection.get(id);
+      if (!r) throw new Error('Missing selected task');
+      return r;
+    });
+    const scores = await Promise.all(
+      records.map((r) =>
+        scoreTrace(
+          r.trace,
+          path.join(
+            root,
+            'data/agent-benchmark',
+            r.batch,
+            r.trace.task.id,
+            'workspace',
+          ),
+        ),
+      ),
+    );
+    const metadata = {
+      kind: 'multi_batch_summary',
+      createdAt: new Date().toISOString(),
+      batches,
+      taskSetSha256: contractHash,
+      inputs,
+      selectionRule:
+        'Last listed batch excluding not_selected, never best score; original failures and budget stops retained in source batches. Supply batches chronologically.',
+      sourceBatches: Object.fromEntries(
+        records.map((r) => [r.trace.task.id, r.batch]),
+      ),
+      scoringGitCommit: execFileSync('git', ['rev-parse', 'HEAD'], {
+        cwd: root,
+        encoding: 'utf8',
+      }).trim(),
+      scoringDirty: !!execFileSync('git', ['status', '--porcelain'], {
+        cwd: root,
+        encoding: 'utf8',
+      }).trim(),
+      allRunUsage: usageTotals(candidates.map((r) => r.trace)),
+    };
+    const output = path.join(
+      root,
+      'data/agent-benchmark',
+      `summary-${new Date().toISOString().replace(/[:.]/g, '-')}`,
+    );
+    await fs.mkdir(output);
+    const result = {
+      metadata,
+      summary: summarize(scores),
+      scores,
+      traces: records.map((r) => ({
+        taskId: r.trace.task.id,
+        sourceBatch: r.batch,
+        traceSha256: r.traceSha256,
+        modelRequests: r.trace.modelRequests,
+        usage: r.trace.usage,
+        elapsedMs: r.trace.elapsedMs,
+      })),
+    };
+    await fs.writeFile(
+      path.join(output, 'result.json'),
+      JSON.stringify(result, null, 2) + '\n',
+      { flag: 'wx' },
+    );
+    await fs.writeFile(
+      path.join(output, 'report.md'),
+      markdownReport(
+        metadata,
+        records.map((r) => r.trace),
+        scores,
+      ),
+      { flag: 'wx' },
+    );
+    console.log(
+      `Report: ${path.relative(root, output).replaceAll(path.sep, '/')}/report.md`,
+    );
+    return;
+  }
   if (command === 'audit') {
     const directory = value('research');
     if (!directory) throw new Error('research path required');
@@ -61,7 +191,7 @@ async function main() {
   }
   if (!['run', 'score', 'summarize', 'list', 'recover'].includes(command))
     throw new Error(
-      'Use list | run --live [--task=id] [--batch=id] | score --batch=id [--task=id] | summarize --batch=id | audit --research=directory',
+      'Use list | run --live [--task=id] [--batch=id] | score --batch=id [--task=id] | summarize --batch=id or --batches=id1,id2 | audit --research=directory',
     );
   const taskSetBytes = await fs.readFile(
     path.join(root, 'benchmarks/tasks.json'),
@@ -89,6 +219,7 @@ async function main() {
   if (selected && !taskSet.tasks.some((t) => t.id === selected))
     throw new Error('Unknown task ID');
   if (command === 'run') {
+    await import('../src/load-env.js');
     if (!args.includes('--live'))
       throw new Error(
         'Real model execution requires --live; snapshot tasks also use a real model.',
@@ -383,14 +514,18 @@ async function main() {
   const result = {
     metadata,
     summary: summarize(scores),
-    traces: traces.map((t) => ({
-      taskId: t.task.id,
-      tracePath: `${t.task.id}/trace.json`,
-      traceSha256: hash(JSON.stringify(t)),
-      modelRequests: t.modelRequests,
-      usage: t.usage,
-      elapsedMs: t.elapsedMs,
-    })),
+    traces: await Promise.all(
+      traces.map(async (t) => ({
+        taskId: t.task.id,
+        tracePath: `${t.task.id}/trace.json`,
+        traceSha256: hash(
+          await fs.readFile(path.join(batchDir, t.task.id, 'trace.json')),
+        ),
+        modelRequests: t.modelRequests,
+        usage: t.usage,
+        elapsedMs: t.elapsedMs,
+      })),
+    ),
     scores,
   };
   if (command === 'summarize')
