@@ -16,6 +16,7 @@ import {
 } from './sec-evidence.js';
 import { renderSecReport } from './sec-tools.js';
 import type { RawResponse } from './sec-client.js';
+import { withDataContext } from './sec-data-context.js';
 import { extractAnnualTrends } from './sec-trends.js';
 import {
   buildTrendChartData,
@@ -55,14 +56,22 @@ export async function auditSecArtifacts(directory: string) {
       );
     });
   if (data.schemaVersion === 3) {
-    const rebuilt = extractAnnualTrends(
-      facts,
-      filings,
-      data.company.tickers,
-      data.fetchedAt,
-      data.asOf,
-      data.sources,
-      data.datasetId,
+    const rebuilt = withDataContext(
+      extractAnnualTrends(
+        facts,
+        filings,
+        data.company.tickers,
+        data.fetchedAt,
+        data.asOf,
+        data.sources,
+        data.datasetId,
+      ),
+      JSON.parse(raw).dataContext,
+    );
+    assert.deepEqual(
+      manifest.dataContext,
+      rebuilt.dataContext,
+      'input data mode provenance',
     );
     assert.equal(manifest.schemaVersion, 3);
     assert.equal(manifest.datasetId, data.datasetId);
@@ -135,13 +144,21 @@ export async function auditSecArtifacts(directory: string) {
       reportSha256: hash(report),
     };
   }
-  const recomputed = extractFinancials(
-    facts,
-    filings,
-    data.company.tickers,
-    data.fetchedAt,
-    data.asOf,
-    data.sources,
+  const recomputed = withDataContext(
+    extractFinancials(
+      facts,
+      filings,
+      data.company.tickers,
+      data.fetchedAt,
+      data.asOf,
+      data.sources,
+    ),
+    JSON.parse(raw).dataContext,
+  );
+  assert.deepEqual(
+    manifest.dataContext,
+    recomputed.dataContext,
+    'input data mode provenance',
   );
   const numeric = (d: FinancialDataset) => ({
     company: d.company,

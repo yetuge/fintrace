@@ -36,6 +36,7 @@ export interface AnnualEvidence extends SelectedValue {
   currency: string;
 }
 export interface TrendDataset {
+  dataContext?: import('./sec-data-context.js').SecDataContext;
   schemaVersion: 3;
   datasetId: string;
   company: { cik: string; name: string; tickers: string[] };

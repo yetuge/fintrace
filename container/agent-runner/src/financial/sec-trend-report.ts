@@ -1,6 +1,7 @@
 /** Charts and report are deterministic functions of structured metrics. */
 import { comparableAnnual, type TrendDataset } from './sec-trends.js';
 import type { Finding } from './sec-evidence.js';
+import { dataContextBanner } from './sec-data-context.js';
 const xml = (s: string) =>
   s.replace(
     /[&<>"']/g,
@@ -128,7 +129,7 @@ export function renderTrendReport(
 ): string {
   const evidenceRef = (id: string) =>
     `[${id}](#evidence-${data.evidence.findIndex((e) => e.id === id) + 1})`;
-  return [
+  const report = [
     `# ${md(data.company.name)} 最近三个完整财年趋势分析`,
     '',
     `CIK：${data.company.cik}；股票代码：${data.company.tickers.map(md).join(', ')}；结构版本：3。`,
@@ -203,4 +204,5 @@ export function renderTrendReport(
     ...data.sources.map((s) => `- [SEC JSON](${s})`),
     '',
   ].join('\n');
+  return dataContextBanner(data.dataContext) + report;
 }

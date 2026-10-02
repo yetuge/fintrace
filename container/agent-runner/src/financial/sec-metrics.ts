@@ -168,6 +168,7 @@ export function calculateYoy(
     : { percent: null, reason: '计算结果超出数值范围' };
 }
 export interface FinancialDataset {
+  dataContext?: import('./sec-data-context.js').SecDataContext;
   schemaVersion: 1;
   company: { cik: string; name: string; tickers: string[] };
   fetchedAt: string;

@@ -38,6 +38,7 @@ jobs:
         env:
           # Deterministic tests inject their transport; no local configuration.
           SEC_RUNTIME_DIR: ${{ runner.temp }}/fintrace-sec-unconfigured
+      - run: npm run test:benchmark
       - run: npx vitest run tests/main-session.test.ts tests/routes-agents-acl.test.ts
       - run: npm --prefix container/agent-runner run build
       - run: npm run build

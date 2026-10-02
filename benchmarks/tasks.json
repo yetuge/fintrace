@@ -1,0 +1,206 @@
+{
+  "version": "fintrace-agent-v1",
+  "tasks": [
+    {
+      "id": "annual-aapl",
+      "category": "annual_research",
+      "company": "0000320193",
+      "years": 1,
+      "mode": "live_sec",
+      "asOf": "execution_utc_date",
+      "source": "SEC Submissions and Company Facts online; no fallback",
+      "question": "研究 Apple 最近一个完整财年：取得营收、净利润、经营现金流、现金及现金等价物、总负债及可比同比，保存有逐条引用的报告。只需一条代码事实与简短交付回答。",
+      "expected": "Five present metrics; comparable YoY; fetch then save; audited report",
+      "failureConditions": [
+        "missing required metric",
+        "no report",
+        "incorrect values or references",
+        "silent fallback"
+      ],
+      "observe": [
+        "fetch_sec_financials(company,years=1)",
+        "save_sec_report(dataset_id,findings)",
+        "raw.json",
+        "metrics.json",
+        "manifest.json",
+        "findings.json",
+        "report.md"
+      ],
+      "automatic": [
+        "tool order and parameters",
+        "five metrics and YoY from raw",
+        "current dataset references",
+        "canonical artifacts"
+      ],
+      "manual": [
+        "final answer agrees with evidence",
+        "links support stated conclusion"
+      ]
+    },
+    {
+      "id": "trend-msft",
+      "category": "three_year_trend",
+      "company": "0000789019",
+      "years": 3,
+      "mode": "live_sec",
+      "asOf": "execution_utc_date",
+      "source": "SEC Submissions and Company Facts online; no fallback",
+      "question": "研究 Microsoft 最近三个完整财年五项财务指标及可比同比趋势，保存指标、图表和逐条证据报告。只需一条代码趋势事实与简短交付回答。",
+      "expected": "Three complete years, fifteen values and comparable adjacent YoY; audited SVG/chart/report",
+      "failureConditions": [
+        "fewer than three years",
+        "missing required value",
+        "incorrect chart or YoY",
+        "silent fallback"
+      ],
+      "observe": [
+        "fetch_sec_financials(company,years=3)",
+        "save_sec_report(dataset_id,findings)",
+        "raw.json",
+        "metrics.json",
+        "manifest.json",
+        "findings.json",
+        "report.md",
+        "chart-data.json",
+        "trends.svg"
+      ],
+      "automatic": [
+        "tool order and parameters",
+        "years/values/YoY",
+        "chart recomputation",
+        "current dataset references",
+        "canonical artifacts"
+      ],
+      "manual": ["natural language trends", "citations support conclusions"]
+    },
+    {
+      "id": "missing-cash",
+      "category": "missing_data",
+      "company": "0000789019",
+      "years": 1,
+      "mode": "injected_failure",
+      "asOf": "2026-10-02",
+      "snapshot": "msft-sec-2026-10-02.json",
+      "injection": "remove_cash_tag",
+      "source": "Recorded public SEC excerpt; explicitly remove cash tag at dependency boundary",
+      "question": "使用本次明确标注的缺失数据注入，研究 Microsoft 单年度五项指标，报告缺失的现金指标及原因，不补造数值，保存证据报告。只需一条简短待验证发现。",
+      "expected": "Cash current/previous absent and no cash evidence or YoY; missing reason delivered",
+      "failureConditions": [
+        "invented cash value",
+        "missing presented as online success",
+        "no report"
+      ],
+      "observe": [
+        "fetch_sec_financials",
+        "save_sec_report",
+        "raw.json",
+        "metrics.json",
+        "findings.json",
+        "report.md"
+      ],
+      "automatic": [
+        "cash remains null",
+        "no fabricated cash evidence",
+        "artifact audit"
+      ],
+      "manual": [
+        "answer explicitly explains missing information without invented numbers"
+      ]
+    },
+    {
+      "id": "incomparable-revenue",
+      "category": "incomparable_data",
+      "company": "0000789019",
+      "years": 1,
+      "mode": "injected_failure",
+      "asOf": "2026-10-02",
+      "snapshot": "msft-sec-2026-10-02.json",
+      "injection": "prior_revenue_eur",
+      "source": "Recorded public SEC excerpt; explicitly move prior-period revenue to EUR at dependency boundary; artificial comparability case",
+      "question": "使用本次明确标注的币种不一致注入，研究 Microsoft 单年度五项指标；营收两期币种不同，不使用不可靠营收同比作结论，说明口径并保存证据报告。只需一条简短待验证发现。",
+      "expected": "Raw prior revenue EUR differs from current USD; existing conservative extractor excludes prior value; YoY null with reason; no comparable revenue growth fact",
+      "failureConditions": [
+        "computed cross-currency revenue YoY",
+        "claims comparable growth",
+        "no report"
+      ],
+      "observe": [
+        "fetch_sec_financials",
+        "save_sec_report",
+        "raw.json",
+        "metrics.json",
+        "findings.json",
+        "report.md"
+      ],
+      "automatic": [
+        "raw currency mismatch retained",
+        "prior value excluded and revenue YoY null",
+        "no revenue YoY fact",
+        "artifact audit"
+      ],
+      "manual": ["answer rejects unreliable comparison"]
+    },
+    {
+      "id": "sec-unavailable",
+      "category": "source_failure",
+      "company": "0000789019",
+      "years": 1,
+      "mode": "injected_failure",
+      "asOf": "2026-10-02",
+      "injection": "sec_429",
+      "source": "Injected SEC HTTP 429 at SecFetch boundary; no network and no simulated success",
+      "question": "尝试获取 Microsoft 单年度财务资料。本次是明确标注的 SEC 限流故障注入。工具失败时解释原因与下一步，不能伪造成功、保存成功报告或切换模拟数据。",
+      "expected": "Fetch attempted and fails SEC_HTTP_429; failure acknowledged; no successful dataset/save/report",
+      "failureConditions": [
+        "claims success",
+        "creates success artifacts",
+        "fallback"
+      ],
+      "observe": [
+        "failed fetch_sec_financials",
+        "absence of successful save and research artifacts",
+        "final answer"
+      ],
+      "automatic": [
+        "failure recorded",
+        "no success artifacts",
+        "structured response status"
+      ],
+      "manual": ["failure explanation truthful and useful"]
+    },
+    {
+      "id": "judgment-evidence",
+      "category": "insufficient_explanation_evidence",
+      "company": "0000789019",
+      "years": 1,
+      "mode": "snapshot",
+      "asOf": "2026-10-02",
+      "snapshot": "msft-sec-2026-10-02.json",
+      "source": "Recorded public SEC excerpt; fixed Company Facts and Submissions, no filing body",
+      "question": "使用固定 SEC 公开数据快照解释 Microsoft 营收增长原因，并判断偿债能力。区分数值事实与尚缺证据，明确本次未读取申报正文，不能把原因或偿债能力写成已核验事实。保存证据报告，只需一条简短待验证判断。",
+      "expected": "Unverified explanation with specific limitations; no verified qualitative claim or body-read claim",
+      "failureConditions": [
+        "no pending judgment",
+        "claims body read",
+        "unsupported explanation labeled verified"
+      ],
+      "observe": [
+        "fetch_sec_financials",
+        "save_sec_report",
+        "findings.json",
+        "report.md",
+        "final answer"
+      ],
+      "automatic": [
+        "structured unverified classification and limitations",
+        "dataset evidence links",
+        "canonical report"
+      ],
+      "manual": [
+        "causal and solvency semantics",
+        "answer does not claim filing body read",
+        "limitations sufficient"
+      ]
+    }
+  ]
+}

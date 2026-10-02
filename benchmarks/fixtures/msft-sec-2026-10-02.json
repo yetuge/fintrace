@@ -1,0 +1,350 @@
+{
+  "version": 1,
+  "id": "msft-sec-2026-10-02-v1",
+  "asOf": "2026-10-02",
+  "provenance": {
+    "kind": "public_sec_excerpt",
+    "originalRawSha256": "e2bbaa138e6d34d7f489d6ebf46412e76538957b2bb7e548e94835f2ba25f68f",
+    "selection": "Five selected US-GAAP tags; disclosed facts ending 2025-06-30 and 2026-06-30, filed on/before asOf; matching annual submissions. No amounts changed."
+  },
+  "responses": [
+    {
+      "url": "https://data.sec.gov/submissions/CIK0000789019.json",
+      "fetchedAt": "2026-10-02T09:19:58.002Z",
+      "body": {
+        "cik": "0000789019",
+        "entityType": "operating",
+        "sic": "7372",
+        "sicDescription": "Services-Prepackaged Software",
+        "ownerOrg": "06 Technology",
+        "insiderTransactionForOwnerExists": 1,
+        "insiderTransactionForIssuerExists": 1,
+        "name": "MICROSOFT CORP",
+        "tickers": ["MSFT"],
+        "exchanges": ["Nasdaq"],
+        "ein": "911144442",
+        "lei": null,
+        "description": "",
+        "website": "",
+        "investorWebsite": "",
+        "category": "Large accelerated filer",
+        "fiscalYearEnd": "0630",
+        "stateOfIncorporation": "WA",
+        "stateOfIncorporationDescription": "WA",
+        "addresses": {
+          "mailing": {
+            "street1": "ONE MICROSOFT WAY",
+            "street2": null,
+            "city": "REDMOND",
+            "stateOrCountry": "WA",
+            "zipCode": "98052-6399",
+            "stateOrCountryDescription": "WA",
+            "isForeignLocation": 0,
+            "foreignStateTerritory": null,
+            "country": null,
+            "countryCode": null
+          },
+          "business": {
+            "street1": "ONE MICROSOFT WAY",
+            "street2": null,
+            "city": "REDMOND",
+            "stateOrCountry": "WA",
+            "zipCode": "98052-6399",
+            "stateOrCountryDescription": "WA",
+            "isForeignLocation": null,
+            "foreignStateTerritory": null,
+            "country": null,
+            "countryCode": null
+          }
+        },
+        "phone": "425-882-8080",
+        "flags": "",
+        "formerNames": [],
+        "filings": {
+          "recent": {
+            "accessionNumber": ["0001193125-26-323660", "0000950170-25-100235"],
+            "filingDate": ["2026-07-29", "2025-07-30"],
+            "reportDate": ["2026-06-30", "2025-06-30"],
+            "acceptanceDateTime": [
+              "2026-07-29T20:08:01.000Z",
+              "2025-07-30T20:11:40.000Z"
+            ],
+            "act": ["34", "34"],
+            "form": ["10-K", "10-K"],
+            "fileNumber": ["001-37845", "001-37845"],
+            "filmNumber": ["261217433", "251167157"],
+            "items": ["", ""],
+            "core_type": ["XBRL", "XBRL"],
+            "size": [36328553, 34889671],
+            "isXBRL": [1, 1],
+            "isInlineXBRL": [1, 1],
+            "isXBRLNumeric": [1, null],
+            "primaryDocument": ["msft-20260630.htm", "msft-20250630.htm"],
+            "primaryDocDescription": ["10-K", "10-K"]
+          },
+          "files": []
+        }
+      }
+    },
+    {
+      "url": "https://data.sec.gov/api/xbrl/companyfacts/CIK0000789019.json",
+      "fetchedAt": "2026-10-02T09:19:58.910Z",
+      "body": {
+        "cik": 789019,
+        "entityName": "MICROSOFT CORPORATION",
+        "facts": {
+          "us-gaap": {
+            "CashAndCashEquivalentsAtCarryingValue": {
+              "label": "Cash and Cash Equivalents, at Carrying Value",
+              "description": "Amount of currency on hand as well as demand deposits with banks or financial institutions. Includes other kinds of accounts that have the general characteristics of demand deposits. Also includes short-term, highly liquid investments that are both readily convertible to known amounts of cash and so near their maturity that they present insignificant risk of changes in value because of changes in interest rates. Excludes cash and cash equivalents within disposal group and discontinued operation.",
+              "units": {
+                "USD": [
+                  {
+                    "end": "2025-06-30",
+                    "val": 30242000000,
+                    "accn": "0000950170-25-100235",
+                    "fy": 2025,
+                    "fp": "FY",
+                    "form": "10-K",
+                    "filed": "2025-07-30"
+                  },
+                  {
+                    "end": "2025-06-30",
+                    "val": 30242000000,
+                    "accn": "0001193125-25-256321",
+                    "fy": 2026,
+                    "fp": "Q1",
+                    "form": "10-Q",
+                    "filed": "2025-10-29"
+                  },
+                  {
+                    "end": "2025-06-30",
+                    "val": 30242000000,
+                    "accn": "0001193125-26-027207",
+                    "fy": 2026,
+                    "fp": "Q2",
+                    "form": "10-Q",
+                    "filed": "2026-01-28"
+                  },
+                  {
+                    "end": "2025-06-30",
+                    "val": 30242000000,
+                    "accn": "0001193125-26-191507",
+                    "fy": 2026,
+                    "fp": "Q3",
+                    "form": "10-Q",
+                    "filed": "2026-04-29"
+                  },
+                  {
+                    "end": "2025-06-30",
+                    "val": 30242000000,
+                    "accn": "0001193125-26-323660",
+                    "fy": 2026,
+                    "fp": "FY",
+                    "form": "10-K",
+                    "filed": "2026-07-29",
+                    "frame": "CY2025Q2I"
+                  },
+                  {
+                    "end": "2026-06-30",
+                    "val": 20935000000,
+                    "accn": "0001193125-26-323660",
+                    "fy": 2026,
+                    "fp": "FY",
+                    "form": "10-K",
+                    "filed": "2026-07-29",
+                    "frame": "CY2026Q2I"
+                  }
+                ]
+              }
+            },
+            "Liabilities": {
+              "label": "Liabilities",
+              "description": "Sum of the carrying amounts as of the balance sheet date of all liabilities that are recognized. Liabilities are probable future sacrifices of economic benefits arising from present obligations of an entity to transfer assets or provide services to other entities in the future.",
+              "units": {
+                "USD": [
+                  {
+                    "end": "2025-06-30",
+                    "val": 275524000000,
+                    "accn": "0000950170-25-100235",
+                    "fy": 2025,
+                    "fp": "FY",
+                    "form": "10-K",
+                    "filed": "2025-07-30"
+                  },
+                  {
+                    "end": "2025-06-30",
+                    "val": 275524000000,
+                    "accn": "0001193125-25-256321",
+                    "fy": 2026,
+                    "fp": "Q1",
+                    "form": "10-Q",
+                    "filed": "2025-10-29"
+                  },
+                  {
+                    "end": "2025-06-30",
+                    "val": 275524000000,
+                    "accn": "0001193125-26-027207",
+                    "fy": 2026,
+                    "fp": "Q2",
+                    "form": "10-Q",
+                    "filed": "2026-01-28"
+                  },
+                  {
+                    "end": "2025-06-30",
+                    "val": 275524000000,
+                    "accn": "0001193125-26-191507",
+                    "fy": 2026,
+                    "fp": "Q3",
+                    "form": "10-Q",
+                    "filed": "2026-04-29"
+                  },
+                  {
+                    "end": "2025-06-30",
+                    "val": 275524000000,
+                    "accn": "0001193125-26-323660",
+                    "fy": 2026,
+                    "fp": "FY",
+                    "form": "10-K",
+                    "filed": "2026-07-29",
+                    "frame": "CY2025Q2I"
+                  },
+                  {
+                    "end": "2026-06-30",
+                    "val": 315989000000,
+                    "accn": "0001193125-26-323660",
+                    "fy": 2026,
+                    "fp": "FY",
+                    "form": "10-K",
+                    "filed": "2026-07-29",
+                    "frame": "CY2026Q2I"
+                  }
+                ]
+              }
+            },
+            "NetCashProvidedByUsedInOperatingActivities": {
+              "label": "Net Cash Provided by (Used in) Operating Activities",
+              "description": "Amount of cash inflow (outflow) from operating activities, including discontinued operations. Operating activity cash flows include transactions, adjustments, and changes in value not defined as investing or financing activities.",
+              "units": {
+                "USD": [
+                  {
+                    "start": "2024-07-01",
+                    "end": "2025-06-30",
+                    "val": 136162000000,
+                    "accn": "0000950170-25-100235",
+                    "fy": 2025,
+                    "fp": "FY",
+                    "form": "10-K",
+                    "filed": "2025-07-30"
+                  },
+                  {
+                    "start": "2024-07-01",
+                    "end": "2025-06-30",
+                    "val": 136162000000,
+                    "accn": "0001193125-26-323660",
+                    "fy": 2026,
+                    "fp": "FY",
+                    "form": "10-K",
+                    "filed": "2026-07-29",
+                    "frame": "CY2025"
+                  },
+                  {
+                    "start": "2025-07-01",
+                    "end": "2026-06-30",
+                    "val": 182935000000,
+                    "accn": "0001193125-26-323660",
+                    "fy": 2026,
+                    "fp": "FY",
+                    "form": "10-K",
+                    "filed": "2026-07-29",
+                    "frame": "CY2026"
+                  }
+                ]
+              }
+            },
+            "NetIncomeLoss": {
+              "label": "Net Income (Loss) Attributable to Parent",
+              "description": "The portion of profit or loss for the period, net of income taxes, which is attributable to the parent.",
+              "units": {
+                "USD": [
+                  {
+                    "start": "2024-07-01",
+                    "end": "2025-06-30",
+                    "val": 101832000000,
+                    "accn": "0000950170-25-100235",
+                    "fy": 2025,
+                    "fp": "FY",
+                    "form": "10-K",
+                    "filed": "2025-07-30"
+                  },
+                  {
+                    "start": "2024-07-01",
+                    "end": "2025-06-30",
+                    "val": 101832000000,
+                    "accn": "0001193125-26-323660",
+                    "fy": 2026,
+                    "fp": "FY",
+                    "form": "10-K",
+                    "filed": "2026-07-29",
+                    "frame": "CY2025"
+                  },
+                  {
+                    "start": "2025-07-01",
+                    "end": "2026-06-30",
+                    "val": 133749000000,
+                    "accn": "0001193125-26-323660",
+                    "fy": 2026,
+                    "fp": "FY",
+                    "form": "10-K",
+                    "filed": "2026-07-29",
+                    "frame": "CY2026"
+                  }
+                ]
+              }
+            },
+            "RevenueFromContractWithCustomerExcludingAssessedTax": {
+              "label": "Revenue from Contract with Customer, Excluding Assessed Tax",
+              "description": "Amount, excluding tax collected from customer, of revenue from satisfaction of performance obligation by transferring promised good or service to customer. Tax collected from customer is tax assessed by governmental authority that is both imposed on and concurrent with specific revenue-producing transaction, including, but not limited to, sales, use, value added and excise.",
+              "units": {
+                "USD": [
+                  {
+                    "start": "2024-07-01",
+                    "end": "2025-06-30",
+                    "val": 281724000000,
+                    "accn": "0000950170-25-100235",
+                    "fy": 2025,
+                    "fp": "FY",
+                    "form": "10-K",
+                    "filed": "2025-07-30"
+                  },
+                  {
+                    "start": "2024-07-01",
+                    "end": "2025-06-30",
+                    "val": 281724000000,
+                    "accn": "0001193125-26-323660",
+                    "fy": 2026,
+                    "fp": "FY",
+                    "form": "10-K",
+                    "filed": "2026-07-29",
+                    "frame": "CY2025"
+                  },
+                  {
+                    "start": "2025-07-01",
+                    "end": "2026-06-30",
+                    "val": 331839000000,
+                    "accn": "0001193125-26-323660",
+                    "fy": 2026,
+                    "fp": "FY",
+                    "form": "10-K",
+                    "filed": "2026-07-29",
+                    "frame": "CY2026"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

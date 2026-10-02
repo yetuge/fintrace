@@ -17,6 +17,13 @@ import type {
 } from '../types.js';
 import { resolvePiProvider } from './pi-provider.js';
 import { PiRuntimeSession } from './pi-session.js';
+import { assertPayloadLimit } from '../../benchmark/budget.js';
+
+/** Opt-in instrumentation for isolated evaluations; ordinary sessions are unchanged. */
+export interface PiExecutionControl {
+  beforeRequest(): { maxOutputTokens: number };
+  onMessage(message: unknown): void;
+}
 
 const require = createRequire(import.meta.url);
 
@@ -46,14 +53,18 @@ function resolveSubagentsExtension(): string | undefined {
 export class PiRuntimeAdapter implements AgentRuntime {
   readonly kind = 'pi' as const;
 
+  constructor(private readonly evaluation?: PiExecutionControl) {}
+
   async createSession(options: RuntimeSessionOptions): Promise<RuntimeSession> {
     const agentDir = path.join(options.sessionDir, '..', 'agent');
     fs.mkdirSync(options.sessionDir, { recursive: true });
     fs.mkdirSync(agentDir, { recursive: true });
 
-    const settingsManager = SettingsManager.create(options.cwd, agentDir, {
-      projectTrusted: true,
-    });
+    const settingsManager = this.evaluation
+      ? SettingsManager.inMemory({
+          retry: { enabled: false, provider: { maxRetries: 0 } },
+        })
+      : SettingsManager.create(options.cwd, agentDir, { projectTrusted: true });
     // Product auto-compact toggle: OFF disables the runtime-native compaction;
     // ON (or unset) keeps Pi's native threshold-based compaction behavior.
     settingsManager.setCompactionEnabled(options.autoCompactEnabled !== false);
@@ -71,7 +82,9 @@ export class PiRuntimeAdapter implements AgentRuntime {
 
     const eventBus = createEventBus();
     const extensionPaths = [...(options.extensionPaths ?? [])];
-    const subagentsExtension = resolveSubagentsExtension();
+    const subagentsExtension = this.evaluation
+      ? undefined
+      : resolveSubagentsExtension();
     if (subagentsExtension && !extensionPaths.includes(subagentsExtension)) {
       extensionPaths.push(subagentsExtension);
     }
@@ -83,6 +96,14 @@ export class PiRuntimeAdapter implements AgentRuntime {
       systemPrompt: options.systemPrompt,
       additionalSkillPaths: options.skillPaths,
       additionalExtensionPaths: extensionPaths,
+      ...(this.evaluation
+        ? {
+            noExtensions: true,
+            noSkills: true,
+            noContextFiles: true,
+            noPromptTemplates: true,
+          }
+        : {}),
     });
     try {
       await resourceLoader.reload({ resolveProjectTrust: async () => true });
@@ -113,11 +134,13 @@ export class PiRuntimeAdapter implements AgentRuntime {
       options.sessionDir,
       options.sessionId || '',
     );
-    const sessionManager = sessionFile
-      ? SessionManager.open(sessionFile, options.sessionDir, options.cwd)
-      : SessionManager.create(options.cwd, options.sessionDir, {
-          ...(options.sessionId ? { id: options.sessionId } : {}),
-        });
+    const sessionManager = this.evaluation
+      ? SessionManager.inMemory(options.cwd)
+      : sessionFile
+        ? SessionManager.open(sessionFile, options.sessionDir, options.cwd)
+        : SessionManager.create(options.cwd, options.sessionDir, {
+            ...(options.sessionId ? { id: options.sessionId } : {}),
+          });
     const customTools = (options.customTools ?? []) as ToolDefinition[];
     const toolAliases: Record<string, string> = {
       Bash: 'bash',
@@ -168,6 +191,28 @@ export class PiRuntimeAdapter implements AgentRuntime {
       sessionManager,
       settingsManager,
     });
+    if (this.evaluation) {
+      const control = this.evaluation;
+      const stream = session.agent.streamFunction;
+      session.agent.streamFunction = (model, context, requestOptions) => {
+        const { maxOutputTokens } = control.beforeRequest();
+        return stream({ ...model, maxTokens: maxOutputTokens }, context, {
+          ...requestOptions,
+          reasoning: undefined,
+          maxTokens: maxOutputTokens,
+          maxRetries: 0,
+          timeoutMs: 120_000,
+          // Check the actual outgoing payload without recording auth or addresses.
+          onPayload: (payload) => {
+            assertPayloadLimit(payload, maxOutputTokens);
+          },
+        });
+      };
+      session.subscribe((event) => {
+        if (event.type === 'message_end' && event.message.role === 'assistant')
+          control.onMessage(event.message);
+      });
+    }
     return new PiRuntimeSession(session, eventBus);
   }
 }

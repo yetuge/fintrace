@@ -5,6 +5,11 @@ import assert from 'node:assert/strict';
 import { z } from 'zod';
 import { defineMcpTool, type McpToolDefinition } from '../mcp-tool-types.js';
 import { createSecFetch, fetchCompany, type SecFetch } from './sec-client.js';
+import {
+  withDataContext,
+  dataContextBanner,
+  type SecDataContext,
+} from './sec-data-context.js';
 import { extractAnnualTrends, type TrendDataset } from './sec-trends.js';
 import {
   buildTrendChartData,
@@ -138,12 +143,13 @@ export function renderSecReport(
     ),
     '',
   ];
-  return lines.join('\n');
+  return dataContextBanner(dataset.dataContext) + lines.join('\n');
 }
 
 export function createSecTools(
   workspace: string,
   request: SecFetch = createSecFetch(),
+  clock?: { fetchedAt?: string; asOf?: string; dataContext?: SecDataContext },
 ): McpToolDefinition<any>[] {
   return [
     defineMcpTool(
@@ -167,16 +173,17 @@ export function createSecTools(
           years === 3 ? 5 : 2,
         );
         signal?.throwIfAborted();
-        const fetchedAt = new Date().toISOString();
+        const fetchedAt = clock?.fetchedAt ?? new Date().toISOString();
+        const asOf = clock?.asOf ?? fetchedAt.slice(0, 10);
         const datasetId = `${fetched.cik}-${randomUUID()}`;
-        const dataset =
+        const dataset = withDataContext(
           years === 3
             ? extractAnnualTrends(
                 fetched.facts,
                 fetched.filings,
                 fetched.tickers,
                 fetchedAt,
-                fetchedAt.slice(0, 10),
+                asOf,
                 fetched.raw.map((r) => r.url),
                 datasetId,
               )
@@ -186,15 +193,25 @@ export function createSecTools(
                   fetched.filings,
                   fetched.tickers,
                   fetchedAt,
-                  fetchedAt.slice(0, 10),
+                  asOf,
                   fetched.raw.map((r) => r.url),
                 ),
                 datasetId,
-              );
+              ),
+          clock?.dataContext,
+        );
         const root = await researchRoot(workspace);
         const directory = path.join(root, datasetId);
         await fs.mkdir(directory);
-        const raw = JSON.stringify({ responses: fetched.raw }, null, 2) + '\n';
+        const raw =
+          JSON.stringify(
+            {
+              responses: fetched.raw,
+              ...(clock?.dataContext ? { dataContext: clock.dataContext } : {}),
+            },
+            null,
+            2,
+          ) + '\n';
         const metrics = JSON.stringify(dataset, null, 2) + '\n';
         await fs.writeFile(path.join(directory, 'raw.json'), raw, {
           flag: 'wx',
@@ -218,6 +235,9 @@ export function createSecTools(
             {
               schemaVersion: dataset.schemaVersion,
               datasetId,
+              ...(dataset.dataContext
+                ? { dataContext: dataset.dataContext }
+                : {}),
               rawSha256: digest(raw),
               metricsSha256: digest(metrics),
               ...(dataset.schemaVersion === 3
@@ -327,14 +347,17 @@ export function createSecTools(
             );
           assert.deepEqual(
             dataset,
-            extractAnnualTrends(
-              facts,
-              filings,
-              dataset.company.tickers,
-              dataset.fetchedAt,
-              dataset.asOf,
-              dataset.sources,
-              dataset_id,
+            withDataContext(
+              extractAnnualTrends(
+                facts,
+                filings,
+                dataset.company.tickers,
+                dataset.fetchedAt,
+                dataset.asOf,
+                dataset.sources,
+                dataset_id,
+              ),
+              JSON.parse(raw).dataContext,
             ),
             'SEC_INTEGRITY: 三年数据与代码事实必须从原始快照重建',
           );
