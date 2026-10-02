@@ -225,6 +225,7 @@ export async function fetchCompany(
   input: string,
   request: SecFetch,
   signal?: AbortSignal,
+  annualYears = 2,
 ): Promise<{
   raw: RawResponse[];
   facts: CompanyFacts;
@@ -257,7 +258,7 @@ export async function fetchCompany(
   let filings = filingsFromColumns(body.filings.recent, cik);
   // recent contains >=1 year or 1000 filings; very active filers may need history.
   for (const file of (body.filings.files ?? []).slice(0, 8)) {
-    if (new Set(filings.map((f) => f.end)).size >= 2) break;
+    if (new Set(filings.map((f) => f.end)).size >= annualYears) break;
     if (!/^CIK\d{10}-submissions-\d+\.json$/.test(file.name))
       throw new Error('SEC_SCHEMA: 无效历史申报文件名');
     const history = await request(

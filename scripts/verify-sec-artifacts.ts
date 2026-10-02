@@ -33,11 +33,48 @@ if (process.argv[3]) {
       m.role === 'toolResult' &&
       /fetch_sec_financials|save_sec_report/.test(m.toolName),
   );
-  assert.equal(results.length, 2);
-  assert.ok(results.every((m) => !m.isError));
+  const successful = results.filter((m) => !m.isError);
+  assert.ok(
+    successful.some((m) => m.toolName.endsWith('fetch_sec_financials')),
+  );
+  assert.ok(successful.some((m) => m.toolName.endsWith('save_sec_report')));
+  assert.ok(!results.at(-1)?.isError, 'final financial tool must succeed');
+  const belongsToResearch = (
+    m: { content: { text?: string }[] },
+    field: 'datasetId' | 'report',
+  ) => {
+    try {
+      const result = JSON.parse(m.content.find((c) => c.text)?.text ?? '');
+      return field === 'datasetId'
+        ? result.datasetId === path.basename(directory)
+        : result.report ===
+            `financial-research/${path.basename(directory)}/report.md`;
+    } catch {
+      return false;
+    }
+  };
+  if (audit.schemaVersion !== 1) {
+    assert.ok(
+      successful.some(
+        (m) =>
+          m.toolName.endsWith('fetch_sec_financials') &&
+          belongsToResearch(m, 'datasetId'),
+      ),
+      'model fetch belongs to audited dataset',
+    );
+    assert.ok(
+      successful.some(
+        (m) =>
+          m.toolName.endsWith('save_sec_report') &&
+          belongsToResearch(m, 'report'),
+      ),
+      'model save belongs to audited report',
+    );
+  }
   const turns = messages.filter((m) => m.role === 'assistant');
   modelEvidence = {
-    successfulTools: results.map((m) => m.toolName),
+    successfulTools: successful.map((m) => m.toolName),
+    failedToolAttempts: results.filter((m) => m.isError).map((m) => m.toolName),
     userPrompts: messages.filter((m) => m.role === 'user').length,
     assistantRequests: turns.length,
     outputTokens: turns.reduce((sum, m) => sum + (m.usage?.output ?? 0), 0),

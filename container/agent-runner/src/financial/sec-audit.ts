@@ -16,6 +16,12 @@ import {
 } from './sec-evidence.js';
 import { renderSecReport } from './sec-tools.js';
 import type { RawResponse } from './sec-client.js';
+import { extractAnnualTrends } from './sec-trends.js';
+import {
+  buildTrendChartData,
+  renderTrendSvg,
+  renderTrendReport,
+} from './sec-trend-report.js';
 
 export async function auditSecArtifacts(directory: string) {
   const raw = await fs.readFile(path.join(directory, 'raw.json'), 'utf8');
@@ -31,7 +37,10 @@ export async function auditSecArtifacts(directory: string) {
   assert.equal(hash(raw), manifest.rawSha256, 'raw hash');
   assert.equal(hash(metrics), manifest.metricsSha256, 'metrics hash');
   const data = JSON.parse(metrics);
-  assert.ok([1, 2].includes(data.schemaVersion), 'unsupported dataset version');
+  assert.ok(
+    [1, 2, 3].includes(data.schemaVersion),
+    'unsupported dataset version',
+  );
   const responses = (JSON.parse(raw) as { responses: RawResponse[] }).responses;
   const facts = responses.find((r) => r.url.includes('/companyfacts/'))
     ?.body as CompanyFacts;
@@ -45,6 +54,87 @@ export async function auditSecArtifacts(directory: string) {
         data.company.cik,
       );
     });
+  if (data.schemaVersion === 3) {
+    const rebuilt = extractAnnualTrends(
+      facts,
+      filings,
+      data.company.tickers,
+      data.fetchedAt,
+      data.asOf,
+      data.sources,
+      data.datasetId,
+    );
+    assert.equal(manifest.schemaVersion, 3);
+    assert.equal(manifest.datasetId, data.datasetId);
+    assert.equal(path.basename(directory), data.datasetId);
+    assert.deepEqual(
+      data,
+      rebuilt,
+      'three-year metrics, evidence and trends recomputed from raw',
+    );
+    assert.deepEqual(
+      manifest.completeness,
+      {
+        requestedYears: 3,
+        availableYears: rebuilt.years.map((y) => y.end),
+        missingValues: rebuilt.metrics.flatMap((m) =>
+          m.annual
+            .filter((p) => !p.value)
+            .map((p) => ({
+              metric: m.key,
+              end: p.end,
+              reason: p.missingReason,
+            })),
+        ),
+        excludedPeriods: rebuilt.excludedPeriods,
+      },
+      'completeness summary',
+    );
+    const chart = buildTrendChartData(rebuilt);
+    for (const [name, contents] of [
+      ['chart-data.json', JSON.stringify(chart, null, 2) + '\n'],
+      ['trends.svg', renderTrendSvg(chart)],
+    ]) {
+      const stored = await fs.readFile(path.join(directory, name), 'utf8');
+      assert.equal(hash(stored), manifest.chartHashes[name], `${name} hash`);
+      assert.equal(stored, contents, `${name} recomputed data and rendering`);
+    }
+    const saved = JSON.parse(
+      await fs.readFile(path.join(directory, 'findings.json'), 'utf8'),
+    );
+    assert.equal(saved.schemaVersion, 3);
+    assert.equal(saved.datasetId, data.datasetId);
+    assert.ok(
+      Array.isArray(saved.inputs) &&
+        saved.inputs.length >= 1 &&
+        saved.inputs.length <= 6,
+    );
+    const findings = normalizeFindings(rebuilt, saved.inputs);
+    assert.deepEqual(saved.findings, findings, 'trend finding classification');
+    assert.equal(
+      report,
+      renderTrendReport(rebuilt, findings),
+      'canonical three-year report',
+    );
+    return {
+      schemaVersion: 3,
+      company: data.company,
+      annualEnds: rebuilt.years.map((y) => y.end),
+      rawAndMetricsHashesValid: true,
+      recomputedMetricsMatch: true,
+      evidenceAssociationsVerified: true,
+      chartDataAndRenderingVerified: true,
+      directFacts: findings.filter((f) => f.verification === 'code_verified')
+        .length,
+      pendingJudgments: findings.filter(
+        (f) => f.verification !== 'code_verified',
+      ).length,
+      qualitativeSemanticsVerified: false,
+      filingBodyRead: false,
+      legacyQualitativeFindingsUnaudited: false,
+      reportSha256: hash(report),
+    };
+  }
   const recomputed = extractFinancials(
     facts,
     filings,

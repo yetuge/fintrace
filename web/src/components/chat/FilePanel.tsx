@@ -46,6 +46,7 @@ import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { FileUploadZone } from './FileUploadZone';
 import { MarkdownRenderer } from './MarkdownRenderer';
+import { SafeSvgImage } from './SafeSvgImage';
 import { PreviewDialog } from './PreviewDialog';
 import { ScrollEdgeAffordance } from '../common/ScrollEdgeAffordance';
 
@@ -255,12 +256,20 @@ function ImagePreview({
 }) {
   return (
     <MediaOverlay onClose={onClose} fileName={file.name}>
-      <img
-        src={buildPreviewUrl(groupJid, file.path)}
-        alt={file.name}
-        className="max-h-[calc(100dvh-2rem)] max-w-[calc(100vw-2rem)] object-contain rounded-lg"
-        onClick={(e) => e.stopPropagation()}
-      />
+      {getFileExt(file.name) === 'svg' ? (
+        <SafeSvgImage
+          url={buildPreviewUrl(groupJid, file.path)}
+          name={file.name}
+          className="max-h-[calc(100dvh-2rem)] max-w-[calc(100vw-2rem)] object-contain rounded-lg"
+        />
+      ) : (
+        <img
+          src={buildPreviewUrl(groupJid, file.path)}
+          alt={file.name}
+          className="max-h-[calc(100dvh-2rem)] max-w-[calc(100vw-2rem)] object-contain rounded-lg"
+          onClick={(e) => e.stopPropagation()}
+        />
+      )}
     </MediaOverlay>
   );
 }

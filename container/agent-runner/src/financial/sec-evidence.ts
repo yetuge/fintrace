@@ -37,6 +37,9 @@ export const findingSchema = z
   })
   .strict();
 export type FindingInput = z.infer<typeof findingSchema>;
+export const trendFindingSchema = findingSchema.extend({
+  evidence_ids: z.array(z.string().min(1).max(150)).max(15),
+});
 export interface Finding {
   content: string;
   type: FindingInput['type'];
@@ -122,12 +125,18 @@ export function buildEvidenceDataset(
 
 /** Rebuild from saved metrics, never trust a caller-supplied evidence catalog. */
 export function normalizeFindings(
-  data: EvidenceDataset,
+  data: {
+    schemaVersion?: number;
+    evidence: { id: string }[];
+    verifiedFacts: VerifiedFact[];
+  },
   inputs: FindingInput[],
 ): Finding[] {
   const known = new Set(data.evidence.map((e) => e.id));
   return inputs.map((input) => {
-    const finding = findingSchema.parse(input);
+    const finding = (
+      data.schemaVersion === 3 ? trendFindingSchema : findingSchema
+    ).parse(input);
     const ids = [...new Set(finding.evidence_ids)];
     if (ids.some((id) => !known.has(id)))
       throw new Error('SEC_EVIDENCE: 引用不存在或属于其他数据集');

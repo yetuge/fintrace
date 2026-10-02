@@ -7,6 +7,7 @@ export default defineConfig({
     include: [
       'web/src/utils/chat-route-preload.test.ts',
       'web/src/components/chat/MarkdownRenderer.test.tsx',
+      'web/src/components/chat/SafeSvgImage.test.tsx',
       'web/src/components/chat/SessionSidebar.test.tsx',
       'web/src/components/chat/ChatView.sessions.test.tsx',
       'web/src/utils/workspaceSessions.test.ts',
