@@ -294,8 +294,21 @@ describe('deterministic Agent benchmark scoring (no model)', () => {
       ),
     ).toBe('[redacted] [redacted] [redacted-url] [redacted-email]');
   });
+  test('SVG namespace survives privacy check without admitting private provider URLs', () => {
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg"><path/></svg>';
+    expect(redact(svg)).toBe(svg);
+    expect(redact('https://provider.private/v1/messages')).toBe(
+      '[redacted-url]',
+    );
+  });
 });
 describe('request boundary budget', () => {
+  test('prior incomplete run is reserved conservatively within the same total limits', () => {
+    const b = new RequestBudget(24, 18000, 1600, { requests: 6, output: 9600 });
+    expect(b.beforeRequest().maxOutputTokens).toBe(1600);
+    expect(b.requests).toBe(7);
+    expect(b.chargedOutput).toBe(11200);
+  });
   test('accepts explicit disabled thinking; rejects upstream-expanded caps and reasoning', () => {
     expect(() =>
       assertPayloadLimit(

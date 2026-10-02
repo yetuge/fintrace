@@ -20,7 +20,18 @@ export class RequestBudget {
     readonly requestLimit = 24,
     readonly outputLimit = 18_000,
     readonly perRequest = 1_600,
-  ) {}
+    readonly priorReservation = { requests: 0, output: 0 },
+  ) {
+    if (
+      !Number.isInteger(priorReservation.requests) ||
+      priorReservation.requests < 0 ||
+      !Number.isInteger(priorReservation.output) ||
+      priorReservation.output < 0
+    )
+      throw new Error('BENCHMARK_INVALID_RESERVATION');
+    this.requests = priorReservation.requests;
+    this.chargedOutput = priorReservation.output;
+  }
   beforeRequest() {
     if (
       this.requests >= this.requestLimit ||

@@ -23,6 +23,7 @@ import { assertPayloadLimit } from '../../benchmark/budget.js';
 export interface PiExecutionControl {
   beforeRequest(): { maxOutputTokens: number };
   onMessage(message: unknown): void;
+  onResponse?(status: number): void;
 }
 
 const require = createRequire(import.meta.url);
@@ -202,6 +203,7 @@ export class PiRuntimeAdapter implements AgentRuntime {
           maxTokens: maxOutputTokens,
           maxRetries: 0,
           timeoutMs: 120_000,
+          onResponse: (response) => control.onResponse?.(response.status),
           // Check the actual outgoing payload without recording auth or addresses.
           onPayload: (payload) => {
             assertPayloadLimit(payload, maxOutputTokens);

@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises';
+import { writeFileSync, renameSync } from 'node:fs';
 import path from 'node:path';
 import { createSecTools } from '../financial/sec-tools.js';
 import { adaptClaudeMcpToolsToPi } from '../runtime/pi/pi-tools.js';
@@ -18,6 +19,7 @@ export function redact(text: string, secrets: string[] = []) {
     .replace(/(?:sk-|gh[opusr]_)[A-Za-z0-9_-]{12,}/g, '[redacted-key]')
     .replace(/https?:\/\/[^\s"<>]+/g, (url) => {
       try {
+        if (url === 'http://www.w3.org/2000/svg') return url;
         return [
           'www.sec.gov',
           'data.sec.gov',
@@ -93,11 +95,50 @@ export async function executeTask(options: {
     cacheWrite: budget.cacheWrite,
   };
   let taskUnknown = false;
+  const started = Date.now();
+  const checkpoint = () => {
+    trace.elapsedMs = Date.now() - started;
+    trace.modelRequests = budget.requests - counts.requests;
+    trace.knownUsage = {
+      input: budget.input - counts.input,
+      output: budget.output - counts.output,
+      cacheRead: budget.cacheRead - counts.cacheRead,
+      cacheWrite: budget.cacheWrite - counts.cacheWrite,
+    };
+    const temporary = path.join(directory, 'checkpoint.tmp');
+    writeFileSync(
+      temporary,
+      redact(
+        JSON.stringify(
+          {
+            trace,
+            budget: {
+              chargedRequests: budget.requests,
+              chargedOutputTokens: budget.chargedOutput,
+              knownOutputTokens: budget.output,
+              usageUnavailable: budget.unavailable,
+            },
+          },
+          null,
+          2,
+        ),
+        secrets,
+      ) + '\n',
+    );
+    renameSync(temporary, path.join(directory, 'checkpoint.json'));
+  };
+  checkpoint();
   const runtime = new PiRuntimeAdapter({
     beforeRequest: () => {
       if (budget.requests - counts.requests >= 4)
         throw new Error('BENCHMARK_TASK_REQUEST_LIMIT');
-      return budget.beforeRequest();
+      const allocation = budget.beforeRequest();
+      checkpoint();
+      return allocation;
+    },
+    onResponse: (status) => {
+      (trace.modelHttpStatuses ??= []).push(status);
+      checkpoint();
     },
     onMessage: (message) => {
       budget.onMessage(message);
@@ -116,9 +157,9 @@ export async function executeTask(options: {
         trace.reason =
           /BENCHMARK_[A-Z_]+/.exec(m.errorMessage)?.[0] ??
           'provider_or_runtime_error';
+      checkpoint();
     },
   });
-  const started = Date.now();
   let session:
     | Awaited<ReturnType<PiRuntimeAdapter['createSession']>>
     | undefined;
@@ -142,6 +183,7 @@ export async function executeTask(options: {
       autoCompactEnabled: false,
     });
     trace.sessionId = session.sessionId;
+    checkpoint();
     const calls = new Map<string, ToolCall>();
     session.subscribe((event) => {
       if (event.type !== 'tool_start' && event.type !== 'tool_end') return;
@@ -185,6 +227,7 @@ export async function executeTask(options: {
           }
         }
       }
+      checkpoint();
     });
     timeout = setTimeout(() => {
       trace.reason = 'task_timeout';
@@ -192,6 +235,7 @@ export async function executeTask(options: {
     }, 300_000);
     await session.prompt({ text: prompt });
   } catch (error) {
+    if (budget.requests > counts.requests) taskUnknown = true;
     trace.reason =
       /BENCHMARK_[A-Z_]+/.exec(String(error))?.[0] ??
       'provider_or_runtime_error';
@@ -217,13 +261,18 @@ export async function executeTask(options: {
     for (const name of await fs.readdir(dir)) {
       const bytes = await fs.readFile(path.join(dir, name));
       // Only public SEC artifacts created by this task; never copy private session logs.
-      if (bytes.toString() !== redact(bytes.toString(), secrets))
-        throw new Error('BENCHMARK_ARTIFACT_PRIVACY_CHECK');
+      if (bytes.toString() !== redact(bytes.toString(), secrets)) {
+        trace.reason = 'BENCHMARK_ARTIFACT_PRIVACY_CHECK';
+        trace.stopReason = 'error';
+        checkpoint();
+        return trace;
+      }
       trace.artifacts.push({
         path: `financial-research/${id}/${name}`,
         sha256: hash(bytes),
       });
     }
   }
+  checkpoint();
   return trace;
 }

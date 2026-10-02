@@ -50,8 +50,15 @@ export interface Trace {
   tools: ToolCall[];
   finalAnswer: string;
   stopReason?: string;
-  elapsedMs: number;
-  modelRequests: number;
+  elapsedMs: number | 'unavailable';
+  modelRequests: number | 'unavailable';
+  modelHttpStatuses?: number[];
+  knownUsage?: {
+    input: number;
+    output: number;
+    cacheRead: number;
+    cacheWrite: number;
+  };
   usage: {
     input: number | 'unavailable';
     output: number | 'unavailable';

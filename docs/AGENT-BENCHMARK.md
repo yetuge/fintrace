@@ -39,6 +39,10 @@ npm run benchmark -- score --batch=first-round
 npm run benchmark -- score --batch=first-round --task=missing-cash
 # 汇总指定批次，不调用模型
 npm run benchmark -- summarize --batch=first-round
+# 中断后离线恢复：保留现有 trace；未知执行/用量不写成通过
+npm run benchmark -- recover --batch=interrupted-run
+# 修复影响执行/记录的代码后定向续跑，共享前一批的预算预留
+npm run benchmark -- run --live --batch=repair-run --tasks=annual-aapl,trend-msft --carry-from=interrupted-run
 ```
 
 真实执行只读取既有本地模型配置和 SEC 联系配置，不修改配置或认证。密钥仅用于请求认证，不传入提示词。新批次目录必须不存在，不追加或覆盖历史执行；定向重跑使用新批次，仅在影响结果的代码变更后运行。离线命令不导入模型配置读取或执行器；原始产物只读。每次重评分写新 revision，保留初次评分；`report.md` 是最新汇总副本。
@@ -48,6 +52,8 @@ npm run benchmark -- summarize --batch=first-round
 复用工作台使用的 `PiRuntimeAdapter`、Provider 解析、`adaptClaudeMcpToolsToPi` 与 SEC 工具。每项隔离工作目录和内存 Pi 会话，仅提供两项金融工具，停用扩展、skills、私有上下文、自动压缩和自动重试。没有另建 Agent 循环，也没有预写回答或假模型参与真实成绩。
 
 轨迹只包含该任务的问题/配置、工具参数/调用序号/结果状态、数据集 ID、最终回答、产物相对路径/哈希、耗时、请求数和可得用量。不会复制完整私有会话日志、思考内容、Provider 地址、密钥或联系邮箱；模型仅记录脱敏别名。Pi 会话本身不持久化。公开 SEC 原始响应保存于独立任务目录，历史工作区不变。脱敏可能遮蔽意外出现的私有信息，人工复核据此留意局限。
+
+执行在每个请求、工具结果与模型结束边界原子保存脱敏 `checkpoint.json`，包含必要轨迹和预算；HTTP 只记录数字状态。中断恢复不会伪造丢失的工具调用、回答或真实用量，没有完成记录的执行记为失败/未执行。未知消耗按已配置最大值预留到后续批次，预留额不是实际用量或费用估计。`knownUsage` 单独保留已知的部分用量，整项总用量缺失仍为 unavailable。修复续跑必须明确 `--carry-from`，不会隐式清空预算。
 
 默认整轮最多 24 次模型调用、18,000 输出 token，每项最多 4 次请求，每次最多 1,600 输出 token。请求发出前预留本次上限，已知正常用量释放差额，错误/未知用量保留预留额。检查实际 Anthropic payload 的 `max_tokens`，禁用额外 reasoning 和 SDK 重试；预算不足直接阻止新增调用并标记未执行项。每项总超时五分钟，单请求超时两分钟。请求数是 Pi stream 边界的请求尝试，包含失败；不是底层 TCP 次数或收费账单。上游是否兑现 token 上限仍无法由客户端强制保证，未知用量标 `unavailable`，不估算费用。
 

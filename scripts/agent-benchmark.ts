@@ -2,6 +2,7 @@ import '../src/load-env.js';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
+import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
 import { RequestBudget } from '../container/agent-runner/src/benchmark/budget.js';
@@ -58,7 +59,7 @@ async function main() {
     );
     return;
   }
-  if (!['run', 'score', 'summarize', 'list'].includes(command))
+  if (!['run', 'score', 'summarize', 'list', 'recover'].includes(command))
     throw new Error(
       'Use list | run --live [--task=id] [--batch=id] | score --batch=id [--task=id] | summarize --batch=id | audit --research=directory',
     );
@@ -81,6 +82,10 @@ async function main() {
     throw new Error('Safe --batch ID required');
   const batchDir = path.join(root, 'data/agent-benchmark', batch);
   const selected = value('task');
+  const selectedIds =
+    value('tasks')?.split(',') ?? (selected ? [selected] : undefined);
+  if (selectedIds?.some((id) => !taskSet.tasks.some((t) => t.id === id)))
+    throw new Error('Unknown task ID');
   if (selected && !taskSet.tasks.some((t) => t.id === selected))
     throw new Error('Unknown task ID');
   if (command === 'run') {
@@ -106,7 +111,23 @@ async function main() {
       );
     const { executeTask, redact } =
       await import('../container/agent-runner/src/benchmark/run.js');
-    const budget = new RequestBudget();
+    const carryFrom = value('carry-from');
+    let reservation = { requests: 0, output: 0 };
+    if (carryFrom) {
+      if (!/^[a-zA-Z0-9-]+$/.test(carryFrom) || carryFrom === batch)
+        throw new Error('Safe carry-from ID required');
+      const previous = JSON.parse(
+        await fs.readFile(
+          path.join(root, 'data/agent-benchmark', carryFrom, 'budget.json'),
+          'utf8',
+        ),
+      );
+      reservation = {
+        requests: previous.chargedRequests ?? previous.requests,
+        output: previous.chargedOutputTokens,
+      };
+    }
+    const budget = new RequestBudget(24, 18000, 1600, reservation);
     const metadata = {
       schemaVersion: 1,
       batch,
@@ -136,6 +157,7 @@ async function main() {
       },
       entry: 'pi_runtime_adapter',
       workbenchValidated: false,
+      ...(carryFrom ? { carryFrom, priorReservation: reservation } : {}),
     };
     await fs.writeFile(
       path.join(batchDir, 'metadata.json'),
@@ -146,7 +168,7 @@ async function main() {
     for (const task of taskSet.tasks as Task[]) {
       const directory = path.join(batchDir, task.id);
       let trace: Trace;
-      if (selected && task.id !== selected) {
+      if (selectedIds && !selectedIds.includes(task.id)) {
         await fs.mkdir(directory);
         trace = {
           version: 1,
@@ -205,7 +227,9 @@ async function main() {
       path.join(batchDir, 'budget.json'),
       JSON.stringify(
         {
-          requests: budget.requests,
+          requests: budget.requests - reservation.requests,
+          chargedRequests: budget.requests,
+          priorReservation: reservation,
           knownOutputTokens: budget.output,
           chargedOutputTokens: budget.chargedOutput,
           usageUnavailable: budget.unavailable,
@@ -225,6 +249,97 @@ async function main() {
   );
   if (hash(frozenBytes) !== metadata.taskSetSha256)
     throw new Error('Task set hash mismatch');
+  if (command === 'recover') {
+    let chargedRequests = 0,
+      chargedOutputTokens = 0;
+    for (const task of frozen.tasks as Task[]) {
+      const dir = path.join(batchDir, task.id),
+        file = path.join(dir, 'trace.json');
+      await fs.mkdir(dir, { recursive: true });
+      let trace: Trace | undefined;
+      try {
+        trace = JSON.parse(await fs.readFile(file, 'utf8'));
+      } catch {}
+      if (!trace) {
+        let checkpoint: any;
+        try {
+          checkpoint = JSON.parse(
+            await fs.readFile(path.join(dir, 'checkpoint.json'), 'utf8'),
+          );
+        } catch {}
+        const research = path.join(dir, 'workspace', 'financial-research');
+        const ids = await fs.readdir(research).catch(() => []);
+        trace = checkpoint?.trace ?? {
+          version: 1,
+          task,
+          taskSetVersion: frozen.version,
+          taskSetSha256: metadata.taskSetSha256,
+          inputSha256: 'unavailable',
+          prompt: 'unavailable',
+          sessionId: 'unavailable',
+          entry: 'pi_runtime_adapter',
+          modelAlias: 'configured-model-1',
+          status: ids.length ? 'executed' : 'not_executed',
+          reason: ids.length
+            ? 'execution_trace_unavailable'
+            : 'no_execution_record',
+          tools: [],
+          finalAnswer: '',
+          stopReason: 'error',
+          elapsedMs: 'unavailable',
+          modelRequests: ids.length ? 'unavailable' : 0,
+          usage: {
+            input: 'unavailable',
+            output: 'unavailable',
+            cacheRead: 'unavailable',
+            cacheWrite: 'unavailable',
+            cost: 'unavailable',
+          },
+          artifacts: [],
+          datasetIds: [],
+        };
+        if (checkpoint) {
+          trace!.stopReason = 'error';
+          trace!.reason = 'interrupted_execution_recovered';
+        }
+        await fs.writeFile(file, JSON.stringify(trace, null, 2) + '\n', {
+          flag: 'wx',
+        });
+      }
+      if (trace!.status === 'executed') {
+        const count =
+          typeof trace!.modelRequests === 'number'
+            ? trace!.modelRequests
+            : metadata.budget.perTaskRequests;
+        chargedRequests += count;
+        chargedOutputTokens +=
+          typeof trace!.usage.output === 'number'
+            ? trace!.usage.output
+            : count * metadata.budget.perRequestTokens;
+      }
+    }
+    const recovery = {
+      requests: 'unavailable',
+      chargedRequests,
+      chargedOutputTokens,
+      usageUnavailable: true,
+      reason:
+        'Conservative upper-bound reservation, not estimated actual usage; original traces untouched.',
+      cost: 'unavailable',
+    };
+    // Recovery is explicit and cannot overwrite an existing budget ledger.
+    await fs.writeFile(
+      path.join(batchDir, 'budget.json'),
+      JSON.stringify(recovery, null, 2) + '\n',
+      { flag: 'wx' },
+    );
+    await fs.writeFile(
+      path.join(batchDir, 'recovery.json'),
+      JSON.stringify({ at: new Date().toISOString(), ...recovery }, null, 2) +
+        '\n',
+      { flag: 'wx' },
+    );
+  }
   const traces: Trace[] = [];
   for (const task of frozen.tasks.filter(
     (t) => command !== 'score' || !selected || t.id === selected,
@@ -235,8 +350,8 @@ async function main() {
         'utf8',
       ),
     ) as Trace;
+    assert.deepEqual(trace.task, task, 'Trace task contract mismatch');
     if (
-      JSON.stringify(trace.task) !== JSON.stringify(task) ||
       trace.taskSetSha256 !== metadata.taskSetSha256 ||
       trace.taskSetVersion !== frozen.version
     )
