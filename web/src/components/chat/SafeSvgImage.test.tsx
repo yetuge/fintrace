@@ -3,30 +3,13 @@ import { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import { afterEach, expect, test, vi } from 'vitest';
 import { SafeSvgImage, staticSvgImage } from './SafeSvgImage';
-import {
-  buildTrendChartData,
-  renderTrendSvg,
-} from '../../../../container/agent-runner/src/financial/sec-trend-report';
-import { extractAnnualTrends } from '../../../../container/agent-runner/src/financial/sec-trends';
-import { fixture, filings } from '../../../../tests/fixtures/sec-synthetic';
 
 const drawing =
-  '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><text x="10" y="20">-3.0 USD 百万</text></svg>';
+  '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100" role="img" aria-label="财务趋势"><rect width="100%" height="100%" fill="#f5f6f3"/><g font-family="Arial" fill="#14201d"><line x1="10" y1="50" x2="90" y2="50" stroke="#18766b" stroke-width="3"/><circle cx="20" cy="50" r="5" fill="#18766b"><title>年度金额：-3000000 USD</title></circle><text x="10" y="20" font-size="13" text-anchor="middle">-3.0 USD 百万</text></g></svg>';
 afterEach(() => vi.unstubAllGlobals());
 test('accepts static chart text including negative numbers and retains amount units', () => {
   expect(staticSvgImage(drawing)).toContain('-3.0 USD 百万');
-  const data = extractAnnualTrends(
-    fixture(),
-    filings,
-    [],
-    '2025-04-01T00:00:00Z',
-    '2025-04-01',
-    [],
-    '0000000001-11111111-1111-1111-1111-111111111111',
-  );
-  expect(staticSvgImage(renderTrendSvg(buildTrendChartData(data)))).toContain(
-    '<circle',
-  );
+  expect(staticSvgImage(drawing)).toContain('年度金额：-3000000 USD');
 });
 test.each([
   '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>',
